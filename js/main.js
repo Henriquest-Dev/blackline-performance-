@@ -9,6 +9,7 @@
   /* ---------- Nav: fundo ao rolar, esconde ao descer, menu mobile ---------- */
   const nav = $('.nav');
   const burger = $('.nav__burger');
+  const menu = $('#menu');
   let lastY = 0;
   const onScroll = () => {
     const y = window.scrollY;
@@ -18,14 +19,27 @@
   };
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
-  burger.addEventListener('click', () => {
-    const open = nav.classList.toggle('is-open');
+
+  const setMenu = (open) => {
+    nav.classList.toggle('is-open', open);
+    menu.classList.toggle('is-open', open);
+    menu.setAttribute('aria-hidden', !open);
     burger.setAttribute('aria-expanded', open);
-  });
-  $$('.nav__links a').forEach(a => a.addEventListener('click', () => {
-    nav.classList.remove('is-open');
-    burger.setAttribute('aria-expanded', false);
-  }));
+    burger.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    document.documentElement.classList.toggle('is-locked', open);
+    document.dispatchEvent(new CustomEvent(open ? 'menu:open' : 'menu:close'));
+    if (open && window.gsap && !reduced) {
+      gsap.fromTo(menu, { clipPath: 'polygon(100% 0, 100% 0, 80% 100%, 100% 100%)' },
+        { clipPath: 'polygon(0 0, 100% 0, 100% 100%, -20% 100%)', duration: .7, ease: 'expo.inOut' });
+      gsap.fromTo('.menu__links a', { y: 60, opacity: 0 }, { y: 0, opacity: 1, stagger: .06, duration: .7, ease: 'expo.out', delay: .25 });
+      gsap.fromTo('.menu__foot > *, .menu__mark', { y: 30, opacity: 0 }, { y: 0, opacity: (i, el) => el.classList.contains('menu__mark') ? .12 : 1, stagger: .08, duration: .7, ease: 'expo.out', delay: .45 });
+    }
+  };
+  burger.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
+  $$('a', menu).forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('is-open')) setMenu(false); });
+  document.addEventListener('booking:open', () => menu.classList.contains('is-open') && setMenu(false));
+  matchMedia('(min-width: 861px)').addEventListener('change', e => e.matches && setMenu(false));
 
   /* ---------- Filtros dos serviços ---------- */
   const cards = $$('.gallery .card');
@@ -60,6 +74,7 @@
   /* Sem GSAP (CDN bloqueado) ou movimento reduzido: conteúdo estático visível */
   if (!window.gsap || !window.ScrollTrigger || reduced) {
     counters.forEach(runCount);
+    $$('.process__steps li').forEach(li => li.classList.add('is-lit'));
     return;
   }
 
@@ -71,13 +86,15 @@
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(t => lenis.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
+    ['booking:open', 'menu:open'].forEach(ev => document.addEventListener(ev, () => lenis.stop()));
+    ['booking:close', 'menu:close'].forEach(ev => document.addEventListener(ev, () => lenis.start()));
     $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
       const id = a.getAttribute('href');
-      if (id.length < 2) return;
+      if (id.length < 2 || a.hasAttribute('data-book')) return;
       const target = $(id);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(id === '#top' ? 0 : target, { offset: -70 });
+      setTimeout(() => lenis.scrollTo(id === '#top' ? 0 : target, { offset: -70 }), a.closest('.menu') ? 120 : 0);
     }));
   }
 
@@ -137,10 +154,36 @@
       .fromTo('.phone--front', { y: 380, rotate: 0, xPercent: -40 }, { y: 0, rotate: 6, xPercent: 0, ease: 'power2.out' }, 0)
       .fromTo('.phone--back', { y: 520, rotate: 0, x: 140, opacity: 0 }, { y: 0, rotate: -12, x: 0, opacity: 1, ease: 'power2.out' }, .12)
       .from('.app__copy > *', { x: 80, opacity: 0, stagger: .06, ease: 'power2.out' }, .35)
-      .from('.ph-steps li', { x: -20, opacity: 0, stagger: .05 }, .55);
-    gsap.from('.brands__track span', {
-      y: 30, opacity: 0, stagger: .04, duration: .8, ease: 'power3.out',
-      scrollTrigger: { trigger: '.brands', start: 'top 92%' },
+      .from('.phone .ph-steps li', { x: -20, opacity: 0, stagger: .05 }, .55);
+    gsap.from('.brands__inner', {
+      y: 30, opacity: 0, duration: .9, ease: 'power3.out',
+      scrollTrigger: { trigger: '.brands', start: 'top 95%' },
+    });
+
+    /* Botões magnéticos */
+    $$('.btn--red, .btn--light, .nav__cta, .hero__bar .btn, .brands__arrow').forEach(el => {
+      const xTo = gsap.quickTo(el, 'x', { duration: .5, ease: 'power3' });
+      const yTo = gsap.quickTo(el, 'y', { duration: .5, ease: 'power3' });
+      el.addEventListener('mousemove', e => {
+        const r = el.getBoundingClientRect();
+        xTo((e.clientX - r.left - r.width / 2) * .25);
+        yTo((e.clientY - r.top - r.height / 2) * .35);
+      });
+      el.addEventListener('mouseleave', () => { xTo(0); yTo(0); });
+    });
+
+    /* Como funciona: a linha vermelha avança e acende cada etapa */
+    const steps = $$('.process__steps li');
+    gsap.fromTo('.process__fill', { scaleX: 0 }, {
+      scaleX: 1, ease: 'none',
+      scrollTrigger: {
+        trigger: '.process', start: 'top 55%', end: 'bottom 75%', scrub: .6,
+        onUpdate: self => steps.forEach((li, i) => li.classList.toggle('is-lit', self.progress >= i / steps.length + .02)),
+      },
+    });
+    gsap.from('.process__steps li', {
+      y: 70, opacity: 0, stagger: .12, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: '.process__steps', start: 'top 85%' },
     });
 
     /* 4) Cartões das features em "escada" ligados ao scroll */
@@ -167,6 +210,10 @@
     gsap.from('.app__copy > *', { y: 40, opacity: 0, stagger: .08, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: '.app__copy', start: 'top 85%' } });
     gsap.utils.toArray('.feat').forEach(f => gsap.from(f, { y: 60, opacity: 0, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: f, start: 'top 90%' } }));
     gsap.from('.cta__card', { scale: .92, y: 40, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.cta', start: 'top 85%' } });
+    $$('.process__steps li').forEach(li => gsap.from(li, {
+      x: 40, opacity: 0, duration: .8, ease: 'power3.out',
+      scrollTrigger: { trigger: li, start: 'top 85%', onEnter: () => li.classList.add('is-lit') },
+    }));
   });
 
   /* 3) Serviços: título sobe, galeria aparece em cascata */
@@ -187,6 +234,10 @@
   gsap.from('.features__head > div:first-child > *', {
     y: 40, opacity: 0, stagger: .08, duration: 1, ease: 'power3.out',
     scrollTrigger: { trigger: '.features', start: 'top 75%' },
+  });
+  gsap.from('.process__head > *, .process__cta', {
+    y: 40, opacity: 0, stagger: .08, duration: 1, ease: 'power3.out',
+    scrollTrigger: { trigger: '.process', start: 'top 75%' },
   });
   ScrollTrigger.create({ trigger: '.stats', start: 'top 85%', once: true, onEnter: () => counters.forEach(runCount) });
 
