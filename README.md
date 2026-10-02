@@ -33,18 +33,20 @@ assets/img/gallery/        fotos de exemplo dos serviços (Unsplash)
 
 Sem GSAP (CDN bloqueado) ou com `prefers-reduced-motion`, todo o conteúdo fica visível sem animações.
 
-## Agendamento online
+## Marcação de serviço
 
-Qualquer botão "Agendar" (ou o link `#agendar`) abre a experiência de agendamento, com o visual do mockup:
+Qualquer botão "Marcar" (ou o link `#agendar`) abre a página de marcação, em 5 etapas com resumo do pedido sempre visível:
 
-1. **Serviço** — escolha múltipla, com preço estimado e duração
-2. **Viatura** — marca, modelo, ano e matrícula (cartão com pré-visualização)
-3. **Data & hora** — próximos 14 dias (domingo fechado, sábado até 12h), horários ocupados, recolha ao domicílio
-4. **Dados** — nome, telefone (+258), email e observações
-5. **Resumo** — "bilhete" com tudo e a estimativa total
+1. **Serviços** — agrupados por categoria, com duração e preço indicativo
+2. **Viatura** — marca, modelo, ano, quilometragem, combustível e matrícula
+3. **Data e hora** — calendário mensal (domingo fechado, sábado só manhã) e horários de manhã/tarde
+4. **Contacto** — nome, apelido, telemóvel (+258, validado), email, preferência de contacto e descrição do problema
+5. **Confirmação** — revisão de tudo, com "Alterar" em cada secção
 
-No fim gera um código `BLP-XXXX` e permite **enviar a marcação no WhatsApp** (mensagem já preenchida)
-ou **adicionar ao calendário** (.ics). Os preços em `js/booking.js` (`SERVICES`) são de exemplo.
+Ao enviar, gera uma referência `BLP-…` e permite enviar o pedido pelo WhatsApp (mensagem preenchida) ou
+adicioná-lo ao calendário (.ics). Os preços estão em `js/booking.js` (`GROUPS`) e são de exemplo.
+
+Ver também [`docs/sinais-de-ia.md`](docs/sinais-de-ia.md) — o que foi retirado para o site não parecer gerado por IA.
 
 ## Correr localmente
 

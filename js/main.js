@@ -109,15 +109,8 @@
     .from('.hero__car', { x: () => innerWidth * .45, opacity: 0, duration: 1.6, ease: 'power4.out' }, '-=1.2')
     .from('.hero__bar', { yPercent: 100, duration: 1 }, '-=1.1')
     .from('.hero__social > *', { opacity: 0, x: -14, stagger: .06, duration: .6 }, '-=.8')
-    .from('.hero__badge', { opacity: 0, y: 24, scale: .9, duration: .8 }, '-=.7')
-    .from('.hero__dots > *', { scale: 0, opacity: 0, stagger: .05, duration: .6, ease: 'back.out(3)' }, '-=.7')
     .from('.nav__inner > *', { y: -20, opacity: 0, stagger: .06, duration: .7 }, '-=1');
 
-  // pontos a flutuar
-  $$('.hero__dots i').forEach((d, i) => gsap.to(d, {
-    y: gsap.utils.random(-16, 16), x: gsap.utils.random(-10, 10),
-    duration: gsap.utils.random(2.4, 4), repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * .2,
-  }));
 
   const mm = gsap.matchMedia();
 
@@ -127,11 +120,9 @@
     const carX = gsap.quickTo('.hero__car img', 'x', { duration: 1, ease: 'power3' });
     const carY = gsap.quickTo('.hero__car img', 'y', { duration: 1, ease: 'power3' });
     const ghostX = gsap.quickTo('.hero__ghost', 'x', { duration: 1.4, ease: 'power3' });
-    const dotsX = gsap.quickTo('.hero__dots', 'x', { duration: 1.2, ease: 'power3' });
-    const dotsY = gsap.quickTo('.hero__dots', 'y', { duration: 1.2, ease: 'power3' });
     const move = (e) => {
       const nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
-      carX(nx * -24); carY(ny * -10); ghostX(nx * 40); dotsX(nx * 30); dotsY(ny * 20);
+      carX(nx * -24); carY(ny * -10); ghostX(nx * 40);
     };
     hero.addEventListener('mousemove', move);
 
@@ -143,9 +134,8 @@
       .to('.hero__ghost', { xPercent: -25, ease: 'none' }, 0)
       .to('.hero__car', { xPercent: 60, scale: 1.08, ease: 'power1.in' }, 0)
       .fromTo('.hero__bar', { yPercent: 0 }, { yPercent: 100, ease: 'none', immediateRender: false }, 0)
-      .fromTo('.hero__social, .hero__badge, .hero__scroll', { autoAlpha: 1 }, { autoAlpha: 0, ease: 'none', immediateRender: false }, 0)
-      .to('.hero__dark', { width: '100%', ease: 'none' }, .15)
-      .to('.hero__dots', { yPercent: -40, opacity: 0, ease: 'none' }, 0);
+      .fromTo('.hero__social', { autoAlpha: 1 }, { autoAlpha: 0, ease: 'none', immediateRender: false }, 0)
+      .to('.hero__dark', { width: '100%', ease: 'none' }, .15);
 
     /* 2) Telemóveis entram e "assentam" como no vídeo */
     gsap.timeline({
@@ -158,18 +148,6 @@
     gsap.from('.brands__inner', {
       y: 30, opacity: 0, duration: .9, ease: 'power3.out',
       scrollTrigger: { trigger: '.brands', start: 'top 95%' },
-    });
-
-    /* Botões magnéticos */
-    $$('.btn--red, .btn--light, .nav__cta, .hero__bar .btn, .brands__arrow').forEach(el => {
-      const xTo = gsap.quickTo(el, 'x', { duration: .5, ease: 'power3' });
-      const yTo = gsap.quickTo(el, 'y', { duration: .5, ease: 'power3' });
-      el.addEventListener('mousemove', e => {
-        const r = el.getBoundingClientRect();
-        xTo((e.clientX - r.left - r.width / 2) * .25);
-        yTo((e.clientY - r.top - r.height / 2) * .35);
-      });
-      el.addEventListener('mouseleave', () => { xTo(0); yTo(0); });
     });
 
     /* Como funciona: a linha vermelha avança e acende cada etapa */
