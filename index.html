@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blackline Performance — Excelência em Serviços Automóveis</title>
+  <meta name="description" content="Blackline Performance: mecânica geral, eletricidade auto, bate-chapa & pintura, detailing, ceramic coating, tuning e lavagem. Atendimento profissional & personalizado. Agende já uma revisão.">
+  <meta name="theme-color" content="#E11D2A">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Logo vetorizado (reutilizado em todo o site) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="bl-mark" viewBox="30 125 505 425"><path d="M48 140H440V213H166L324 510Q326 526 306 525Q262 524 248 498L44 152Q40 140 48 140Z"/><path d="M400 140H430C482 140 519 180 519 248C519 286 508 310 493 326C504 346 506 380 505 420C504 478 470 522 418 522H368Q360 522 355 512L311 442H398A44 44 0 0 0 398 354H380C316 352 258 318 212 271H413A29 29 0 0 0 413 213H400Z"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(-46 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(-26 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(-6 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(14 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(34 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(54 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(74 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(94 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(114 420 428)"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3Z" fill="currentColor"/></symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <!-- NAV -->
+  <header class="nav" id="top">
+    <div class="container nav__inner">
+      <a href="#top" class="brand" aria-label="Blackline Performance — início">
+        <span class="brand__badge"><svg><use href="#bl-mark"/></svg></span>
+        <span class="brand__text"><strong>blackline</strong><small>PERFORMANCE</small></span>
+      </a>
+      <nav class="nav__links" aria-label="Principal">
+        <a href="#sobre">Sobre</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#porque">Porquê nós</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <a class="nav__cta" href="https://wa.me/258860424242?text=Ol%C3%A1%20Blackline%2C%20gostaria%20de%20agendar%20uma%20revis%C3%A3o." target="_blank" rel="noopener">
+        <svg class="ico"><use href="#i-wa"/></svg> Agendar
+      </a>
+      <button class="nav__burger" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero__dark">
+        <div class="hero__ghost" aria-hidden="true"><span>BLACKLINE</span><span>PERFORMANCE</span></div>
+        <div class="hero__copy">
+          <p class="eyebrow"><span class="eyebrow__dot"></span>BLP · Driven by Excellence</p>
+          <h1 class="hero__title">
+            <span class="line"><span><em>Excelência</em> em</span></span>
+            <span class="line"><span>Serviços</span></span>
+            <span class="line"><span>Automóveis</span></span>
+          </h1>
+          <p class="hero__lead">Mecânica, eletricidade, bate-chapa, detailing e performance — tudo num só lugar, com o rigor que a sua viatura merece.</p>
+        </div>
+        <aside class="hero__social" aria-label="Redes sociais">
+          <a href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
+          <a href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
+          <span class="hero__social-line"></span>
+          <span class="hero__social-label">Siga-nos</span>
+        </aside>
+      </div>
+
+      <div class="hero__light" aria-hidden="true">
+        <div class="hero__speed"></div>
+        <div class="hero__dots">
+          <i style="--x:22%;--y:24%"></i><i style="--x:44%;--y:16%"></i><i style="--x:70%;--y:28%"></i>
+          <i style="--x:86%;--y:20%"></i><i style="--x:58%;--y:40%"></i>
+          <span class="hero__cursor" style="--x:52%;--y:26%"></span>
+        </div>
+        <div class="hero__badge"><b>4.9</b><span>★★★★★</span><small>Avaliação dos clientes</small></div>
+      </div>
+
+      <div class="hero__car">
+        <img src="assets/img/bmw-m5.png" alt="BMW M5 preto preparado pela Blackline Performance" width="1358" height="619" fetchpriority="high">
+      </div>
+
+      <div class="hero__bar">
+        <p>Atendimento profissional &amp; personalizado.<br><strong>Agende já uma revisão!</strong></p>
+        <a class="btn btn--light btn--sm" href="#contacto">Agendar agora <svg class="ico ico--arrow"><use href="#i-arrow"/></svg></a>
+      </div>
+
+      <a href="#marcas" class="hero__scroll" aria-label="Descer"><span></span></a>
+    </section>
+
+    <!-- MARCAS -->
+    <section class="brands" id="marcas" aria-label="Marcas que assistimos">
+      <div class="container brands__inner">
+        <div class="brands__track">
+          <span>TOYOTA</span><span>BMW</span><span>MERCEDES-BENZ</span><span>LAND ROVER</span><span>VOLKSWAGEN</span><span>FORD</span><span>NISSAN</span><span>HYUNDAI</span><span>AUDI</span><span>MITSUBISHI</span>
+        </div>
+        <a href="#servicos" class="brands__arrow" aria-label="Ver serviços"><svg class="ico ico--arrow"><use href="#i-arrow"/></svg></a>
+      </div>
+    </section>
+
+    <!-- APP / ACOMPANHAMENTO -->
+    <section class="app" id="sobre">
+      <div class="container app__grid">
+        <div class="app__phones">
+          <!-- Telemóvel de trás: estado da viatura -->
+          <div class="phone phone--back">
+            <div class="phone__screen">
+              <div class="ph-top"><span>09:41</span><span class="ph-icons">▮▮▮</span></div>
+              <div class="ph-head"><span class="ph-back">‹</span><b>Estado da viatura</b></div>
+              <div class="ph-car"><img src="assets/img/bmw-m5.png" alt=""><span class="plate">AFG 247 MC</span></div>
+              <ul class="ph-steps">
+                <li class="done"><i></i><div><b>Viatura recebida</b><small>08:15 · Check-in</small></div></li>
+                <li class="done"><i></i><div><b>Diagnóstico</b><small>09:02 · Computorizado</small></div></li>
+                <li class="active"><i></i><div><b>Em reparação</b><small>Troca de pastilhas &amp; discos</small></div></li>
+                <li><i></i><div><b>Lavagem &amp; detailing</b><small>Previsto 15:30</small></div></li>
+                <li><i></i><div><b>Pronta a levantar</b><small>Previsto 17:30</small></div></li>
+              </ul>
+              <div class="ph-eta"><span>Entrega estimada</span><b>17:30</b></div>
+            </div>
+          </div>
+          <!-- Telemóvel da frente: agendamento -->
+          <div class="phone phone--front">
+            <div class="phone__screen">
+              <div class="ph-top"><span>09:41</span><span class="ph-icons">▮▮▮</span></div>
+              <div class="ph-brand"><svg><use href="#bl-mark"/></svg><b>Agendar serviço</b></div>
+              <div class="ph-hero">
+                <small>A sua viatura</small>
+                <b>BMW M5 Competition</b>
+                <img src="assets/img/bmw-m5.png" alt="">
+              </div>
+              <div class="ph-label">Serviço</div>
+              <div class="ph-chips"><span class="on">Revisão</span><span>Detailing</span><span>Tuning</span><span>Pintura</span></div>
+              <div class="ph-label">Data</div>
+              <div class="ph-days">
+                <span><small>Seg</small>12</span><span class="on"><small>Ter</small>13</span><span><small>Qua</small>14</span><span><small>Qui</small>15</span>
+              </div>
+              <div class="ph-slots"><span>08:00</span><span class="on">10:30</span><span>14:00</span></div>
+              <div class="ph-cta">Confirmar marcação</div>
+            </div>
+          </div>
+        </div>
+        <div class="app__copy">
+          <p class="eyebrow eyebrow--muted">Transparência total</p>
+          <h2 class="h2">Acompanhe a sua viatura</h2>
+          <p class="lead">Marque a sua revisão em segundos e receba atualizações em cada etapa: receção, diagnóstico, reparação, lavagem e entrega. Sem surpresas — fotos, orçamento e aprovação diretamente no seu WhatsApp.</p>
+          <ul class="ticks">
+            <li>Orçamento aprovado antes de qualquer intervenção</li>
+            <li>Fotos e vídeo do antes &amp; depois</li>
+            <li>Lembrete automático da próxima revisão</li>
+          </ul>
+          <a class="btn btn--dark" href="https://wa.me/258860424242" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> Falar no WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVIÇOS / GALERIA -->
+    <section class="services" id="servicos">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow eyebrow--muted center">O que fazemos</p>
+          <h2 class="h2">Os Nossos Serviços</h2>
+          <p class="lead center">Da manutenção do dia a dia à preparação de alta performance. Cada viatura tratada como se fosse a nossa.</p>
+          <div class="filters" role="tablist" aria-label="Filtrar serviços">
+            <button class="filter is-active" data-filter="all">Todos</button>
+            <button class="filter" data-filter="mecanica">Mecânica</button>
+            <button class="filter" data-filter="eletricidade">Eletricidade</button>
+            <button class="filter" data-filter="pintura">Bate-Chapa &amp; Pintura</button>
+            <button class="filter" data-filter="detailing">Detailing</button>
+            <button class="filter" data-filter="tuning">Tuning</button>
+            <button class="filter" data-filter="lavagem">Lavagem</button>
+          </div>
+        </header>
+
+        <div class="gallery">
+          <article class="card card--lg" data-cat="tuning">
+            <img src="assets/img/gallery/tuning-1.jpg" alt="Desportivo preparado em garagem" loading="lazy">
+            <div class="card__meta"><span class="tag">Tuning</span><h3>Remap &amp; escape desportivo</h3><p>+38 cv · Chevrolet Camaro ZL1</p></div>
+          </article>
+          <article class="card card--lg" data-cat="detailing">
+            <img src="assets/img/gallery/detailing.jpg" alt="Lavagem manual detalhada de viatura preta" loading="lazy">
+            <div class="card__meta"><span class="tag">Detailing</span><h3>Ceramic Coating 9H</h3><p>Proteção até 3 anos</p></div>
+          </article>
+          <article class="card card--lg" data-cat="pintura">
+            <img src="assets/img/gallery/mclaren.jpg" alt="Superdesportivo branco com pintura perfeita" loading="lazy">
+            <div class="card__meta"><span class="tag">Pintura</span><h3>Correção de pintura</h3><p>Polimento em 3 fases</p></div>
+          </article>
+          <article class="card" data-cat="mecanica">
+            <img src="assets/img/gallery/mecanica-2.jpg" alt="Mecânico a trabalhar no motor" loading="lazy">
+            <div class="card__meta"><span class="tag">Mecânica</span><h3>Revisão completa</h3><p>Óleo, filtros &amp; travões</p></div>
+          </article>
+          <article class="card" data-cat="lavagem">
+            <img src="assets/img/gallery/lavagem.jpg" alt="Lavagem de viatura com espuma" loading="lazy">
+            <div class="card__meta"><span class="tag">Lavagem</span><h3>Lavagem premium</h3><p>Interior &amp; exterior</p></div>
+          </article>
+          <article class="card" data-cat="eletricidade">
+            <img src="assets/img/gallery/eletricidade.jpg" alt="Técnico com ferramentas no compartimento do motor" loading="lazy">
+            <div class="card__meta"><span class="tag">Eletricidade</span><h3>Diagnóstico eletrónico</h3><p>Leitura OBD &amp; cablagens</p></div>
+          </article>
+          <article class="card" data-cat="tuning">
+            <img src="assets/img/gallery/bmw-m4.jpg" alt="BMW M4 ao pôr do sol" loading="lazy">
+            <div class="card__meta"><span class="tag">Tuning</span><h3>Stage 1 · BMW M4</h3><p>Performance &amp; personalização</p></div>
+          </article>
+          <article class="card" data-cat="mecanica">
+            <img src="assets/img/gallery/mecanica-1.jpg" alt="Troca de óleo do motor" loading="lazy">
+            <div class="card__meta"><span class="tag">Mecânica</span><h3>Mudança de óleo</h3><p>Em 45 minutos</p></div>
+          </article>
+          <article class="card" data-cat="pintura">
+            <img src="assets/img/gallery/amg.jpg" alt="Mercedes AMG preto" loading="lazy">
+            <div class="card__meta"><span class="tag">Bate-Chapa</span><h3>Reparação de chapa</h3><p>Acabamento de fábrica</p></div>
+          </article>
+          <article class="card" data-cat="eletricidade">
+            <img src="assets/img/gallery/oficina.jpg" alt="Parede de ferramentas da oficina" loading="lazy">
+            <div class="card__meta"><span class="tag">Eletricidade</span><h3>Smash &amp; Grab</h3><p>Película de segurança</p></div>
+          </article>
+          <article class="card" data-cat="detailing">
+            <img src="assets/img/gallery/porsche.jpg" alt="Porsche Panamera preto em estrada" loading="lazy">
+            <div class="card__meta"><span class="tag">Detailing</span><h3>Polimento &amp; vidros</h3><p>Brilho espelhado</p></div>
+          </article>
+        </div>
+
+        <a class="more" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener">Ver todos os trabalhos (120+) <svg class="ico"><use href="#i-arrow"/></svg></a>
+      </div>
+    </section>
+
+    <!-- PORQUÊ NÓS -->
+    <section class="features" id="porque">
+      <div class="container">
+        <div class="features__head">
+          <div>
+            <p class="eyebrow eyebrow--muted">BLP · Driven by Excellence</p>
+            <h2 class="h2">Porquê a Blackline</h2>
+            <p class="lead">Cuidamos de cada cliente e de cada detalhe. Por isso oferecemos o melhor serviço que pode imaginar.</p>
+          </div>
+          <div class="stats">
+            <div><b data-count="1200">0</b><span>+ viaturas tratadas</span></div>
+            <div><b data-count="98">0</b><span>% clientes satisfeitos</span></div>
+            <div><b data-count="6">0</b><span>meses de garantia</span></div>
+          </div>
+        </div>
+        <div class="feats">
+          <article class="feat">
+            <span class="feat__ico"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9M12 7v5l3 2M17 3h4v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <h3>Entrega no mesmo dia</h3>
+            <p>Revisões e serviços rápidos concluídos em horas, não dias.</p>
+          </article>
+          <article class="feat">
+            <span class="feat__ico"><svg viewBox="0 0 24 24"><path d="M3 12h3l2-5 4 10 2-5h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <h3>Diagnóstico computorizado</h3>
+            <p>Equipamento de última geração para todas as marcas.</p>
+          </article>
+          <article class="feat">
+            <span class="feat__ico"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+            <h3>Peças de qualidade</h3>
+            <p>Peças originais e equivalentes certificadas, com fatura.</p>
+          </article>
+          <article class="feat">
+            <span class="feat__ico"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.8 7 9 4-1.2 7-4.5 7-9V6l-7-3Z M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <h3>Garantia &amp; confiança</h3>
+            <p>6 meses de garantia em mão de obra. A sua viatura em boas mãos.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="contacto">
+      <div class="container">
+        <div class="cta__card">
+          <div class="cta__pattern" aria-hidden="true"></div>
+          <svg class="cta__mark" aria-hidden="true"><use href="#bl-mark"/></svg>
+          <p class="eyebrow eyebrow--light center">Não deixe para amanhã</p>
+          <h2 class="cta__title">Agende já uma revisão!</h2>
+          <p class="cta__lead">Fale connosco e garanta a sua vaga esta semana. Resposta em menos de 15 minutos.</p>
+          <div class="cta__actions">
+            <a class="btn btn--light" href="https://wa.me/258860424242?text=Ol%C3%A1%20Blackline%2C%20gostaria%20de%20agendar%20uma%20revis%C3%A3o." target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> Agendar no WhatsApp</a>
+            <a class="btn btn--outline-light" href="tel:+258860424242"><svg class="ico"><use href="#i-phone"/></svg> +258 86 042 4242</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <a href="#top" class="brand brand--footer" aria-label="Blackline Performance">
+          <span class="brand__badge"><svg><use href="#bl-mark"/></svg></span>
+          <span class="brand__text"><strong>blackline</strong><small>PERFORMANCE</small></span>
+        </a>
+        <p>Excelência em serviços automóveis. Atendimento profissional &amp; personalizado.</p>
+        <div class="socials">
+          <a href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
+          <a href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
+          <a href="tel:+258860424242" aria-label="Telefone"><svg class="ico"><use href="#i-phone"/></svg></a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Navegação</h4>
+        <a href="#sobre">Sobre</a><a href="#servicos">Serviços</a><a href="#porque">Porquê nós</a><a href="#contacto">Contacto</a>
+      </div>
+      <div class="footer__col">
+        <h4>Serviços</h4>
+        <a href="#servicos">Mecânica Geral</a><a href="#servicos">Eletricidade Auto</a><a href="#servicos">Bate-Chapa &amp; Pintura</a><a href="#servicos">Detailing · Ceramic</a><a href="#servicos">Tuning</a>
+      </div>
+      <div class="footer__col footer__news">
+        <h4>Receba novidades</h4>
+        <p>Promoções e dicas de manutenção, 1× por mês.</p>
+        <form class="news" onsubmit="event.preventDefault(); this.classList.add('is-sent'); this.querySelector('input').value=''">
+          <input type="email" placeholder="O seu email" aria-label="Email" required>
+          <button aria-label="Subscrever"><svg class="ico"><use href="#i-arrow"/></svg></button>
+          <span class="news__ok">Obrigado! ✓</span>
+        </form>
+        <p class="footer__contact">+258 86 042 4242<br>@blp_autocare</p>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <span>© <span id="year">2026</span> Blackline Performance</span>
+      <span><a href="#">Termos</a><a href="#">Privacidade</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
