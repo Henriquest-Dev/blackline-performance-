@@ -31,8 +31,13 @@
     first: '', last: '', phone: '', email: '', pref: 'whatsapp', notes: '', consent: false, ref: '',
   };
 
-  const mt = n => n.toLocaleString('pt-PT').replace(/ | /g, ' ') + ' MT';
-  const priceLabel = s => s.price == null || s.price === '' ? t('bk.quote') : (s.from ? t('bk.from') + ' ' : '') + mt(Number(s.price));
+  const mt = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' MT';
+  const P = window.BLStore.pricing;
+  const deal = s => P.best(settings, s);
+  const finalPrice = s => { const d = deal(s); return d ? d.price : Number(s.price) || 0; };
+  const priceLabel = s => s.price == null || s.price === '' ? t('bk.quote') : (s.from ? t('bk.from') + ' ' : '') + mt(finalPrice(s));
+  const priceHTML = s => { const d = deal(s); return d ? `<s>${mt(d.was)}</s><span class="now">${(s.from ? t('bk.from') + ' ' : '') + mt(d.price)}</span>` : priceLabel(s); };
+  const promoTag = s => { const d = deal(s); return d ? `<span class="bk-promo-tag">${P.label(d.promo, mt)}</span>` : ''; };
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
   const dateLong = d => cap(d.toLocaleDateString(I.locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -54,9 +59,9 @@
           <label class="bk-svc">
             <input type="checkbox" value="${esc(s.id)}" ${state.services.has(s.id) ? 'checked' : ''}>
             <span class="bk-box" aria-hidden="true"></span>
-            <span class="bk-svc__main"><b>${esc(L(s.name))}</b><small>${esc(L(s.desc))}</small></span>
+            <span class="bk-svc__main"><b>${esc(L(s.name))}${promoTag(s)}</b><small>${esc(L(s.desc))}</small></span>
             <span class="bk-svc__dur">${esc(L(s.dur))}</span>
-            <span class="bk-svc__price">${priceLabel(s)}</span>
+            <span class="bk-svc__price">${priceHTML(s)}</span>
           </label>`).join('')}
       </div>`).join('');
   };
@@ -80,7 +85,7 @@
   const field = (sel, key, fmt = v => v.trim()) => {
     const el = $(sel);
     el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => {
-      if (key === 'km') { const d = el.value.replace(/\D/g, '').slice(0, 7); el.value = d ? (+d).toLocaleString('pt-PT').replace(/ | /g, ' ') : ''; }
+      if (key === 'km') { const d = el.value.replace(/\D/g, '').slice(0, 7); el.value = d ? d.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : ''; }
       if (key === 'plate' || key === 'chassis') { const p = el.selectionStart; el.value = el.value.toUpperCase(); el.setSelectionRange(p, p); }
       state[key] = fmt(el.value); clearErr(key); update();
     });
@@ -207,7 +212,7 @@
   /* ---------------- Resumo ---------------- */
   const totals = () => {
     const list = chosen();
-    const sum = list.reduce((a, s) => a + (Number(s.price) || 0), 0) + (state.drop === 'recolha' ? pickupFee() : 0);
+    const sum = list.reduce((a, s) => a + finalPrice(s), 0) + (state.drop === 'recolha' ? pickupFee() : 0);
     return { sum, quote: list.some(s => s.price == null || s.price === ''), from: list.some(s => s.from) };
   };
   const totalLabel = () => { const x = totals(); return (x.from ? t('bk.from') + ' ' : '') + mt(x.sum); };
@@ -291,6 +296,7 @@
       firstName: state.first, lastName: state.last, phone: state.phone, email: state.email, contactPref: state.pref,
       services: [...state.services], servicesLabel: chosen().map(s => s.name?.pt || L(s.name)).join(', '),
       total: (x.from ? 'desde ' : '') + mt(x.sum) + (x.quote ? ' + orçamento' : ''),
+      promo: [...new Set(chosen().map(deal).filter(Boolean).map(d => (d.promo.title?.pt || '') + ' (' + P.label(d.promo, mt) + ')'))].join('; '),
       brand: brandLabel() || 'Outra', model: state.model, year: state.year, km: state.km, fuel: state.fuel, plate: state.plate, chassis: state.chassis,
       date: isoDate(state.date), time: state.slot, dropoff: state.drop, notes: state.notes, lang: I.lang,
       website: $('#bk-website').value,
@@ -371,7 +377,7 @@
   const open = serviceId => {
     if (root.classList.contains('is-open')) return;
     if (state.step === 5) reset();
-    if (serviceId && SERVICES.some(s => s.id === serviceId)) state.services.add(serviceId);
+    String(serviceId || '').split(',').filter(id => SERVICES.some(s => s.id === id)).forEach(id => state.services.add(id));
     renderServices();
     lastFocus = document.activeElement;
     root.classList.add('is-open');

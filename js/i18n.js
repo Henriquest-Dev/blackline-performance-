@@ -36,6 +36,8 @@
       'proc.4t': 'Entrega', 'proc.4': 'Viatura lavada, testada e pronta — com 6 meses de garantia.',
       'foot.about': 'Excelência em serviços automóveis. Atendimento profissional e personalizado.', 'foot.nav': 'Navegação',
       'foot.s1': 'Mecânica geral', 'foot.s2': 'Eletricidade auto', 'foot.s4': 'Detailing e ceramic', 'foot.news': 'Novidades', 'foot.newsLead': 'Campanhas e lembretes de manutenção. Sem spam.',
+      'promo.title': 'Promoções', 'promo.lead': 'Condições especiais por tempo limitado. O desconto é aplicado automaticamente na marcação online.',
+      'promo.until': 'Válido até {d}', 'promo.from': 'De {a} a {b}', 'promo.cta': 'Marcar com desconto', 'promo.all': 'Todos os serviços com preço', 'promo.tag': 'Promoção', 'promo.price': 'Preço especial',
       'foot.email': 'O seu email', 'foot.thanks': 'Obrigado!', 'foot.terms': 'Termos', 'foot.privacy': 'Privacidade',
 
       // marcação
@@ -108,6 +110,8 @@
       'proc.4t': 'Handover', 'proc.4': 'Washed, tested and ready — with a 6-month warranty.',
       'foot.about': 'Automotive service excellence. Professional, personal service.', 'foot.nav': 'Navigation',
       'foot.s1': 'General mechanics', 'foot.s2': 'Auto electrical', 'foot.s4': 'Detailing and ceramic', 'foot.news': 'News', 'foot.newsLead': 'Offers and maintenance reminders. No spam.',
+      'promo.title': 'Offers', 'promo.lead': 'Special conditions for a limited time. The discount is applied automatically when you book online.',
+      'promo.until': 'Valid until {d}', 'promo.from': 'From {a} to {b}', 'promo.cta': 'Book with discount', 'promo.all': 'All priced services', 'promo.tag': 'Offer', 'promo.price': 'Special price',
       'foot.email': 'Your email', 'foot.thanks': 'Thank you!', 'foot.terms': 'Terms', 'foot.privacy': 'Privacy',
 
       'bk.name': 'Service booking', 'bk.t1': 'Services', 'bk.t2': 'Vehicle', 'bk.t3': 'Date and time', 'bk.t4': 'Contact', 'bk.t5': 'Review', 'bk.close': 'Close',

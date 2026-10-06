@@ -27,9 +27,27 @@ marca/modelo/ano, quilometragem, combustível, matrícula, **número de chassis*
 O cliente **já não é enviado para o WhatsApp**: o pedido fica gravado e a Blackline contacta-o.
 
 ### Serviços e preços
-Editar nome, descrição, duração e preço (PT e EN) de cada serviço, criar/apagar serviços e categorias,
-ativar/desativar sem apagar, marcar "desde". Preço vazio = "Sob orçamento". Também a taxa de recolha e
+Formulário próprio **Adicionar novo serviço** (nome, descrição, categoria — ou nova categoria —, duração, preço, "desde", ativo).
+Na lista: editar tudo (PT e EN), mudar de categoria, reordenar, ativar/desativar sem apagar, apagar, procurar. Preço vazio = "Sob orçamento". Também a taxa de recolha e
 o último horário de sábado. **Grava automaticamente** e o site passa a mostrar os novos valores.
+
+### Promoções
+Criar promoções com título e descrição (PT/EN), tipo de desconto (**percentagem**, **valor fixo em MT** ou **preço promocional**),
+serviços abrangidos (nenhum = todos os serviços com preço), data de início e fim, ativa/desativada e "mostrar no site".
+As promoções ativas aparecem na secção **Promoções** do site e o desconto é aplicado automaticamente na marcação
+(preço antigo riscado). Se um serviço tiver várias promoções, aplica-se a mais vantajosa. Estados: Ativa, Agendada, Terminada, Desativada.
+
+### Cotação em PDF
+No detalhe de uma marcação → **Preparar cotação PDF**. A cotação vem preenchida com os serviços pedidos (já com promoções);
+pode ajustar preços e quantidades, acrescentar **peças/material**, **mão de obra** ou outros serviços, desconto, IVA
+(incluído, acrescentado ou isento), validade e observações, em português ou inglês.
+
+- **Enviar PDF por WhatsApp**: no telemóvel (e em computadores com partilha de ficheiros) abre a lista de partilha — escolha
+  o WhatsApp e a conversa do cliente; o PDF segue anexado com a mensagem.
+  Nos outros computadores o PDF é descarregado e abre-se a conversa do cliente no WhatsApp com a mensagem escrita — basta arrastar o ficheiro.
+  (O WhatsApp não permite anexar ficheiros automaticamente a partir de um link.)
+- A cotação fica guardada na marcação e o estado passa a **Contactado**.
+- Os dados da empresa no PDF (NUIT, morada, IVA, validade, condições, dados bancários) editam-se em **Contactos e horário**.
 
 ### Contactos e horário
 Telefone, WhatsApp, Instagram, TikTok, email, horário, morada e meios de pagamento — aparecem em todo o site.

@@ -56,6 +56,7 @@
       <nav class="side__nav" aria-label="Painel">
         <button type="button" data-view="bookings" class="is-active">Marcações <span class="count" id="nav-count" hidden>0</span></button>
         <button type="button" data-view="services">Serviços e preços</button>
+        <button type="button" data-view="promos">Promoções <span class="count count--muted" id="nav-promos" hidden>0</span></button>
         <button type="button" data-view="contacts">Contactos e horário</button>
         <button type="button" data-view="account">Conta</button>
       </nav>
@@ -110,7 +111,27 @@
 
       <!-- Serviços -->
       <section class="view" id="v-services">
-        <p class="intro">Os preços e serviços são atualizados no site automaticamente ao editar. Deixe o preço vazio para "Sob orçamento". Desmarque <b>Ativo</b> para esconder um serviço sem o apagar.</p>
+        <p class="intro">Tudo o que aparece na marcação online vem daqui. As alterações são gravadas automaticamente e o site atualiza de imediato. Preço vazio = "Sob orçamento". Desmarque <b>Ativo</b> para esconder um serviço sem o apagar.</p>
+
+        <div class="card card--accent" id="new-svc">
+          <h2>Adicionar novo serviço</h2>
+          <form id="ns-form" novalidate>
+            <div class="grid4">
+              <label class="f f--span2"><span>Nome do serviço (português) *</span><input id="ns-name-pt" placeholder="Ex.: Alinhamento e equilíbrio"></label>
+              <label class="f f--span2"><span>Nome (inglês)</span><input id="ns-name-en" placeholder="Ex.: Wheel alignment and balancing"></label>
+              <label class="f f--span2"><span>Descrição (português)</span><input id="ns-desc-pt" placeholder="O que inclui"></label>
+              <label class="f f--span2"><span>Descrição (inglês)</span><input id="ns-desc-en"></label>
+              <label class="f"><span>Categoria *</span><select id="ns-group"></select></label>
+              <label class="f" id="ns-newgroup-wrap" hidden><span>Nome da nova categoria</span><input id="ns-newgroup" placeholder="Ex.: Pneus"></label>
+              <label class="f"><span>Duração</span><input id="ns-dur" placeholder="Ex.: 1 h"></label>
+              <label class="f"><span>Preço (MT)</span><input id="ns-price" type="number" min="0" step="50" placeholder="Vazio = orçamento"></label>
+              <label class="f f--check"><input type="checkbox" id="ns-from"><span>Preço "desde"</span></label>
+              <label class="f f--check"><input type="checkbox" id="ns-active" checked><span>Ativo no site</span></label>
+            </div>
+            <div class="row-actions"><button class="btn btn--red" type="submit">Adicionar serviço</button><span class="form-msg" id="ns-msg"></span></div>
+          </form>
+        </div>
+
         <div class="card">
           <h2>Opções da marcação</h2>
           <div class="grid3">
@@ -118,10 +139,56 @@
             <label class="f"><span>Sábado — último horário antes de</span><input type="time" data-bind="booking.satClose"></label>
           </div>
         </div>
+        <div class="svc-filter">
+          <input type="search" id="svc-search" placeholder="Procurar serviço…">
+          <span class="muted" id="svc-count"></span>
+        </div>
         <div id="groups"></div>
         <div class="row-actions">
           <button type="button" class="btn btn--ghost" id="add-group">+ Nova categoria</button>
           <button type="button" class="btn btn--ghost btn--danger-text" id="reset-services">Repor serviços e preços originais</button>
+        </div>
+      </section>
+
+      <!-- Promoções -->
+      <section class="view" id="v-promos">
+        <p class="intro">As promoções ativas aparecem no site (secção "Promoções") e o desconto é aplicado automaticamente aos serviços abrangidos na marcação online. Se um serviço tiver várias promoções, aplica-se a mais vantajosa para o cliente.</p>
+        <div class="card card--accent">
+          <h2 id="pf-title">Nova promoção</h2>
+          <form id="promo-form" novalidate>
+            <input type="hidden" id="pf-id">
+            <div class="grid4">
+              <label class="f f--span2"><span>Título (português) *</span><input id="pf-title-pt" placeholder="Ex.: Semana dos travões"></label>
+              <label class="f f--span2"><span>Título (inglês)</span><input id="pf-title-en" placeholder="Ex.: Brake week"></label>
+              <label class="f f--span2"><span>Descrição (português)</span><input id="pf-desc-pt" placeholder="Ex.: Pastilhas com 20% de desconto na mão de obra."></label>
+              <label class="f f--span2"><span>Descrição (inglês)</span><input id="pf-desc-en"></label>
+              <label class="f"><span>Tipo de desconto</span>
+                <select id="pf-type"><option value="percent">Percentagem (%)</option><option value="fixed">Valor fixo (MT a menos)</option><option value="price">Preço promocional (MT)</option></select></label>
+              <label class="f"><span id="pf-value-label">Desconto (%) *</span><input id="pf-value" type="number" min="0" step="1"></label>
+              <label class="f"><span>Início</span><input id="pf-start" type="date"></label>
+              <label class="f"><span>Fim</span><input id="pf-end" type="date"></label>
+            </div>
+            <div class="f">
+              <span class="f-label">Serviços abrangidos <em>(nenhum selecionado = todos os serviços com preço)</em></span>
+              <div class="svc-picker" id="pf-services"></div>
+            </div>
+            <div class="grid4">
+              <label class="f f--check"><input type="checkbox" id="pf-active" checked><span>Ativa</span></label>
+              <label class="f f--check"><input type="checkbox" id="pf-show" checked><span>Mostrar no site</span></label>
+            </div>
+            <div class="row-actions">
+              <button class="btn btn--red" type="submit" id="pf-submit">Criar promoção</button>
+              <button class="btn btn--ghost" type="button" id="pf-cancel" hidden>Cancelar edição</button>
+              <span class="form-msg" id="pf-msg"></span>
+            </div>
+          </form>
+        </div>
+        <div class="table-wrap">
+          <table class="tbl tbl--static" id="promo-table">
+            <thead><tr><th>Promoção</th><th>Desconto</th><th>Serviços</th><th>Período</th><th>Estado</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty" id="promo-empty" hidden><b>Sem promoções</b><p>Crie a primeira promoção no formulário acima.</p></div>
         </div>
       </section>
 
@@ -147,6 +214,21 @@
             <label class="f"><span>Morada — inglês</span><input data-bind="contacts.address.en"></label>
             <label class="f"><span>Pagamentos — português</span><input data-bind="contacts.payment.pt"></label>
             <label class="f"><span>Pagamentos — inglês</span><input data-bind="contacts.payment.en"></label>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Dados para as cotações em PDF</h2>
+          <div class="grid3">
+            <label class="f"><span>Nome legal da empresa</span><input data-bind="company.legalName"></label>
+            <label class="f"><span>NUIT</span><input data-bind="company.nuit" inputmode="numeric" placeholder="Ex.: 400123456"></label>
+            <label class="f"><span>Morada</span><input data-bind="company.address"></label>
+            <label class="f"><span>IVA (%)</span><input type="number" min="0" step="1" data-bind="company.vatRate"></label>
+            <label class="f"><span>Os preços já incluem IVA?</span><select data-bind="company.pricesIncludeVat" data-type="bool"><option value="true">Sim, incluem IVA</option><option value="false">Não, acrescentar IVA</option></select></label>
+            <label class="f"><span>Validade da cotação (dias)</span><input type="number" min="1" step="1" data-bind="company.quoteValidityDays"></label>
+          </div>
+          <div class="grid2" style="margin-top:16px">
+            <label class="f"><span>Condições (aparecem no fim da cotação)</span><textarea rows="3" data-bind="company.quoteTerms"></textarea></label>
+            <label class="f"><span>Dados bancários / M-Pesa (opcional)</span><textarea rows="3" data-bind="company.bankDetails" placeholder="Ex.: BCI — NIB 0008 0000 1234 5678 9012 3 · M-Pesa 84 000 0000"></textarea></label>
           </div>
         </div>
       </section>
@@ -206,6 +288,13 @@
           <a class="btn btn--ghost" id="dr-call"><svg class="ico"><use href="#i-phone"/></svg> Ligar</a>
           <a class="btn btn--ghost" id="dr-mail">Email</a>
         </div>
+        <div class="dr-quote">
+          <div>
+            <b>Cotação</b>
+            <span class="muted" id="dr-quote-state">Ainda não preparada</span>
+          </div>
+          <button type="button" class="btn btn--dark" id="dr-quote">Preparar cotação PDF</button>
+        </div>
         <div id="dr-details"></div>
         <label class="f"><span>Nota interna (só visível no painel)</span><textarea id="dr-note" rows="4" placeholder="Ex.: confirmado por telefone, cliente traz peças próprias…"></textarea></label>
         <button type="button" class="btn btn--ghost btn--danger-text" id="dr-delete">Eliminar marcação</button>
@@ -213,10 +302,57 @@
     </aside>
   </div>
 
+  <!-- Editor de cotação -->
+  <div class="qmodal" id="qmodal" hidden>
+    <div class="qmodal__bg" data-close-quote></div>
+    <div class="qmodal__panel" role="dialog" aria-modal="true" aria-labelledby="q-title">
+      <header class="qmodal__head">
+        <div><small id="q-sub">—</small><h2 id="q-title">Cotação</h2></div>
+        <button type="button" class="x" data-close-quote aria-label="Fechar">×</button>
+      </header>
+      <div class="qmodal__body">
+        <div class="qgrid">
+          <label class="f"><span>Nº da cotação</span><input id="q-number"></label>
+          <label class="f"><span>Data</span><input id="q-date" type="date"></label>
+          <label class="f"><span>Válida (dias)</span><input id="q-valid" type="number" min="1"></label>
+          <label class="f"><span>Idioma do PDF</span><select id="q-lang"><option value="pt">Português</option><option value="en">English</option></select></label>
+        </div>
+        <table class="qitems">
+          <thead><tr><th>Descrição</th><th class="num">Qtd</th><th class="num">Preço unit. (MT)</th><th class="num">Total</th><th></th></tr></thead>
+          <tbody id="q-items"></tbody>
+        </table>
+        <div class="qadd">
+          <button type="button" class="btn btn--ghost btn--sm" data-qadd="service">+ Serviço da lista</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-qadd="part">+ Peça / material</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-qadd="labour">+ Mão de obra</button>
+          <select id="q-svc-pick" hidden></select>
+        </div>
+        <div class="qbottom">
+          <div class="qnotes">
+            <label class="f"><span>Observações para o cliente</span><textarea id="q-notes" rows="4" placeholder="Ex.: Peças originais Toyota. Prazo de execução: 1 dia útil."></textarea></label>
+          </div>
+          <div class="qtotals">
+            <label class="f f--inline"><span>Desconto (MT)</span><input id="q-discount" type="number" min="0" step="50" value="0"></label>
+            <label class="f f--inline"><span>IVA</span><select id="q-vatmode"><option value="incl">Incluído nos preços</option><option value="add">Acrescentar</option><option value="none">Isento / não aplicar</option></select></label>
+            <dl id="q-sum"></dl>
+          </div>
+        </div>
+      </div>
+      <footer class="qmodal__foot">
+        <span class="muted" id="q-hint"></span>
+        <button type="button" class="btn btn--ghost" id="q-save">Guardar</button>
+        <button type="button" class="btn btn--ghost" id="q-download">Descarregar PDF</button>
+        <button type="button" class="btn btn--red" id="q-send"><svg class="ico"><use href="#i-wa"/></svg> Enviar PDF por WhatsApp</button>
+      </footer>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" hidden></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/store.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/quote.js"></script>
 </body>
 </html>

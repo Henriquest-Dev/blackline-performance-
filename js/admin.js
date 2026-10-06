@@ -72,7 +72,7 @@
   $('#logout').addEventListener('click', () => { S.logout(); showLogin(); });
 
   /* ---------------- navegação ---------------- */
-  const TITLES = { bookings: 'Marcações', services: 'Serviços e preços', contacts: 'Contactos e horário', account: 'Conta' };
+  const TITLES = { bookings: 'Marcações', services: 'Serviços e preços', promos: 'Promoções', contacts: 'Contactos e horário', account: 'Conta' };
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-view]'); if (!b) return;
     const v = b.dataset.view;
@@ -169,6 +169,9 @@
     $('#dr-call').href = `tel:+258${b.phone}`;
     $('#dr-mail').hidden = !b.email; $('#dr-mail').href = `mailto:${b.email}?subject=${encodeURIComponent('Marcação ' + b.ref)}`;
     $('#dr-note').value = b.internalNote || '';
+    const q = parseQuote(b);
+    $('#dr-quote-state').textContent = q ? `Nº ${q.number} · ${mt(q.total || 0)}${b.quoteAt ? ' · enviada ' + fmtDT(b.quoteAt) : ' · guardada'}` : 'Ainda não preparada';
+    $('#dr-quote').textContent = q ? 'Abrir cotação' : 'Preparar cotação PDF';
     $('#drawer').hidden = false;
     document.body.classList.add('no-scroll');
     setTimeout(() => $('.drawer__panel').classList.add('is-in'), 10);
@@ -179,6 +182,8 @@
   };
   $$('[data-close-drawer]').forEach(x => x.addEventListener('click', closeDrawer));
   addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#drawer').hidden) closeDrawer(); });
+  const parseQuote = b => { if (!b.quote) return null; if (typeof b.quote === 'object') return b.quote; try { return JSON.parse(b.quote); } catch (e) { return null; } };
+  $('#dr-quote').addEventListener('click', () => current && window.BLQuote && window.BLQuote.open(current));
   const setStatusUI = st => $$('#dr-status button').forEach(b => { b.classList.toggle('on', b.dataset.v === st); b.setAttribute('aria-checked', b.dataset.v === st); });
 
   const patch = async (p) => {
@@ -204,8 +209,8 @@
 
   async function loadSettings() {
     settings = JSON.parse(JSON.stringify(await S.getSettings()));
-    $$('[data-bind]').forEach(i => { const v = getPath(settings, i.dataset.bind); i.value = v ?? ''; });
-    renderGroups();
+    $$('[data-bind]').forEach(i => { const v = getPath(settings, i.dataset.bind); i.value = v == null ? '' : String(v); });
+    renderGroups(); renderPromos();
   }
   const queueSave = () => {
     saveState('saving');
@@ -219,6 +224,7 @@
     const i = e.target.closest('[data-bind]'); if (!i || !settings) return;
     let v = i.value;
     if (i.type === 'number') v = v === '' ? 0 : Number(v);
+    if (i.dataset.type === 'bool') v = v === 'true';
     if (i.dataset.bind === 'contacts.whatsapp') v = v.replace(/\D/g, '');
     if (/instagram|tiktok/.test(i.dataset.bind)) v = v.replace(/^@/, '').trim();
     setPath(settings, i.dataset.bind, v);
@@ -226,39 +232,97 @@
   });
 
   const uid = p => p + '-' + Math.random().toString(36).slice(2, 7);
+  const slug = t => (t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+  const mt = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' MT';
+  const allServices = () => settings.groups.flatMap(g => g.items);
+
+  /* --- novo serviço --- */
+  const fillGroupSelects = () => {
+    const opts = settings.groups.map((g, i) => `<option value="${i}">${esc(g.name?.pt || 'Sem nome')}</option>`).join('');
+    const sel = $('#ns-group'); const cur = sel.value;
+    sel.innerHTML = opts + '<option value="__new">+ Nova categoria…</option>';
+    if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
+    $('#ns-newgroup-wrap').hidden = sel.value !== '__new';
+  };
+  $('#ns-group').addEventListener('change', e => { $('#ns-newgroup-wrap').hidden = e.target.value !== '__new'; });
+  $('#ns-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const msg = $('#ns-msg'); msg.className = 'form-msg';
+    const namePt = $('#ns-name-pt').value.trim();
+    if (!namePt) { msg.textContent = 'Indique o nome do serviço.'; msg.classList.add('is-err'); $('#ns-name-pt').focus(); return; }
+    let gi = $('#ns-group').value;
+    if (gi === '__new') {
+      const gname = $('#ns-newgroup').value.trim();
+      if (!gname) { msg.textContent = 'Indique o nome da nova categoria.'; msg.classList.add('is-err'); $('#ns-newgroup').focus(); return; }
+      settings.groups.push({ id: uid('grp'), name: { pt: gname, en: gname }, items: [] });
+      gi = settings.groups.length - 1;
+    }
+    let id = slug(namePt) || uid('svc');
+    if (allServices().some(x => x.id === id)) id = id + '-' + Math.random().toString(36).slice(2, 5);
+    const price = $('#ns-price').value;
+    const dur = $('#ns-dur').value.trim();
+    settings.groups[+gi].items.push({
+      id, active: $('#ns-active').checked, price: price === '' ? null : Number(price), from: $('#ns-from').checked,
+      name: { pt: namePt, en: $('#ns-name-en').value.trim() || namePt },
+      desc: { pt: $('#ns-desc-pt').value.trim(), en: $('#ns-desc-en').value.trim() },
+      dur: { pt: dur, en: dur },
+    });
+    e.target.reset(); $('#ns-active').checked = true; $('#ns-group').value = gi;
+    renderGroups(); queueSave();
+    msg.textContent = `"${namePt}" adicionado.`; msg.classList.add('is-ok');
+    const row = $(`.svc-row[data-id="${id}"]`); row?.classList.add('flash'); row?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
+
+  /* --- lista de serviços --- */
   function renderGroups() {
-    $('#groups').innerHTML = settings.groups.map((g, gi) => `
+    fillGroupSelects();
+    const q = ($('#svc-search')?.value || '').trim().toLowerCase();
+    const gOpts = sel => settings.groups.map((g, i) => `<option value="${i}" ${i === sel ? 'selected' : ''}>${esc(g.name?.pt || 'Sem nome')}</option>`).join('');
+    let shown = 0;
+    $('#groups').innerHTML = settings.groups.map((g, gi) => {
+      const rows = g.items.map((s, si) => ({ s, si })).filter(({ s }) => !q || [s.name?.pt, s.name?.en, s.desc?.pt].join(' ').toLowerCase().includes(q));
+      shown += rows.length;
+      if (q && !rows.length) return '';
+      return `
       <div class="card group" data-g="${gi}">
         <div class="group__head">
           <label class="f"><span>Categoria — português</span><input data-gf="name.pt" value="${esc(g.name?.pt)}"></label>
           <label class="f"><span>Categoria — inglês</span><input data-gf="name.en" value="${esc(g.name?.en)}"></label>
           <div class="group__tools">
-            <button type="button" class="icon-btn" data-gmove="-1" title="Subir" ${gi === 0 ? 'disabled' : ''}>↑</button>
-            <button type="button" class="icon-btn" data-gmove="1" title="Descer" ${gi === settings.groups.length - 1 ? 'disabled' : ''}>↓</button>
+            <span class="muted">${g.items.length} serviço${g.items.length === 1 ? '' : 's'}</span>
+            <button type="button" class="icon-btn" data-gmove="-1" title="Subir categoria" ${gi === 0 ? 'disabled' : ''}>↑</button>
+            <button type="button" class="icon-btn" data-gmove="1" title="Descer categoria" ${gi === settings.groups.length - 1 ? 'disabled' : ''}>↓</button>
             <button type="button" class="icon-btn icon-btn--danger" data-gdel title="Apagar categoria">Apagar</button>
           </div>
         </div>
         <div class="svc-list">
-          <div class="svc-row svc-row--head"><span>Ativo</span><span>Serviço (PT / EN)</span><span>Descrição (PT / EN)</span><span>Duração</span><span>Preço (MT)</span><span>"desde"</span><span></span></div>
-          ${g.items.map((s, si) => `
-            <div class="svc-row ${s.active === false ? 'is-off' : ''}" data-s="${si}">
+          <div class="svc-row svc-row--head"><span>Ativo</span><span>Serviço (PT / EN)</span><span>Descrição (PT / EN)</span><span>Duração</span><span>Preço (MT)</span><span>"desde"</span><span>Categoria</span><span>Ordem</span><span></span></div>
+          ${rows.map(({ s, si }) => {
+            const d = window.BLStore.pricing.best(settings, s);
+            return `
+            <div class="svc-row ${s.active === false ? 'is-off' : ''}" data-s="${si}" data-id="${esc(s.id)}">
               <label class="chk" data-l="Ativo"><input type="checkbox" data-sf="active" ${s.active !== false ? 'checked' : ''}><span></span></label>
               <div class="stack" data-l="Serviço"><input data-sf="name.pt" value="${esc(s.name?.pt)}" placeholder="Nome em português"><input data-sf="name.en" value="${esc(s.name?.en)}" placeholder="Name in English"></div>
               <div class="stack" data-l="Descrição"><input data-sf="desc.pt" value="${esc(s.desc?.pt)}" placeholder="Descrição"><input data-sf="desc.en" value="${esc(s.desc?.en)}" placeholder="Description"></div>
               <div class="stack" data-l="Duração"><input data-sf="dur.pt" value="${esc(s.dur?.pt)}" placeholder="1 h"><input data-sf="dur.en" value="${esc(s.dur?.en)}" placeholder="1 h"></div>
-              <div data-l="Preço (MT)"><input type="number" min="0" step="50" data-sf="price" value="${s.price ?? ''}" placeholder="Orçamento"></div>
+              <div data-l="Preço (MT)"><input type="number" min="0" step="50" data-sf="price" value="${s.price ?? ''}" placeholder="Orçamento">${d ? `<small class="promo-hint">Promoção: ${mt(d.price)}</small>` : ''}</div>
               <label class="chk" data-l="desde"><input type="checkbox" data-sf="from" ${s.from ? 'checked' : ''}><span></span></label>
+              <div data-l="Categoria"><select data-smove-group>${gOpts(gi)}</select></div>
+              <div class="order" data-l="Ordem"><button type="button" class="icon-btn" data-smove="-1" ${si === 0 ? 'disabled' : ''} title="Subir">↑</button><button type="button" class="icon-btn" data-smove="1" ${si === g.items.length - 1 ? 'disabled' : ''} title="Descer">↓</button></div>
               <button type="button" class="icon-btn icon-btn--danger" data-sdel title="Apagar serviço">×</button>
-            </div>`).join('')}
+            </div>`; }).join('')}
+          ${!g.items.length ? '<p class="muted pad">Sem serviços nesta categoria.</p>' : ''}
         </div>
-        <button type="button" class="btn btn--ghost btn--sm" data-sadd>+ Adicionar serviço</button>
-      </div>`).join('');
+      </div>`; }).join('') || '<div class="card"><p>Nenhum serviço corresponde à pesquisa.</p></div>';
+    const total = allServices().length, active = allServices().filter(x => x.active !== false).length;
+    $('#svc-count').textContent = q ? `${shown} de ${total} serviços` : `${total} serviços · ${active} ativos · ${settings.groups.length} categorias`;
   }
+  $('#svc-search').addEventListener('input', renderGroups);
   const gOf = el => settings.groups[+el.closest('[data-g]').dataset.g];
   const sOf = el => gOf(el).items[+el.closest('[data-s]').dataset.s];
   $('#groups').addEventListener('input', e => {
     const el = e.target;
-    if (el.dataset.gf) { setPath(gOf(el), el.dataset.gf, el.value); queueSave(); }
+    if (el.dataset.gf) { setPath(gOf(el), el.dataset.gf, el.value); queueSave(); if (el.dataset.gf === 'name.pt') fillGroupSelects(); }
     if (el.dataset.sf) {
       const s = sOf(el), k = el.dataset.sf;
       if (el.type === 'checkbox') { s[k] = el.checked; if (k === 'active') el.closest('.svc-row').classList.toggle('is-off', !el.checked); }
@@ -267,21 +331,26 @@
       queueSave();
     }
   });
+  $('#groups').addEventListener('change', e => {
+    const el = e.target; if (!el.matches('[data-smove-group]')) return;
+    const from = gOf(el), s = sOf(el), to = settings.groups[+el.value];
+    if (to === from) return;
+    from.items.splice(from.items.indexOf(s), 1); to.items.push(s);
+    renderGroups(); queueSave(); toast(`"${s.name?.pt}" movido para ${to.name?.pt}.`);
+  });
   $('#groups').addEventListener('click', e => {
     const el = e.target.closest('button'); if (!el) return;
-    if (el.hasAttribute('data-sadd')) {
-      gOf(el).items.push({ id: uid('svc'), active: true, price: null, name: { pt: '', en: '' }, desc: { pt: '', en: '' }, dur: { pt: '', en: '' } });
-      renderGroups(); queueSave();
-      const rows = $$(`[data-g="${settings.groups.indexOf(gOf(el)) }"] .svc-row:not(.svc-row--head)`);
-      rows[rows.length - 1]?.querySelector('input[data-sf="name.pt"]')?.focus();
-    } else if (el.hasAttribute('data-sdel')) {
+    if (el.hasAttribute('data-sdel')) {
       const g = gOf(el), s = sOf(el);
       if (!confirm(`Apagar o serviço "${s.name?.pt || 'sem nome'}"?`)) return;
-      g.items.splice(g.items.indexOf(s), 1); renderGroups(); queueSave();
+      g.items.splice(g.items.indexOf(s), 1); renderGroups(); renderPromos(); queueSave();
+    } else if (el.dataset.smove) {
+      const g = gOf(el), i = +el.closest('[data-s]').dataset.s, j = i + +el.dataset.smove;
+      [g.items[i], g.items[j]] = [g.items[j], g.items[i]]; renderGroups(); queueSave();
     } else if (el.hasAttribute('data-gdel')) {
       const g = gOf(el);
       if (!confirm(`Apagar a categoria "${g.name?.pt}" e os ${g.items.length} serviços dentro dela?`)) return;
-      settings.groups.splice(settings.groups.indexOf(g), 1); renderGroups(); queueSave();
+      settings.groups.splice(settings.groups.indexOf(g), 1); renderGroups(); renderPromos(); queueSave();
     } else if (el.dataset.gmove) {
       const i = +el.closest('[data-g]').dataset.g, j = i + +el.dataset.gmove;
       [settings.groups[i], settings.groups[j]] = [settings.groups[j], settings.groups[i]];
@@ -289,14 +358,99 @@
     }
   });
   $('#add-group').addEventListener('click', () => {
-    settings.groups.push({ id: uid('grp'), name: { pt: 'Nova categoria', en: 'New category' }, items: [] });
+    const name = prompt('Nome da nova categoria (português):', '');
+    if (!name) return;
+    settings.groups.push({ id: uid('grp'), name: { pt: name.trim(), en: name.trim() }, items: [] });
     renderGroups(); queueSave();
+    $('#ns-group').value = String(settings.groups.length - 1);
+    $('#new-svc').scrollIntoView({ behavior: 'smooth' });
+    toast('Categoria criada. Adicione-lhe serviços no formulário acima.');
   });
   $('#reset-services').addEventListener('click', () => {
     if (!confirm('Repor todos os serviços e preços para os valores originais? As suas alterações a serviços serão perdidas.')) return;
     const d = S.defaults(); settings.groups = d.groups; settings.booking = d.booking;
     $$('[data-bind^="booking."]').forEach(i => { i.value = getPath(settings, i.dataset.bind) ?? ''; });
-    renderGroups(); queueSave();
+    renderGroups(); renderPromos(); queueSave();
+  });
+
+  /* --- promoções --- */
+  const P = () => window.BLStore.pricing;
+  const PSTATE = { live: ['Ativa', 'confirmado'], scheduled: ['Agendada', 'contactado'], ended: ['Terminada', 'concluido'], off: ['Desativada', 'cancelado'] };
+  const fmtD = d => d ? new Date(d + 'T00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+  function renderPromoPicker(selected = []) {
+    $('#pf-services').innerHTML = settings.groups.map(g => `
+      <fieldset><legend>${esc(g.name?.pt)}</legend>
+        ${g.items.map(s => `<label class="${s.price == null ? 'is-quote' : ''}" title="${s.price == null ? 'Sob orçamento — o desconto não se aplica automaticamente' : ''}"><input type="checkbox" value="${esc(s.id)}" ${selected.includes(s.id) ? 'checked' : ''}> ${esc(s.name?.pt)} <em>${s.price == null ? 'orçamento' : mt(s.price)}</em></label>`).join('')}
+      </fieldset>`).join('');
+  }
+  function renderPromos() {
+    if (!settings) return;
+    settings.promos = settings.promos || [];
+    const names = ids => ids && ids.length ? allServices().filter(s => ids.includes(s.id)).map(s => s.name?.pt).join(', ') || '—' : 'Todos os serviços com preço';
+    const live = settings.promos.filter(p => P().promoStatus(p) === 'live').length;
+    $('#nav-promos').hidden = !live; $('#nav-promos').textContent = live;
+    $('#promo-empty').hidden = !!settings.promos.length;
+    $('#promo-table tbody').innerHTML = settings.promos.map((p, i) => {
+      const st = PSTATE[P().promoStatus(p)];
+      return `<tr data-i="${i}">
+        <td data-l="Promoção"><b>${esc(p.title?.pt)}</b>${p.desc?.pt ? `<br><span class="muted">${esc(p.desc.pt)}</span>` : ''}${p.showOnSite === false ? '<br><span class="muted">Não aparece no site</span>' : ''}</td>
+        <td data-l="Desconto"><b>${esc(P().label(p, mt))}</b>${p.type === 'price' ? '<br><span class="muted">preço fixo</span>' : ''}</td>
+        <td data-l="Serviços" class="svc">${esc(names(p.services))}</td>
+        <td data-l="Período">${p.start ? fmtD(p.start) : 'Sem início'}<br><span class="muted">${p.end ? 'até ' + fmtD(p.end) : 'sem fim'}</span></td>
+        <td data-l="Estado"><span class="pill pill--${st[1]}">${st[0]}</span></td>
+        <td class="actions"><button type="button" class="icon-btn" data-pedit>Editar</button><button type="button" class="icon-btn" data-ptoggle>${p.active ? 'Desativar' : 'Ativar'}</button><button type="button" class="icon-btn icon-btn--danger" data-pdel>Apagar</button></td>
+      </tr>`; }).join('');
+    if (!$('#pf-id').value) renderPromoPicker([]);
+  }
+  const typeLabel = () => { $('#pf-value-label').textContent = { percent: 'Desconto (%) *', fixed: 'Desconto (MT) *', price: 'Preço promocional (MT) *' }[$('#pf-type').value]; };
+  $('#pf-type').addEventListener('change', typeLabel);
+  const resetPromoForm = () => {
+    $('#promo-form').reset(); $('#pf-id').value = ''; $('#pf-active').checked = true; $('#pf-show').checked = true;
+    $('#pf-title').textContent = 'Nova promoção'; $('#pf-submit').textContent = 'Criar promoção'; $('#pf-cancel').hidden = true;
+    typeLabel(); renderPromoPicker([]);
+  };
+  $('#pf-cancel').addEventListener('click', resetPromoForm);
+  $('#promo-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const msg = $('#pf-msg'); msg.className = 'form-msg';
+    const title = $('#pf-title-pt').value.trim(), value = $('#pf-value').value, type = $('#pf-type').value;
+    const fail = t => { msg.textContent = t; msg.classList.add('is-err'); };
+    if (!title) return fail('Indique o título da promoção.');
+    if (value === '' || Number(value) <= 0) return fail('Indique o valor do desconto.');
+    if (type === 'percent' && Number(value) >= 100) return fail('A percentagem deve ser inferior a 100.');
+    const start = $('#pf-start').value, end = $('#pf-end').value;
+    if (start && end && end < start) return fail('A data de fim é anterior à data de início.');
+    const promo = {
+      id: $('#pf-id').value || uid('promo'), active: $('#pf-active').checked, showOnSite: $('#pf-show').checked,
+      type, value: Number(value), services: $$('#pf-services input:checked').map(i => i.value), start, end,
+      title: { pt: title, en: $('#pf-title-en').value.trim() || title },
+      desc: { pt: $('#pf-desc-pt').value.trim(), en: $('#pf-desc-en').value.trim() },
+    };
+    const i = settings.promos.findIndex(p => p.id === promo.id);
+    i > -1 ? (settings.promos[i] = promo) : settings.promos.unshift(promo);
+    const editing = i > -1;
+    resetPromoForm(); renderPromos(); renderGroups(); queueSave();
+    msg.textContent = editing ? 'Promoção atualizada.' : 'Promoção criada.'; msg.classList.add('is-ok');
+  });
+  $('#promo-table').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const i = +b.closest('tr').dataset.i, p = settings.promos[i];
+    if (b.hasAttribute('data-pdel')) {
+      if (!confirm(`Apagar a promoção "${p.title?.pt}"?`)) return;
+      settings.promos.splice(i, 1);
+    } else if (b.hasAttribute('data-ptoggle')) {
+      p.active = !p.active;
+    } else if (b.hasAttribute('data-pedit')) {
+      $('#pf-id').value = p.id; $('#pf-title-pt').value = p.title?.pt || ''; $('#pf-title-en').value = p.title?.en || '';
+      $('#pf-desc-pt').value = p.desc?.pt || ''; $('#pf-desc-en').value = p.desc?.en || '';
+      $('#pf-type').value = p.type; $('#pf-value').value = p.value; $('#pf-start').value = p.start || ''; $('#pf-end').value = p.end || '';
+      $('#pf-active').checked = !!p.active; $('#pf-show').checked = p.showOnSite !== false;
+      renderPromoPicker(p.services || []); typeLabel();
+      $('#pf-title').textContent = 'Editar promoção'; $('#pf-submit').textContent = 'Guardar alterações'; $('#pf-cancel').hidden = false;
+      $('#v-promos').scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    renderPromos(); renderGroups(); queueSave();
   });
 
   /* ---------------- conta ---------------- */
@@ -330,6 +484,17 @@
     } catch (err) { toast('Ficheiro inválido.', 'err'); }
     e.target.value = '';
   });
+
+  window.BLAdmin = {
+    settings: () => settings,
+    parseQuote, fmtDay, tel, name, toast, errMsg,
+    async savePatch(b, p) {
+      Object.assign(b, p);
+      saveState('saving');
+      try { await guard(() => S.updateBooking(b.id, p)); saveState('saved'); renderBookings(); if (current === b) openDrawer(b.id); return true; }
+      catch (e) { saveState('error'); toast(errMsg(e), 'err'); return false; }
+    },
+  };
 
   /* ---------------- arranque ---------------- */
   S.token ? showApp().catch(() => showLogin()) : showLogin();

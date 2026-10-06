@@ -27,7 +27,38 @@
     $$('[data-href]').forEach(a => { const h = hrefs[a.dataset.href]; if (h) a.href = h; else if (a.dataset.href !== 'phone') a.hidden = !h; });
     $$('[data-set]').forEach(el => { const v = texts[el.dataset.set]; if (v) el.textContent = v; });
   };
-  window.BLStore.getSettings().then(s => { settings = s; applySettings(); });
+  /* ---------- Promoções ---------- */
+  const renderPromos = () => {
+    const sec = $('#promocoes'); if (!sec || !settings) return;
+    const P = window.BLStore.pricing;
+    const list = P.livePromos(settings).filter(p => p.showOnSite !== false);
+    sec.hidden = !list.length;
+    if (!list.length) return;
+    const mt = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' MT';
+    const fmt = d => new Date(d + 'T00:00').toLocaleDateString(I.locale(), { day: 'numeric', month: 'long' });
+    const all = settings.groups.flatMap(g => g.items).filter(x => x.active !== false);
+    const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    $('#promo-list').innerHTML = list.map(p => {
+      const svcs = p.services && p.services.length ? all.filter(x => p.services.includes(x.id)) : [];
+      const names = svcs.length ? svcs.map(x => I.pick(x.name)).join(' · ') : I.t('promo.all');
+      const big = p.type === 'price' ? mt(p.value) : P.label(p, mt);
+      return `<article class="promo">
+        <div class="promo__value"><small>${p.type === 'price' ? I.t('promo.price') : I.t('promo.tag')}</small><b class="${p.type === 'price' ? 'is-price' : ''}">${esc(big)}</b></div>
+        <div class="promo__body">
+          <h3>${esc(I.pick(p.title))}</h3>
+          ${I.pick(p.desc) ? `<p>${esc(I.pick(p.desc))}</p>` : ''}
+          <p class="promo__svcs">${esc(names)}</p>
+          <div class="promo__foot">
+            <span>${p.end ? I.t('promo.until', { d: fmt(p.end) }) : ''}</span>
+            <a class="btn btn--red btn--sm" href="#agendar" data-book="${esc(svcs.map(x => x.id).join(','))}">${I.t('promo.cta')}</a>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+    window.ScrollTrigger && ScrollTrigger.refresh();
+  };
+  window.BLStore.getSettings().then(s => { settings = s; applySettings(); renderPromos(); });
+  document.addEventListener('lang:change', renderPromos);
   document.addEventListener('lang:change', () => {
     applySettings(); showcase.caption();
     burger.setAttribute('aria-label', I.t(menu.classList.contains('is-open') ? 'nav.close' : 'nav.open'));

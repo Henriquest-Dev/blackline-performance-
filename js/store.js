@@ -30,6 +30,8 @@
     if (saved.contacts) s.contacts = Object.assign(s.contacts, saved.contacts);
     if (saved.booking) s.booking = Object.assign(s.booking, saved.booking);
     if (Array.isArray(saved.groups) && saved.groups.length) s.groups = saved.groups;
+    if (saved.company) s.company = Object.assign(s.company, saved.company);
+    if (Array.isArray(saved.promos)) s.promos = saved.promos;
     return s;
   }
 
@@ -138,6 +140,42 @@
       if (!REMOTE && Array.isArray(data.bookings)) ls.set(K.bookings, data.bookings);
     },
   };
+
+  /* ---------- preços e promoções (usado pelo site e pelo painel) ---------- */
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const Pricing = {
+    promoStatus(p, day = iso(new Date())) {
+      if (!p.active) return 'off';
+      if (p.start && day < p.start) return 'scheduled';
+      if (p.end && day > p.end) return 'ended';
+      return 'live';
+    },
+    livePromos(settings, day) { return (settings.promos || []).filter(p => this.promoStatus(p, day) === 'live'); },
+    applies(p, serviceId) { return !p.services || !p.services.length || p.services.includes(serviceId); },
+    discounted(price, p) {
+      const v = Number(p.value) || 0;
+      if (p.type === 'percent') return Math.max(0, Math.round(price * (1 - v / 100)));
+      if (p.type === 'fixed') return Math.max(0, price - v);
+      if (p.type === 'price') return Math.max(0, v);
+      return price;
+    },
+    // melhor promoção válida para um serviço (só para serviços com preço)
+    best(settings, service, day) {
+      if (service.price == null || service.price === '') return null;
+      const base = Number(service.price);
+      let bestP = null, bestV = base;
+      this.livePromos(settings, day).filter(p => this.applies(p, service.id)).forEach(p => {
+        const v = this.discounted(base, p);
+        if (v < bestV) { bestV = v; bestP = p; }
+      });
+      return bestP ? { promo: bestP, price: bestV, was: base } : null;
+    },
+    label(p, mt) {
+      const v = Number(p.value) || 0;
+      return p.type === 'percent' ? `-${v}%` : p.type === 'fixed' ? `-${mt(v)}` : mt(v);
+    },
+  };
+  Store.pricing = Pricing;
 
   window.BLStore = Store;
 })();

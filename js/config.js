@@ -28,6 +28,24 @@ window.BL_DEFAULTS = {
     pickupFee: 500,
     satClose: '12:00',
   },
+  // Dados que aparecem nas cotações em PDF
+  company: {
+    legalName: 'Blackline Performance',
+    nuit: '',
+    address: 'Moçambique',
+    vatRate: 16,              // IVA em Moçambique
+    pricesIncludeVat: true,   // os preços dos serviços já incluem IVA
+    quoteValidityDays: 15,
+    quoteTerms: 'Valores sujeitos a confirmação após avaliação da viatura. Garantia de 6 meses na mão de obra. Peças com garantia do fornecedor.',
+    bankDetails: '',
+  },
+  // Promoções (geridas no painel). type: 'percent' | 'fixed' | 'price'. services: [] = todos.
+  promos: [
+    { id: 'promo-exemplo', active: true, showOnSite: true, type: 'percent', value: 15, services: ['lavagem', 'detailing'],
+      start: '2026-10-01', end: '2026-10-31',
+      title: { pt: 'Outubro: estética com 15% de desconto', en: 'October: 15% off detailing' },
+      desc: { pt: 'Lavagem completa e detailing com desconto durante todo o mês. Exemplo — edite ou apague no painel.', en: 'Full wash and detailing discounted all month. Example — edit or delete in the admin panel.' } },
+  ],
   // Preços indicativos (MZN). price: null = sob orçamento. from: true = "desde".
   groups: [
     { id: 'manutencao', name: { pt: 'Manutenção', en: 'Maintenance' }, items: [

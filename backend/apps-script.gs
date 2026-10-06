@@ -17,7 +17,7 @@ const TOKEN_HOURS = 8;
 
 const COLS = ['id', 'ref', 'createdAt', 'status', 'firstName', 'lastName', 'phone', 'email', 'contactPref',
   'services', 'servicesLabel', 'total', 'brand', 'model', 'year', 'km', 'fuel', 'plate', 'chassis',
-  'date', 'time', 'dropoff', 'notes', 'lang', 'internalNote'];
+  'date', 'time', 'dropoff', 'notes', 'lang', 'internalNote', 'promo', 'quote', 'quoteAt'];
 
 /* ---------------- entrada HTTP ---------------- */
 function doGet(e) {
@@ -66,6 +66,7 @@ function addBooking(b) {
   // validação mínima e anti-spam
   if (b.website) return { ok: true, ref: 'BLP-OK' };                       // honeypot preenchido por robôs
   if (!b.firstName || !b.phone || !b.date || !b.time) throw new Error('missing_fields');
+  b.quote = ''; b.quoteAt = '';
   const props = PropertiesService.getScriptProperties();
   const last = Number(props.getProperty('last_' + b.phone) || 0);
   if (Date.now() - last < 60 * 1000) throw new Error('too_many_requests');
@@ -100,8 +101,8 @@ function findRow(id) {
 
 function updateBooking(id, patch) {
   const f = findRow(id);
-  ['status', 'internalNote'].forEach(k => {
-    if (k in patch) f.sh.getRange(f.row, COLS.indexOf(k) + 1).setValue(clean(patch[k]));
+  ['status', 'internalNote', 'quote', 'quoteAt'].forEach(k => {
+    if (k in patch) f.sh.getRange(f.row, COLS.indexOf(k) + 1).setValue(clean(patch[k], k === 'quote' ? 45000 : 2000));
   });
 }
 
@@ -163,11 +164,11 @@ function changePassword(oldPass, newPass) {
 }
 
 /* ---------------- util ---------------- */
-function clean(v) {
+function clean(v, max) {
   if (v == null) return '';
   let s = typeof v === 'object' ? JSON.stringify(v) : String(v);
   if (/^[=+\-@]/.test(s)) s = "'" + s;   // evita fórmulas injetadas na folha
-  return s.slice(0, 2000);
+  return s.slice(0, max || 2000);
 }
 function json(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);

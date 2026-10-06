@@ -7,6 +7,7 @@
   <link rel="alternate" hreflang="en" href="?lang=en">
   <meta name="description" content="Blackline Performance: mecânica geral, eletricidade auto, bate-chapa & pintura, detailing, ceramic coating, tuning e lavagem. Atendimento profissional & personalizado. Agende já uma revisão.">
   <meta name="theme-color" content="#E11D2A">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -122,6 +123,17 @@
           <div class="brands__row" aria-hidden="true"><span>TOYOTA</span><span>MAZDA</span><span>NISSAN</span><span>HONDA</span><span>MITSUBISHI</span><span>BMW</span><span>MERCEDES-BENZ</span><span>VOLKSWAGEN</span><span>FORD</span><span>HYUNDAI</span><span>LAND ROVER</span></div>
         </div>
         <a href="#servicos" class="brands__arrow" aria-label="Serviços"><svg class="ico ico--arrow"><use href="#i-arrow"/></svg></a>
+      </div>
+    </section>
+
+    <!-- PROMOÇÕES (geridas no painel) -->
+    <section class="promos" id="promocoes" hidden>
+      <div class="container">
+        <div class="promos__head">
+          <h2 class="h2" data-i18n="promo.title">Promoções</h2>
+          <p class="lead" data-i18n="promo.lead">Condições especiais por tempo limitado. O desconto é aplicado automaticamente na marcação online.</p>
+        </div>
+        <div class="promos__list" id="promo-list"></div>
       </div>
     </section>
 
@@ -372,7 +384,7 @@
       </div>
     </div>
     <div class="container footer__bottom">
-      <span>© <a href="admin.html" class="footer__admin" id="year" title="Área reservada">2026</a> Blackline Performance</span>
+      <span>© <a href="admin.html" class="footer__admin" id="year" tabindex="-1">2026</a> Blackline Performance</span>
       <span><a href="#" data-i18n="foot.terms">Termos</a><a href="#" data-i18n="foot.privacy">Privacidade</a></span>
     </div>
   </footer>
