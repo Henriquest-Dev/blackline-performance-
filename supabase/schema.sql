@@ -1,6 +1,7 @@
 -- =====================================================================
 -- BLACKLINE PERFORMANCE — base de dados (Supabase)
 -- Supabase → SQL Editor → New query → colar TUDO → Run.
+-- No fim deve aparecer uma linha com estado = OK, tabelas_criadas = 3 e funcoes_criadas = 10.
 -- Pode voltar a executar: não apaga dados nem muda a palavra-passe.
 -- As credenciais do painel NÃO estão neste ficheiro (o repositório é público):
 -- defina-as com o bloco "credenciais" enviado em privado (ver fim do ficheiro).
@@ -91,10 +92,8 @@ create table if not exists private.login_attempts (
 create or replace function private.touch() returns trigger language plpgsql as $$
 begin new.updated_at := now(); return new; end; $$;
 
-drop trigger if exists bookings_touch on public.bookings;
-create trigger bookings_touch before update on public.bookings for each row execute function private.touch();
-drop trigger if exists quotes_touch on public.quotes;
-create trigger quotes_touch before update on public.quotes for each row execute function private.touch();
+create or replace trigger bookings_touch before update on public.bookings for each row execute function private.touch();
+create or replace trigger quotes_touch before update on public.quotes for each row execute function private.touch();
 
 -- pedidos do site: estado inicial forçado, sem datas passadas, 1 pedido por número a cada 60 s
 create or replace function private.booking_guard() returns trigger
@@ -109,8 +108,7 @@ begin
   end if;
   return new;
 end; $$;
-drop trigger if exists bookings_guard on public.bookings;
-create trigger bookings_guard before insert on public.bookings for each row execute function private.booking_guard();
+create or replace trigger bookings_guard before insert on public.bookings for each row execute function private.booking_guard();
 
 -- ---------------------------------------------------------------------
 -- SEGURANÇA: visitantes só leem definições e criam marcações
@@ -119,10 +117,15 @@ alter table public.settings enable row level security;
 alter table public.bookings enable row level security;
 alter table public.quotes   enable row level security;
 
-drop policy if exists settings_read on public.settings;
-create policy settings_read on public.settings for select to anon, authenticated using (true);
-drop policy if exists bookings_create on public.bookings;
-create policy bookings_create on public.bookings for insert to anon, authenticated with check (true);
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'settings' and policyname = 'settings_read') then
+    create policy settings_read on public.settings for select to anon, authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'bookings' and policyname = 'bookings_create') then
+    create policy bookings_create on public.bookings for insert to anon, authenticated with check (true);
+  end if;
+end $$;
 
 revoke all on public.settings, public.bookings, public.quotes from anon, authenticated;
 grant select on public.settings to anon, authenticated;
@@ -266,6 +269,16 @@ begin
   end loop;
 end $$;
 revoke all on all functions in schema private from public, anon, authenticated;
+
+-- atualizar a API do Supabase e mostrar o resultado
+notify pgrst, 'reload schema';
+
+select 'OK' as estado,
+  (select count(*) from information_schema.tables
+    where table_schema = 'public' and table_name in ('settings','bookings','quotes')) as tabelas_criadas,
+  (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and (p.proname like 'admin\_%' or p.proname = 'get_quote_pdf')) as funcoes_criadas,
+  (select username from private.admin_account where id = 1) as utilizador_do_painel;
 
 -- =====================================================================
 -- CREDENCIAIS DO PAINEL (executar à parte, com os seus dados; não guardar no repositório)

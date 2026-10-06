@@ -72,6 +72,8 @@ repetidos do mesmo número durante 60 segundos.
 
 ### Ligar ao Supabase (uma vez)
 Supabase → **SQL Editor → New query** → colar todo o ficheiro [`supabase/schema.sql`](../supabase/schema.sql) → **Run**.
+No fim aparece uma linha com `estado = OK`, `tabelas_criadas = 3` e `funcoes_criadas = 10`. Se o Supabase mostrar um aviso
+sobre a consulta, escolha **Run this query** — se o aviso for fechado, nada é gravado.
 Depois execute, também no SQL Editor, o bloco **credenciais** (fim do ficheiro) com o utilizador e a palavra-passe
 escolhidos. Pode voltar a executar o SQL principal sem perder dados nem repor a palavra-passe.
 Para trocar as credenciais mais tarde: painel → Conta (palavra-passe) ou o mesmo bloco no SQL Editor (utilizador e palavra-passe).
