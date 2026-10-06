@@ -5,11 +5,8 @@
 No rodapé do site, clique no ano **"2026"** (em "© 2026 Blackline Performance"). Abre a página
 `admin.html` com o ecrã de login.
 
-| Utilizador | Palavra-passe inicial |
-|---|---|
-| `admin` | `Blackline@2026` |
-
-A palavra-passe é verificada no Supabase (guardada encriptada, nunca no site). Mude-a no painel → **Conta**:
+Entra-se com o utilizador e a palavra-passe do painel (definidos no Supabase — **não estão escritos no
+repositório**, que é público). A palavra-passe é verificada no Supabase (guardada encriptada, nunca no site). Mude-a no painel → **Conta**:
 a partir daí só quem souber a nova palavra-passe entra. Ao mudar, as outras sessões abertas terminam.
 Após 8 tentativas erradas em 15 minutos, o login fica bloqueado durante 15 minutos.
 
@@ -75,8 +72,9 @@ repetidos do mesmo número durante 60 segundos.
 
 ### Ligar ao Supabase (uma vez)
 Supabase → **SQL Editor → New query** → colar todo o ficheiro [`supabase/schema.sql`](../supabase/schema.sql) → **Run**.
-É só isto: o acesso `admin` / `Blackline@2026` fica criado no mesmo passo. Pode voltar a executar o SQL sem perder
-dados nem repor a palavra-passe.
+Depois execute, também no SQL Editor, o bloco **credenciais** (fim do ficheiro) com o utilizador e a palavra-passe
+escolhidos. Pode voltar a executar o SQL principal sem perder dados nem repor a palavra-passe.
+Para trocar as credenciais mais tarde: painel → Conta (palavra-passe) ou o mesmo bloco no SQL Editor (utilizador e palavra-passe).
 
 ### Chaves e ficheiro `.env`
 

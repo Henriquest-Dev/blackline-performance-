@@ -205,6 +205,7 @@
             <button class="filter" data-filter="pintura" data-i18n="f.pin">Bate-chapa e pintura</button>
             <button class="filter" data-filter="detailing" data-i18n="f.det">Detailing</button>
             <button class="filter" data-filter="lavagem" data-i18n="f.lav">Lavagem</button>
+            <button class="filter" data-filter="smash" data-i18n="f.sg">Smash &amp; Grab</button>
             <button class="filter" data-filter="tuning" data-i18n="f.tun">Tuning</button>
           </div>
         </header>
@@ -240,45 +241,61 @@
           </div>
         </div>
 
+        <!-- Cartões dos serviços principais. Imagens em assets/img/servicos/<nome>.jpg (ver docs/prompts-imagens.md) -->
         <div class="gallery">
+          <article class="card card--lg" data-cat="tuning">
+            <img src="assets/img/servicos/tuning-remap.jpg" alt="Remap e escape desportivo" loading="lazy" data-i18n-alt="g1.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.tun">Tuning</span><h3 data-i18n="g1.t">Remap e escape desportivo</h3><p data-i18n="g1.d">Mais potência e resposta do motor</p></div>
+            <button class="card__book" data-book="tuning" data-i18n="g.book">Marcar</button>
+          </article>
+          <article class="card card--lg" data-cat="detailing">
+            <img src="assets/img/servicos/ceramic-coating.jpg" alt="Ceramic coating 9H" loading="lazy" data-i18n-alt="g2.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.det">Detailing</span><h3 data-i18n="g2.t">Ceramic coating 9H</h3><p data-i18n="g2.d">Proteção da pintura até 3 anos</p></div>
+            <button class="card__book" data-book="detailing" data-i18n="g.book">Marcar</button>
+          </article>
+          <article class="card card--lg" data-cat="pintura">
+            <img src="assets/img/servicos/correcao-pintura.jpg" alt="Correção de pintura" loading="lazy" data-i18n-alt="g3.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.pin3">Pintura</span><h3 data-i18n="g3.t">Correção de pintura</h3><p data-i18n="g3.d">Polimento em 3 fases</p></div>
+            <button class="card__book" data-book="pintura" data-i18n="g.book">Marcar</button>
+          </article>
           <article class="card" data-cat="mecanica">
-            <img src="assets/img/gallery/motor-maos.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.mec">Mecânica</span><h3 data-i18n="g1.t">Revisão de motor</h3><p data-i18n="g1.d">Juntas, correias e afinação</p></div>
-            <button class="card__book" data-book="mecanica" data-i18n="g.book">Marcar</button>
+            <img src="assets/img/servicos/revisao-completa.jpg" alt="Revisão completa" loading="lazy" data-i18n-alt="g4.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.mec">Mecânica</span><h3 data-i18n="g4.t">Revisão completa</h3><p data-i18n="g4.d">Óleo, filtros e travões</p></div>
+            <button class="card__book" data-book="revisao" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="lavagem">
-            <img src="assets/img/gallery/lavagem.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.lav">Lavagem</span><h3 data-i18n="g2.t">Lavagem completa</h3><p data-i18n="g2.d">Exterior, interior e jantes</p></div>
+            <img src="assets/img/servicos/lavagem-premium.jpg" alt="Lavagem premium" loading="lazy" data-i18n-alt="g5.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.lav">Lavagem</span><h3 data-i18n="g5.t">Lavagem premium</h3><p data-i18n="g5.d">Interior e exterior</p></div>
             <button class="card__book" data-book="lavagem" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="eletricidade">
-            <img src="assets/img/gallery/diagnostico.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.ele">Eletricidade</span><h3 data-i18n="g3.t">Diagnóstico eletrónico</h3><p data-i18n="g3.d">Leitura de avarias e cablagens</p></div>
+            <img src="assets/img/servicos/diagnostico-eletronico.jpg" alt="Diagnóstico eletrónico" loading="lazy" data-i18n-alt="g6.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.ele">Eletricidade</span><h3 data-i18n="g6.t">Diagnóstico eletrónico</h3><p data-i18n="g6.d">Leitura de avarias e cablagens</p></div>
             <button class="card__book" data-book="diagnostico" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="tuning">
-            <img src="assets/img/gallery/elevador.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.tun">Tuning</span><h3 data-i18n="g4.t">Suspensão e jantes</h3><p data-i18n="g4.d">Rebaixamento e alinhamento</p></div>
+            <img src="assets/img/servicos/suspensao-jantes.jpg" alt="Suspensão e jantes" loading="lazy" data-i18n-alt="g7.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.tun">Tuning</span><h3 data-i18n="g7.t">Suspensão e jantes</h3><p data-i18n="g7.d">Rebaixamento e alinhamento</p></div>
             <button class="card__book" data-book="tuning" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="mecanica">
-            <img src="assets/img/gallery/oleo.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.mec">Mecânica</span><h3 data-i18n="g5.t">Mudança de óleo</h3><p data-i18n="g5.d">Óleo e filtro em 45 minutos</p></div>
+            <img src="assets/img/servicos/mudanca-oleo.jpg" alt="Mudança de óleo" loading="lazy" data-i18n-alt="g8.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.mec">Mecânica</span><h3 data-i18n="g8.t">Mudança de óleo</h3><p data-i18n="g8.d">Óleo e filtro em 45 minutos</p></div>
             <button class="card__book" data-book="oleo" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="pintura">
-            <img src="assets/img/gallery/chapa.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.pin2">Bate-chapa</span><h3 data-i18n="g6.t">Reparação de para-choques</h3><p data-i18n="g6.d">Acabamento de fábrica</p></div>
+            <img src="assets/img/servicos/bate-chapa.jpg" alt="Reparação de chapa" loading="lazy" data-i18n-alt="g9.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.pin2">Bate-chapa</span><h3 data-i18n="g9.t">Reparação de chapa</h3><p data-i18n="g9.d">Acabamento de fábrica</p></div>
             <button class="card__book" data-book="pintura" data-i18n="g.book">Marcar</button>
           </article>
-          <article class="card" data-cat="detailing">
-            <img src="assets/img/gallery/polimento.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.det">Detailing</span><h3 data-i18n="g7.t">Proteção cerâmica</h3><p data-i18n="g7.d">Brilho e proteção até 3 anos</p></div>
-            <button class="card__book" data-book="detailing" data-i18n="g.book">Marcar</button>
+          <article class="card" data-cat="smash">
+            <img src="assets/img/servicos/smash-grab.jpg" alt="Smash &amp; Grab" loading="lazy" data-i18n-alt="g10.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.sg">Smash &amp; Grab</span><h3 data-i18n="g10.t">Smash &amp; Grab</h3><p data-i18n="g10.d">Película de segurança nos vidros</p></div>
+            <button class="card__book" data-book="smash" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="detailing">
-            <img src="assets/img/gallery/correcao.jpg" alt="" loading="lazy">
-            <div class="card__meta"><span class="tag" data-i18n="f.det">Detailing</span><h3 data-i18n="g8.t">Correção de pintura</h3><p data-i18n="g8.d">Polimento em 3 fases</p></div>
+            <img src="assets/img/servicos/polimento-vidros.jpg" alt="Polimento e vidros" loading="lazy" data-i18n-alt="g11.t">
+            <div class="card__meta"><span class="tag" data-i18n="f.det">Detailing</span><h3 data-i18n="g11.t">Polimento e vidros</h3><p data-i18n="g11.d">Brilho espelhado e vidros tratados</p></div>
             <button class="card__book" data-book="detailing" data-i18n="g.book">Marcar</button>
           </article>
         </div>

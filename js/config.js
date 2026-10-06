@@ -6,7 +6,7 @@
 window.BL_CONFIG = {
   // Só para o modo demonstração. Com Supabase o login é feito com email e palavra-passe do Supabase Auth.
   adminUser: 'admin',
-  adminPassHash: '2e71858c36954a6c40cb339e20f82ae72ea53895be6a2222865cb724f1a94b9d', // Blackline@2026
+  adminPassHash: '2e71858c36954a6c40cb339e20f82ae72ea53895be6a2222865cb724f1a94b9d', // só modo demonstração (sem Supabase)
 };
 
 window.BL_DEFAULTS = {

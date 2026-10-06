@@ -27,7 +27,7 @@ js/admin.js, css/admin.css painel
 assets/logo/               logótipo vetorizado (SVG): vermelho, branco e escuro
 assets/favicon.svg
 assets/img/bmw-m5.png      BMW M5 recortada (fundo transparente, matrícula "BLACKLINE")
-assets/img/gallery/        fotos dos serviços (Unsplash)
+assets/img/servicos/       imagens dos cartões de serviços (substituir pelas geradas — ver docs/prompts-imagens.md)
 assets/img/cars/           carrossel: Toyota Vitz, Mazda Demio, Mazda Verisa, Toyota Ractis (recortados)
 ```
 
@@ -60,7 +60,7 @@ o cliente recebe uma referência `BLP-…` e pode adicionar a marcação ao cale
 
 ## Painel de administração
 
-Clicar no ano do rodapé → `admin.html` (utilizador `admin`, palavra-passe inicial `Blackline@2026`, verificada no Supabase).
+Clicar no ano do rodapé → `admin.html` (credenciais definidas no Supabase; não estão no repositório).
 Marcações (pesquisa, estados, notas, WhatsApp, exportar CSV), serviços e preços, contactos e horário, conta.
 Dados no **Supabase** (marcações, definições, cotações e PDFs). Guia completo e ligação: [`docs/painel-admin.md`](docs/painel-admin.md).
 
@@ -81,6 +81,6 @@ python3 -m http.server 8000
 
 ## Créditos das imagens
 
-- Fotos da galeria: [Unsplash](https://unsplash.com) (Licença Unsplash).
+- Imagens temporárias dos serviços: [Unsplash](https://unsplash.com) (Licença Unsplash), a substituir pelas imagens próprias.
 - Toyota Ractis: foto de Wikimedia Commons (licença CC BY-SA) — manter a atribuição ou substituir por foto própria.
 - Restantes viaturas: fotos fornecidas pela Blackline. A matrícula do Mazda Demio foi substituída por uma placa "BLACKLINE".

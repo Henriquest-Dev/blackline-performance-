@@ -2,8 +2,8 @@
 -- BLACKLINE PERFORMANCE — base de dados (Supabase)
 -- Supabase → SQL Editor → New query → colar TUDO → Run.
 -- Pode voltar a executar: não apaga dados nem muda a palavra-passe.
--- Acesso inicial ao painel:  utilizador admin  |  palavra-passe Blackline@2026
--- (mude a palavra-passe no painel → Conta)
+-- As credenciais do painel NÃO estão neste ficheiro (o repositório é público):
+-- defina-as com o bloco "credenciais" enviado em privado (ver fim do ficheiro).
 -- =====================================================================
 
 create extension if not exists pgcrypto with schema extensions;
@@ -73,9 +73,6 @@ create table if not exists private.admin_account (
   pass_hash  text not null,
   updated_at timestamptz not null default now()
 );
-insert into private.admin_account (id, username, pass_hash)
-values (1, 'admin', extensions.crypt('Blackline@2026', extensions.gen_salt('bf', 10)))
-on conflict (id) do nothing;
 
 create table if not exists private.admin_sessions (
   token      uuid primary key default gen_random_uuid(),
@@ -269,3 +266,12 @@ begin
   end loop;
 end $$;
 revoke all on all functions in schema private from public, anon, authenticated;
+
+-- =====================================================================
+-- CREDENCIAIS DO PAINEL (executar à parte, com os seus dados; não guardar no repositório)
+--
+-- insert into private.admin_account (id, username, pass_hash)
+-- values (1, 'UTILIZADOR', extensions.crypt('PALAVRA-PASSE', extensions.gen_salt('bf', 10)))
+-- on conflict (id) do update set username = excluded.username, pass_hash = excluded.pass_hash, updated_at = now();
+-- delete from private.admin_sessions;
+-- =====================================================================

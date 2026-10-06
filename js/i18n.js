@@ -20,9 +20,18 @@
       'f.all': 'Todos', 'f.mec': 'Mecânica', 'f.ele': 'Eletricidade', 'f.pin': 'Bate-chapa e pintura', 'f.pin2': 'Bate-chapa', 'f.det': 'Detailing', 'f.lav': 'Lavagem', 'f.tun': 'Tuning',
       'show.aria': 'Viaturas na oficina', 'show.kicker': 'Na oficina esta semana', 'show.prev': 'Anterior', 'show.next': 'Seguinte', 'show.cta': 'Marcar para a minha viatura',
       'g.book': 'Marcar',
-      'g1.t': 'Revisão de motor', 'g1.d': 'Juntas, correias e afinação', 'g2.t': 'Lavagem completa', 'g2.d': 'Exterior, interior e jantes', 'g3.t': 'Diagnóstico eletrónico', 'g3.d': 'Leitura de avarias e cablagens',
-      'g4.t': 'Suspensão e jantes', 'g4.d': 'Rebaixamento e alinhamento', 'g5.t': 'Mudança de óleo', 'g5.d': 'Óleo e filtro em 45 minutos', 'g6.t': 'Reparação de para-choques', 'g6.d': 'Acabamento de fábrica',
-      'g7.t': 'Proteção cerâmica', 'g7.d': 'Brilho e proteção até 3 anos', 'g8.t': 'Correção de pintura', 'g8.d': 'Polimento em 3 fases',
+      'g1.t': 'Remap e escape desportivo', 'g1.d': 'Mais potência e resposta do motor',
+      'g2.t': 'Ceramic coating 9H', 'g2.d': 'Proteção da pintura até 3 anos',
+      'g3.t': 'Correção de pintura', 'g3.d': 'Polimento em 3 fases',
+      'g4.t': 'Revisão completa', 'g4.d': 'Óleo, filtros e travões',
+      'g5.t': 'Lavagem premium', 'g5.d': 'Interior e exterior',
+      'g6.t': 'Diagnóstico eletrónico', 'g6.d': 'Leitura de avarias e cablagens',
+      'g7.t': 'Suspensão e jantes', 'g7.d': 'Rebaixamento e alinhamento',
+      'g8.t': 'Mudança de óleo', 'g8.d': 'Óleo e filtro em 45 minutos',
+      'g9.t': 'Reparação de chapa', 'g9.d': 'Acabamento de fábrica',
+      'g10.t': 'Smash & Grab', 'g10.d': 'Película de segurança nos vidros',
+      'g11.t': 'Polimento e vidros', 'g11.d': 'Brilho espelhado e vidros tratados',
+      'f.pin3': 'Pintura', 'f.sg': 'Smash & Grab',
       'why.title': 'Porquê a Blackline', 'why.lead': 'Uma oficina com método: diagnóstico antes de reparar, orçamento antes de avançar, e a viatura entregue limpa e testada.',
       'why.1t': 'Diagnóstico computorizado', 'why.1': 'Equipamento de diagnóstico multimarca. Sabemos o que reparar antes de mexer.',
       'why.2t': 'Orçamento fechado', 'why.2': 'Valor aprovado por si antes de qualquer trabalho. Sem extras surpresa na fatura.',
@@ -94,9 +103,18 @@
       'f.all': 'All', 'f.mec': 'Mechanical', 'f.ele': 'Electrical', 'f.pin': 'Panel beating and paint', 'f.pin2': 'Panel beating', 'f.det': 'Detailing', 'f.lav': 'Wash', 'f.tun': 'Tuning',
       'show.aria': 'Vehicles in the workshop', 'show.kicker': 'In the workshop this week', 'show.prev': 'Previous', 'show.next': 'Next', 'show.cta': 'Book for my vehicle',
       'g.book': 'Book',
-      'g1.t': 'Engine overhaul', 'g1.d': 'Gaskets, belts and tuning', 'g2.t': 'Full wash', 'g2.d': 'Exterior, interior and wheels', 'g3.t': 'Electronic diagnostics', 'g3.d': 'Fault codes and wiring',
-      'g4.t': 'Suspension and wheels', 'g4.d': 'Lowering and alignment', 'g5.t': 'Oil change', 'g5.d': 'Oil and filter in 45 minutes', 'g6.t': 'Bumper repair', 'g6.d': 'Factory finish',
-      'g7.t': 'Ceramic protection', 'g7.d': 'Gloss and protection for up to 3 years', 'g8.t': 'Paint correction', 'g8.d': '3-stage machine polish',
+      'g1.t': 'ECU remap and sport exhaust', 'g1.d': 'More power and throttle response',
+      'g2.t': 'Ceramic coating 9H', 'g2.d': 'Paint protection for up to 3 years',
+      'g3.t': 'Paint correction', 'g3.d': '3-stage machine polish',
+      'g4.t': 'Full service', 'g4.d': 'Oil, filters and brakes',
+      'g5.t': 'Premium wash', 'g5.d': 'Interior and exterior',
+      'g6.t': 'Electronic diagnostics', 'g6.d': 'Fault codes and wiring',
+      'g7.t': 'Suspension and wheels', 'g7.d': 'Lowering and alignment',
+      'g8.t': 'Oil change', 'g8.d': 'Oil and filter in 45 minutes',
+      'g9.t': 'Panel repair', 'g9.d': 'Factory finish',
+      'g10.t': 'Smash & Grab', 'g10.d': 'Security film on the windows',
+      'g11.t': 'Polish and glass', 'g11.d': 'Mirror gloss and treated glass',
+      'f.pin3': 'Paint', 'f.sg': 'Smash & Grab',
       'why.title': 'Why Blackline', 'why.lead': 'A workshop with a method: diagnose before repairing, quote before proceeding, and hand the car back clean and tested.',
       'why.1t': 'Computer diagnostics', 'why.1': 'Multi-brand diagnostic equipment. We know what to fix before we touch it.',
       'why.2t': 'Fixed quote', 'why.2': 'Price approved by you before any work. No surprise extras on the invoice.',
@@ -171,6 +189,7 @@
     apply(root = document) {
       root.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = this.t(el.dataset.i18n); });
       root.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = this.t(el.dataset.i18nHtml); });
+      root.querySelectorAll('[data-i18n-alt]').forEach(el => { el.alt = this.t(el.dataset.i18nAlt); });
       root.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = this.t(el.dataset.i18nPh); });
       root.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', this.t(el.dataset.i18nAria)); });
       document.documentElement.lang = this.lang;
