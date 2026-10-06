@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blackline Performance — Excelência em Serviços Automóveis</title>
+  <link rel="alternate" hreflang="en" href="?lang=en">
   <meta name="description" content="Blackline Performance: mecânica geral, eletricidade auto, bate-chapa & pintura, detailing, ceramic coating, tuning e lavagem. Atendimento profissional & personalizado. Agende já uma revisão.">
   <meta name="theme-color" content="#E11D2A">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -22,24 +23,30 @@
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z" fill="currentColor"/></symbol>
     <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tt" viewBox="0 0 24 24"><path fill="currentColor" d="M12.5.02c1.3-.02 2.6-.01 3.9-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07Z"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </svg>
 
   <!-- NAV -->
   <header class="nav" id="top">
     <div class="container nav__inner">
-      <a href="#top" class="brand" aria-label="Blackline Performance — início">
+      <a href="#top" class="brand" aria-label="Blackline Performance">
         <span class="brand__badge"><svg><use href="#bl-mark"/></svg></span>
         <span class="brand__text"><strong>blackline</strong><small>PERFORMANCE</small></span>
       </a>
-      <nav class="nav__links" aria-label="Principal">
-        <a href="#servicos">Serviços</a>
-        <a href="#processo">Como funciona</a>
-        <a href="#porque">Porquê nós</a>
-        <a href="#contacto">Contacto</a>
+      <nav class="nav__links" aria-label="Principal" data-i18n-aria="nav.aria">
+        <a href="#servicos" data-i18n="nav.services">Serviços</a>
+        <a href="#processo" data-i18n="nav.process">Como funciona</a>
+        <a href="#porque" data-i18n="nav.why">Porquê nós</a>
+        <a href="#contacto" data-i18n="nav.contact">Contacto</a>
       </nav>
-      <a class="nav__cta" href="#agendar" data-book>Marcar serviço</a>
-      <button class="nav__burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="pt" aria-pressed="true">PT</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="nav__cta" href="#agendar" data-book data-i18n="cta.book">Marcar serviço</a>
+      <button class="nav__burger" aria-label="Abrir menu" data-i18n-aria="nav.open" aria-expanded="false" aria-controls="menu">
         <span class="nav__burger-box"><i></i><i></i><i></i></span>
       </button>
     </div>
@@ -49,15 +56,24 @@
   <div class="menu" id="menu" aria-hidden="true">
     <svg class="menu__mark" aria-hidden="true"><use href="#bl-mark"/></svg>
     <nav class="menu__links" aria-label="Menu">
-      <a href="#sobre"><small>01</small>Sobre</a>
-      <a href="#servicos"><small>02</small>Serviços</a>
-      <a href="#processo"><small>03</small>Como funciona</a>
-      <a href="#porque"><small>04</small>Porquê nós</a>
-      <a href="#contacto"><small>05</small>Contacto</a>
+      <a href="#sobre"><small>01</small><span data-i18n="nav.about">Sobre</span></a>
+      <a href="#servicos"><small>02</small><span data-i18n="nav.services">Serviços</span></a>
+      <a href="#processo"><small>03</small><span data-i18n="nav.process">Como funciona</span></a>
+      <a href="#porque"><small>04</small><span data-i18n="nav.why">Porquê nós</span></a>
+      <a href="#contacto"><small>05</small><span data-i18n="nav.contact">Contacto</span></a>
     </nav>
     <div class="menu__foot">
-      <a class="btn btn--red" href="#agendar" data-book>Marcar serviço</a>
-      <p>+258 86 042 4242 · @blp_autocare</p>
+      <div class="lang lang--menu" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="pt" aria-pressed="true">Português</button>
+        <button type="button" data-lang="en" aria-pressed="false">English</button>
+      </div>
+      <a class="btn btn--red" href="#agendar" data-book data-i18n="cta.book">Marcar serviço</a>
+      <div class="menu__social">
+        <a data-href="instagram" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
+        <a data-href="tiktok" href="https://www.tiktok.com/@blackline.perfomace" target="_blank" rel="noopener" aria-label="TikTok"><svg class="ico"><use href="#i-tt"/></svg></a>
+        <a data-href="whatsapp" href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
+        <span data-set="phone">+258 86 042 4242</span>
+      </div>
     </div>
   </div>
 
@@ -69,17 +85,18 @@
         <div class="hero__copy">
           <p class="eyebrow">BLP · Driven by Excellence</p>
           <h1 class="hero__title">
-            <span class="line"><span><em>Excelência</em> em</span></span>
-            <span class="line"><span>Serviços</span></span>
-            <span class="line"><span>Automóveis</span></span>
+            <span class="line"><span data-i18n-html="hero.l1"><em>Excelência</em> em</span></span>
+            <span class="line"><span data-i18n="hero.l2">Serviços</span></span>
+            <span class="line"><span data-i18n="hero.l3">Automóveis</span></span>
           </h1>
-          <p class="hero__lead">Mecânica, eletricidade, bate-chapa, detailing e performance — tudo num só lugar, com o rigor que a sua viatura merece.</p>
+          <p class="hero__lead" data-i18n="hero.lead">Mecânica, eletricidade, bate-chapa, detailing e performance — tudo num só lugar, com o rigor que a sua viatura merece.</p>
         </div>
         <aside class="hero__social" aria-label="Redes sociais">
-          <a href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
-          <a href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
+          <a data-href="instagram" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
+          <a data-href="tiktok" href="https://www.tiktok.com/@blackline.perfomace" target="_blank" rel="noopener" aria-label="TikTok"><svg class="ico"><use href="#i-tt"/></svg></a>
+          <a data-href="whatsapp" href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
           <span class="hero__social-line"></span>
-          <span class="hero__social-label">Siga-nos</span>
+          <span class="hero__social-label" data-i18n="hero.follow">Siga-nos</span>
         </aside>
       </div>
 
@@ -88,79 +105,76 @@
       </div>
 
       <div class="hero__car">
-        <img src="assets/img/bmw-m5.png" alt="BMW M5 preto preparado pela Blackline Performance" width="1358" height="619" fetchpriority="high">
+        <img src="assets/img/bmw-m5.png" alt="BMW M5" width="1358" height="619" fetchpriority="high">
       </div>
 
       <div class="hero__bar">
-        <p>Atendimento profissional &amp; personalizado.<br><strong>Agende já uma revisão!</strong></p>
-        <a class="btn btn--light btn--sm" href="#agendar" data-book>Marcar revisão</a>
+        <p><span data-i18n="hero.bar1">Atendimento profissional &amp; personalizado.</span><br><strong data-i18n="hero.bar2">Agende já uma revisão!</strong></p>
+        <a class="btn btn--light btn--sm" href="#agendar" data-book data-i18n="cta.bookService">Marcar revisão</a>
       </div>
-
     </section>
 
     <!-- MARCAS -->
-    <section class="brands" id="marcas" aria-label="Marcas que assistimos">
+    <section class="brands" id="marcas" aria-label="Marcas">
       <div class="container brands__inner">
         <div class="brands__track">
-          <div class="brands__row"><span>TOYOTA</span><span>BMW</span><span>MERCEDES-BENZ</span><span>LAND ROVER</span><span>VOLKSWAGEN</span><span>FORD</span><span>NISSAN</span><span>HYUNDAI</span><span>AUDI</span><span>MITSUBISHI</span></div>
-          <div class="brands__row" aria-hidden="true"><span>TOYOTA</span><span>BMW</span><span>MERCEDES-BENZ</span><span>LAND ROVER</span><span>VOLKSWAGEN</span><span>FORD</span><span>NISSAN</span><span>HYUNDAI</span><span>AUDI</span><span>MITSUBISHI</span></div>
+          <div class="brands__row"><span>TOYOTA</span><span>MAZDA</span><span>NISSAN</span><span>HONDA</span><span>MITSUBISHI</span><span>BMW</span><span>MERCEDES-BENZ</span><span>VOLKSWAGEN</span><span>FORD</span><span>HYUNDAI</span><span>LAND ROVER</span></div>
+          <div class="brands__row" aria-hidden="true"><span>TOYOTA</span><span>MAZDA</span><span>NISSAN</span><span>HONDA</span><span>MITSUBISHI</span><span>BMW</span><span>MERCEDES-BENZ</span><span>VOLKSWAGEN</span><span>FORD</span><span>HYUNDAI</span><span>LAND ROVER</span></div>
         </div>
-        <a href="#servicos" class="brands__arrow" aria-label="Ver serviços"><svg class="ico ico--arrow"><use href="#i-arrow"/></svg></a>
+        <a href="#servicos" class="brands__arrow" aria-label="Serviços"><svg class="ico ico--arrow"><use href="#i-arrow"/></svg></a>
       </div>
     </section>
 
     <!-- APP / ACOMPANHAMENTO -->
     <section class="app" id="sobre">
       <div class="container app__grid">
-        <div class="app__phones" data-book role="button" tabindex="0" aria-label="Abrir agendamento">
-          <!-- Telemóvel de trás: estado da viatura -->
+        <div class="app__phones" data-book role="button" tabindex="0" aria-label="Marcar serviço" data-i18n-aria="cta.book">
           <div class="phone phone--back">
             <div class="phone__screen">
               <div class="ph-top"><span>09:41</span><span class="ph-icons">▮▮▮</span></div>
-              <div class="ph-head"><span class="ph-back">‹</span><b>Estado da viatura</b></div>
-              <div class="ph-car"><img src="assets/img/bmw-m5.png" alt=""><span class="plate">AFG 247 MC</span></div>
+              <div class="ph-head"><span class="ph-back">‹</span><b data-i18n="ph.status">Estado da viatura</b></div>
+              <div class="ph-car"><img src="assets/img/cars/demio.webp" alt=""><span class="plate">AFG 247 MP</span></div>
               <ul class="ph-steps">
-                <li class="done"><i></i><div><b>Viatura recebida</b><small>08:15 · Check-in</small></div></li>
-                <li class="done"><i></i><div><b>Diagnóstico</b><small>09:02 · Computorizado</small></div></li>
-                <li class="active"><i></i><div><b>Em reparação</b><small>Troca de pastilhas &amp; discos</small></div></li>
-                <li><i></i><div><b>Lavagem &amp; detailing</b><small>Previsto 15:30</small></div></li>
-                <li><i></i><div><b>Pronta a levantar</b><small>Previsto 17:30</small></div></li>
+                <li class="done"><i></i><div><b data-i18n="ph.s1">Viatura recebida</b><small>08:15 · Check-in</small></div></li>
+                <li class="done"><i></i><div><b data-i18n="ph.s2">Diagnóstico</b><small data-i18n="ph.s2d">09:02 · Computorizado</small></div></li>
+                <li class="active"><i></i><div><b data-i18n="ph.s3">Em reparação</b><small data-i18n="ph.s3d">Troca de pastilhas e discos</small></div></li>
+                <li><i></i><div><b data-i18n="ph.s4">Lavagem</b><small data-i18n="ph.s4d">Previsto 15:30</small></div></li>
+                <li><i></i><div><b data-i18n="ph.s5">Pronta a levantar</b><small data-i18n="ph.s5d">Previsto 17:30</small></div></li>
               </ul>
-              <div class="ph-eta"><span>Entrega estimada</span><b>17:30</b></div>
+              <div class="ph-eta"><span data-i18n="ph.eta">Entrega estimada</span><b>17:30</b></div>
             </div>
           </div>
-          <!-- Telemóvel da frente: agendamento -->
           <div class="phone phone--front">
             <div class="phone__screen">
               <div class="ph-top"><span>09:41</span><span class="ph-icons">▮▮▮</span></div>
-              <div class="ph-brand"><svg><use href="#bl-mark"/></svg><b>Agendar serviço</b></div>
+              <div class="ph-brand"><svg><use href="#bl-mark"/></svg><b data-i18n="ph.book">Marcar serviço</b></div>
               <div class="ph-hero">
-                <small>A sua viatura</small>
-                <b>BMW M5 Competition</b>
-                <img src="assets/img/bmw-m5.png" alt="">
+                <small data-i18n="ph.car">A sua viatura</small>
+                <b>Toyota Vitz</b>
+                <img src="assets/img/cars/vitz.webp" alt="">
               </div>
-              <div class="ph-label">Serviço</div>
-              <div class="ph-chips"><span class="on">Revisão</span><span>Detailing</span><span>Tuning</span><span>Pintura</span></div>
-              <div class="ph-label">Data</div>
+              <div class="ph-label" data-i18n="ph.service">Serviço</div>
+              <div class="ph-chips"><span class="on" data-i18n="ph.c1">Revisão</span><span data-i18n="ph.c2">Travões</span><span data-i18n="ph.c3">Lavagem</span></div>
+              <div class="ph-label" data-i18n="ph.date">Data</div>
               <div class="ph-days">
-                <span><small>Seg</small>12</span><span class="on"><small>Ter</small>13</span><span><small>Qua</small>14</span><span><small>Qui</small>15</span>
+                <span><small data-i18n="ph.d1">Seg</small>12</span><span class="on"><small data-i18n="ph.d2">Ter</small>13</span><span><small data-i18n="ph.d3">Qua</small>14</span><span><small data-i18n="ph.d4">Qui</small>15</span>
               </div>
               <div class="ph-slots"><span>08:00</span><span class="on">10:30</span><span>14:00</span></div>
-              <div class="ph-cta">Confirmar marcação</div>
+              <div class="ph-cta" data-i18n="ph.confirm">Confirmar marcação</div>
             </div>
           </div>
         </div>
         <div class="app__copy">
-          <h2 class="h2">Acompanhe a sua viatura</h2>
-          <p class="lead">Marque online e acompanhe cada etapa — receção, diagnóstico, reparação, lavagem e entrega. O orçamento e as fotos do trabalho chegam-lhe pelo WhatsApp.</p>
+          <h2 class="h2" data-i18n="app.title">Acompanhe a sua viatura</h2>
+          <p class="lead" data-i18n="app.lead">Marque online e acompanhe cada etapa — receção, diagnóstico, reparação, lavagem e entrega. O orçamento e as fotos do trabalho chegam-lhe pelo WhatsApp.</p>
           <dl class="facts">
-            <div><dt>Orçamento</dt><dd>Aprovado por si antes de qualquer intervenção.</dd></div>
-            <div><dt>Registo</dt><dd>Fotografias do antes e depois de cada serviço.</dd></div>
-            <div><dt>Manutenção</dt><dd>Aviso da próxima revisão, por data ou quilometragem.</dd></div>
+            <div><dt data-i18n="app.f1t">Orçamento</dt><dd data-i18n="app.f1">Aprovado por si antes de qualquer intervenção.</dd></div>
+            <div><dt data-i18n="app.f2t">Registo</dt><dd data-i18n="app.f2">Fotografias do antes e depois de cada serviço.</dd></div>
+            <div><dt data-i18n="app.f3t">Manutenção</dt><dd data-i18n="app.f3">Aviso da próxima revisão, por data ou quilometragem.</dd></div>
           </dl>
           <div class="app__actions">
-            <a class="btn btn--red" href="#agendar" data-book>Marcar serviço</a>
-            <a class="btn btn--ghost" href="https://wa.me/258860424242" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> WhatsApp</a>
+            <a class="btn btn--red" href="#agendar" data-book data-i18n="cta.book">Marcar serviço</a>
+            <a class="btn btn--ghost" data-href="whatsapp" href="https://wa.me/258860424242" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> WhatsApp</a>
           </div>
         </div>
       </div>
@@ -170,78 +184,97 @@
     <section class="services" id="servicos">
       <div class="container">
         <header class="section-head">
-          <h2 class="h2">Serviços</h2>
-          <p class="lead center">Manutenção, reparação, estética e performance para todas as marcas, numa só oficina.</p>
-          <div class="filters" role="tablist" aria-label="Filtrar serviços">
-            <button class="filter is-active" data-filter="all">Todos</button>
-            <button class="filter" data-filter="mecanica">Mecânica</button>
-            <button class="filter" data-filter="eletricidade">Eletricidade</button>
-            <button class="filter" data-filter="pintura">Bate-Chapa &amp; Pintura</button>
-            <button class="filter" data-filter="detailing">Detailing</button>
-            <button class="filter" data-filter="tuning">Tuning</button>
-            <button class="filter" data-filter="lavagem">Lavagem</button>
+          <h2 class="h2" data-i18n="svc.title">Serviços</h2>
+          <p class="lead center" data-i18n="svc.lead">Manutenção, reparação, estética e performance para todas as marcas, numa só oficina.</p>
+          <div class="filters" role="tablist" aria-label="Filtros">
+            <button class="filter is-active" data-filter="all" data-i18n="f.all">Todos</button>
+            <button class="filter" data-filter="mecanica" data-i18n="f.mec">Mecânica</button>
+            <button class="filter" data-filter="eletricidade" data-i18n="f.ele">Eletricidade</button>
+            <button class="filter" data-filter="pintura" data-i18n="f.pin">Bate-chapa e pintura</button>
+            <button class="filter" data-filter="detailing" data-i18n="f.det">Detailing</button>
+            <button class="filter" data-filter="lavagem" data-i18n="f.lav">Lavagem</button>
+            <button class="filter" data-filter="tuning" data-i18n="f.tun">Tuning</button>
           </div>
         </header>
 
+        <!-- Carrossel: viaturas na oficina -->
+        <div class="showcase" aria-roledescription="carrossel" aria-label="Viaturas na oficina" data-i18n-aria="show.aria">
+          <div class="showcase__info">
+            <p class="showcase__kicker" data-i18n="show.kicker">Na oficina esta semana</p>
+            <p class="showcase__count"><b id="sc-n">01</b> / <span id="sc-t">04</span></p>
+            <h3 class="showcase__name" id="sc-name">Toyota Vitz</h3>
+            <p class="showcase__job" id="sc-job">Revisão completa e substituição de pastilhas</p>
+            <div class="showcase__ctrl">
+              <button type="button" class="showcase__btn" data-sc="-1" aria-label="Anterior" data-i18n-aria="show.prev"><svg class="ico" style="transform:scaleX(-1)"><use href="#i-chev"/></svg></button>
+              <button type="button" class="showcase__btn" data-sc="1" aria-label="Seguinte" data-i18n-aria="show.next"><svg class="ico"><use href="#i-chev"/></svg></button>
+              <div class="showcase__bars" id="sc-bars"></div>
+            </div>
+            <a class="showcase__book" href="#agendar" data-book data-i18n="show.cta">Marcar para a minha viatura</a>
+          </div>
+          <div class="showcase__stage" id="sc-stage">
+            <div class="showcase__floor" aria-hidden="true"></div>
+            <figure class="showcase__slide is-active" data-name="Toyota Vitz" data-job-pt="Revisão completa e substituição de pastilhas" data-job-en="Full service and brake pad replacement">
+              <img src="assets/img/cars/vitz.webp" alt="Toyota Vitz">
+            </figure>
+            <figure class="showcase__slide" data-name="Mazda Demio" data-job-pt="Polimento e proteção cerâmica" data-job-en="Machine polish and ceramic protection">
+              <img src="assets/img/cars/demio.webp" alt="Mazda Demio" loading="lazy">
+            </figure>
+            <figure class="showcase__slide" data-name="Mazda Verisa" data-job-pt="Diagnóstico eletrónico e bateria" data-job-en="Electronic diagnostics and battery">
+              <img src="assets/img/cars/verisa.webp" alt="Mazda Verisa" loading="lazy">
+            </figure>
+            <figure class="showcase__slide" data-name="Toyota Ractis" data-job-pt="Suspensão dianteira e alinhamento" data-job-en="Front suspension and alignment">
+              <img src="assets/img/cars/ractis.webp" alt="Toyota Ractis" loading="lazy">
+            </figure>
+          </div>
+        </div>
+
         <div class="gallery">
-          <article class="card card--lg" data-cat="tuning">
-            <img src="assets/img/gallery/tuning-1.jpg" alt="Desportivo preparado em garagem" loading="lazy">
-            <div class="card__meta"><span class="tag">Tuning</span><h3>Remap &amp; escape desportivo</h3><p>+38 cv · Chevrolet Camaro ZL1</p></div>
-            <button class="card__book" data-book="tuning" aria-label="Marcar este serviço">Marcar</button>
-          </article>
-          <article class="card card--lg" data-cat="detailing">
-            <img src="assets/img/gallery/detailing.jpg" alt="Lavagem manual detalhada de viatura preta" loading="lazy">
-            <div class="card__meta"><span class="tag">Detailing</span><h3>Ceramic Coating 9H</h3><p>Proteção até 3 anos</p></div>
-            <button class="card__book" data-book="detailing" aria-label="Marcar este serviço">Marcar</button>
-          </article>
-          <article class="card card--lg" data-cat="pintura">
-            <img src="assets/img/gallery/mclaren.jpg" alt="Superdesportivo branco com pintura perfeita" loading="lazy">
-            <div class="card__meta"><span class="tag">Pintura</span><h3>Correção de pintura</h3><p>Polimento em 3 fases</p></div>
-            <button class="card__book" data-book="pintura" aria-label="Marcar este serviço">Marcar</button>
-          </article>
           <article class="card" data-cat="mecanica">
-            <img src="assets/img/gallery/mecanica-2.jpg" alt="Mecânico a trabalhar no motor" loading="lazy">
-            <div class="card__meta"><span class="tag">Mecânica</span><h3>Revisão completa</h3><p>Óleo, filtros &amp; travões</p></div>
-            <button class="card__book" data-book="revisao" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/motor-maos.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.mec">Mecânica</span><h3 data-i18n="g1.t">Revisão de motor</h3><p data-i18n="g1.d">Juntas, correias e afinação</p></div>
+            <button class="card__book" data-book="mecanica" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="lavagem">
-            <img src="assets/img/gallery/lavagem.jpg" alt="Lavagem de viatura com espuma" loading="lazy">
-            <div class="card__meta"><span class="tag">Lavagem</span><h3>Lavagem premium</h3><p>Interior &amp; exterior</p></div>
-            <button class="card__book" data-book="lavagem" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/lavagem.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.lav">Lavagem</span><h3 data-i18n="g2.t">Lavagem completa</h3><p data-i18n="g2.d">Exterior, interior e jantes</p></div>
+            <button class="card__book" data-book="lavagem" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="eletricidade">
-            <img src="assets/img/gallery/eletricidade.jpg" alt="Técnico com ferramentas no compartimento do motor" loading="lazy">
-            <div class="card__meta"><span class="tag">Eletricidade</span><h3>Diagnóstico eletrónico</h3><p>Leitura OBD &amp; cablagens</p></div>
-            <button class="card__book" data-book="eletricidade" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/diagnostico.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.ele">Eletricidade</span><h3 data-i18n="g3.t">Diagnóstico eletrónico</h3><p data-i18n="g3.d">Leitura de avarias e cablagens</p></div>
+            <button class="card__book" data-book="diagnostico" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="tuning">
-            <img src="assets/img/gallery/bmw-m4.jpg" alt="BMW M4 ao pôr do sol" loading="lazy">
-            <div class="card__meta"><span class="tag">Tuning</span><h3>Stage 1 · BMW M4</h3><p>Performance &amp; personalização</p></div>
-            <button class="card__book" data-book="tuning" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/elevador.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.tun">Tuning</span><h3 data-i18n="g4.t">Suspensão e jantes</h3><p data-i18n="g4.d">Rebaixamento e alinhamento</p></div>
+            <button class="card__book" data-book="tuning" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="mecanica">
-            <img src="assets/img/gallery/mecanica-1.jpg" alt="Troca de óleo do motor" loading="lazy">
-            <div class="card__meta"><span class="tag">Mecânica</span><h3>Mudança de óleo</h3><p>Em 45 minutos</p></div>
-            <button class="card__book" data-book="revisao" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/oleo.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.mec">Mecânica</span><h3 data-i18n="g5.t">Mudança de óleo</h3><p data-i18n="g5.d">Óleo e filtro em 45 minutos</p></div>
+            <button class="card__book" data-book="oleo" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="pintura">
-            <img src="assets/img/gallery/amg.jpg" alt="Mercedes AMG preto" loading="lazy">
-            <div class="card__meta"><span class="tag">Bate-Chapa</span><h3>Reparação de chapa</h3><p>Acabamento de fábrica</p></div>
-            <button class="card__book" data-book="pintura" aria-label="Marcar este serviço">Marcar</button>
-          </article>
-          <article class="card" data-cat="eletricidade">
-            <img src="assets/img/gallery/oficina.jpg" alt="Parede de ferramentas da oficina" loading="lazy">
-            <div class="card__meta"><span class="tag">Eletricidade</span><h3>Smash &amp; Grab</h3><p>Película de segurança</p></div>
-            <button class="card__book" data-book="eletricidade" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/chapa.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.pin2">Bate-chapa</span><h3 data-i18n="g6.t">Reparação de para-choques</h3><p data-i18n="g6.d">Acabamento de fábrica</p></div>
+            <button class="card__book" data-book="pintura" data-i18n="g.book">Marcar</button>
           </article>
           <article class="card" data-cat="detailing">
-            <img src="assets/img/gallery/porsche.jpg" alt="Porsche Panamera preto em estrada" loading="lazy">
-            <div class="card__meta"><span class="tag">Detailing</span><h3>Polimento &amp; vidros</h3><p>Brilho espelhado</p></div>
-            <button class="card__book" data-book="detailing" aria-label="Marcar este serviço">Marcar</button>
+            <img src="assets/img/gallery/polimento.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.det">Detailing</span><h3 data-i18n="g7.t">Proteção cerâmica</h3><p data-i18n="g7.d">Brilho e proteção até 3 anos</p></div>
+            <button class="card__book" data-book="detailing" data-i18n="g.book">Marcar</button>
+          </article>
+          <article class="card" data-cat="detailing">
+            <img src="assets/img/gallery/correcao.jpg" alt="" loading="lazy">
+            <div class="card__meta"><span class="tag" data-i18n="f.det">Detailing</span><h3 data-i18n="g8.t">Correção de pintura</h3><p data-i18n="g8.d">Polimento em 3 fases</p></div>
+            <button class="card__book" data-book="detailing" data-i18n="g.book">Marcar</button>
           </article>
         </div>
 
-        <a class="more" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener">Mais trabalhos no Instagram <svg class="ico"><use href="#i-arrow"/></svg></a>
+        <div class="more-row">
+          <a class="more" data-href="instagram" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener"><svg class="ico"><use href="#i-ig"/></svg> Instagram</a>
+          <a class="more" data-href="tiktok" href="https://www.tiktok.com/@blackline.perfomace" target="_blank" rel="noopener"><svg class="ico"><use href="#i-tt"/></svg> TikTok</a>
+        </div>
       </div>
     </section>
 
@@ -249,20 +282,20 @@
     <section class="features" id="porque">
       <div class="container">
         <div class="features__head">
-          <h2 class="h2">Porquê a Blackline</h2>
-          <p class="lead">Uma oficina com método: diagnóstico antes de reparar, orçamento antes de avançar, e a viatura entregue limpa e testada.</p>
+          <h2 class="h2" data-i18n="why.title">Porquê a Blackline</h2>
+          <p class="lead" data-i18n="why.lead">Uma oficina com método: diagnóstico antes de reparar, orçamento antes de avançar, e a viatura entregue limpa e testada.</p>
         </div>
         <div class="feats">
-          <article class="feat"><span class="feat__n">01</span><h3>Diagnóstico computorizado</h3><p>Equipamento de diagnóstico multimarca. Sabemos o que reparar antes de mexer.</p></article>
-          <article class="feat"><span class="feat__n">02</span><h3>Orçamento fechado</h3><p>Valor aprovado por si antes de qualquer trabalho. Sem extras surpresa na fatura.</p></article>
-          <article class="feat"><span class="feat__n">03</span><h3>Peças certificadas</h3><p>Originais ou equivalentes de qualidade, sempre com fatura e referência.</p></article>
-          <article class="feat"><span class="feat__n">04</span><h3>6 meses de garantia</h3><p>Garantia sobre a mão de obra em todos os serviços de mecânica e eletricidade.</p></article>
+          <article class="feat"><span class="feat__n">01</span><h3 data-i18n="why.1t">Diagnóstico computorizado</h3><p data-i18n="why.1">Equipamento de diagnóstico multimarca. Sabemos o que reparar antes de mexer.</p></article>
+          <article class="feat"><span class="feat__n">02</span><h3 data-i18n="why.2t">Orçamento fechado</h3><p data-i18n="why.2">Valor aprovado por si antes de qualquer trabalho. Sem extras surpresa na fatura.</p></article>
+          <article class="feat"><span class="feat__n">03</span><h3 data-i18n="why.3t">Peças certificadas</h3><p data-i18n="why.3">Originais ou equivalentes de qualidade, sempre com fatura e referência.</p></article>
+          <article class="feat"><span class="feat__n">04</span><h3 data-i18n="why.4t">6 meses de garantia</h3><p data-i18n="why.4">Garantia sobre a mão de obra em todos os serviços de mecânica e eletricidade.</p></article>
         </div>
         <dl class="info">
-          <div><dt>Horário</dt><dd>Seg–Sex 08:00–17:00<br>Sáb 08:00–12:00</dd></div>
-          <div><dt>Marcas</dt><dd>Todas as marcas<br>ligeiros e SUV</dd></div>
-          <div><dt>Contacto</dt><dd><a href="tel:+258860424242">+258 86 042 4242</a><br><a href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener">@blp_autocare</a></dd></div>
-          <div><dt>Pagamento</dt><dd>Numerário, POS<br>M-Pesa e e-Mola</dd></div>
+          <div><dt data-i18n="info.hours">Horário</dt><dd data-set="hours">Seg–Sex 08:00–17:00 · Sáb 08:00–12:00</dd></div>
+          <div><dt data-i18n="info.brands">Marcas</dt><dd data-i18n-html="info.brandsV">Todas as marcas<br>ligeiros e SUV</dd></div>
+          <div><dt data-i18n="info.contact">Contacto</dt><dd><a data-href="phone" href="tel:+258860424242" data-set="phone">+258 86 042 4242</a><br><a data-href="instagram" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" data-set="instagram">@blp_autocare</a><br><a data-href="tiktok" href="https://www.tiktok.com/@blackline.perfomace" target="_blank" rel="noopener" data-set="tiktok">@blackline.perfomace</a></dd></div>
+          <div><dt data-i18n="info.pay">Pagamento</dt><dd data-set="payment">Numerário, POS, M-Pesa e e-Mola</dd></div>
         </dl>
       </div>
     </section>
@@ -271,17 +304,17 @@
     <section class="process" id="processo">
       <div class="container">
         <header class="process__head">
-          <h2 class="h2 h2--light">Como funciona</h2>
-          <p class="lead lead--light">Da marcação à entrega, sabe sempre em que ponto está a sua viatura.</p>
+          <h2 class="h2 h2--light" data-i18n="proc.title">Como funciona</h2>
+          <p class="lead lead--light" data-i18n="proc.lead">Da marcação à entrega, sabe sempre em que ponto está a sua viatura.</p>
         </header>
         <div class="process__rail"><span class="process__fill"></span></div>
         <ol class="process__steps">
-          <li><span class="process__num">01</span><h3>Marcação</h3><p>Escolha o serviço, o dia e a hora — online, por WhatsApp ou por telefone.</p></li>
-          <li><span class="process__num">02</span><h3>Diagnóstico</h3><p>Inspeção computorizada e orçamento enviado para aprovação.</p></li>
-          <li><span class="process__num">03</span><h3>Execução</h3><p>Técnicos especializados, peças de qualidade e fotos do progresso.</p></li>
-          <li><span class="process__num">04</span><h3>Entrega</h3><p>Viatura lavada, testada e pronta — com 6 meses de garantia.</p></li>
+          <li><span class="process__num">01</span><h3 data-i18n="proc.1t">Marcação</h3><p data-i18n="proc.1">Escolha o serviço, o dia e a hora — online, por WhatsApp ou por telefone.</p></li>
+          <li><span class="process__num">02</span><h3 data-i18n="proc.2t">Diagnóstico</h3><p data-i18n="proc.2">Inspeção computorizada e orçamento enviado para aprovação.</p></li>
+          <li><span class="process__num">03</span><h3 data-i18n="proc.3t">Execução</h3><p data-i18n="proc.3">Técnicos especializados, peças de qualidade e fotos do progresso.</p></li>
+          <li><span class="process__num">04</span><h3 data-i18n="proc.4t">Entrega</h3><p data-i18n="proc.4">Viatura lavada, testada e pronta — com 6 meses de garantia.</p></li>
         </ol>
-        <div class="process__cta"><a class="btn btn--red" href="#agendar" data-book>Marcar serviço</a></div>
+        <div class="process__cta"><a class="btn btn--red" href="#agendar" data-book data-i18n="cta.book">Marcar serviço</a></div>
       </div>
     </section>
 
@@ -291,12 +324,12 @@
         <div class="cta__card">
           <div class="cta__pattern" aria-hidden="true"></div>
           <svg class="cta__mark" aria-hidden="true"><use href="#bl-mark"/></svg>
-          <h2 class="cta__title">Agende já uma revisão!</h2>
-          <p class="cta__lead">Marque online em poucos passos ou fale directamente com a oficina.</p>
+          <h2 class="cta__title" data-i18n="cta.title">Agende já uma revisão!</h2>
+          <p class="cta__lead" data-i18n="cta.lead">Marque online em poucos passos ou fale diretamente com a oficina.</p>
           <div class="cta__actions">
-            <a class="btn btn--light" href="#agendar" data-book>Marcar online</a>
-            <a class="btn btn--outline-light" href="https://wa.me/258860424242?text=Ol%C3%A1%20Blackline%2C%20gostaria%20de%20agendar%20uma%20revis%C3%A3o." target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> WhatsApp</a>
-            <a class="btn btn--outline-light" href="tel:+258860424242"><svg class="ico"><use href="#i-phone"/></svg> +258 86 042 4242</a>
+            <a class="btn btn--light" href="#agendar" data-book data-i18n="cta.online">Marcar online</a>
+            <a class="btn btn--outline-light" data-href="whatsapp" href="https://wa.me/258860424242" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> WhatsApp</a>
+            <a class="btn btn--outline-light" data-href="phone" href="tel:+258860424242"><svg class="ico"><use href="#i-phone"/></svg> <span data-set="phone">+258 86 042 4242</span></a>
           </div>
         </div>
       </div>
@@ -311,35 +344,36 @@
           <span class="brand__badge"><svg><use href="#bl-mark"/></svg></span>
           <span class="brand__text"><strong>blackline</strong><small>PERFORMANCE</small></span>
         </a>
-        <p>Excelência em serviços automóveis. Atendimento profissional &amp; personalizado.</p>
+        <p data-i18n="foot.about">Excelência em serviços automóveis. Atendimento profissional e personalizado.</p>
         <div class="socials">
-          <a href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
-          <a href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
-          <a href="tel:+258860424242" aria-label="Telefone"><svg class="ico"><use href="#i-phone"/></svg></a>
+          <a data-href="instagram" href="https://www.instagram.com/blp_autocare/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
+          <a data-href="tiktok" href="https://www.tiktok.com/@blackline.perfomace" target="_blank" rel="noopener" aria-label="TikTok"><svg class="ico"><use href="#i-tt"/></svg></a>
+          <a data-href="whatsapp" href="https://wa.me/258860424242" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa"/></svg></a>
+          <a data-href="phone" href="tel:+258860424242" aria-label="Telefone"><svg class="ico"><use href="#i-phone"/></svg></a>
         </div>
       </div>
       <div class="footer__col">
-        <h4>Navegação</h4>
-        <a href="#sobre">Sobre</a><a href="#servicos">Serviços</a><a href="#processo">Como funciona</a><a href="#porque">Porquê nós</a><a href="#contacto">Contacto</a><a href="#agendar" data-book>Marcar online</a>
+        <h4 data-i18n="foot.nav">Navegação</h4>
+        <a href="#sobre" data-i18n="nav.about">Sobre</a><a href="#servicos" data-i18n="nav.services">Serviços</a><a href="#processo" data-i18n="nav.process">Como funciona</a><a href="#porque" data-i18n="nav.why">Porquê nós</a><a href="#contacto" data-i18n="nav.contact">Contacto</a><a href="#agendar" data-book data-i18n="cta.online">Marcar online</a>
       </div>
       <div class="footer__col">
-        <h4>Serviços</h4>
-        <a href="#servicos">Mecânica Geral</a><a href="#servicos">Eletricidade Auto</a><a href="#servicos">Bate-Chapa &amp; Pintura</a><a href="#servicos">Detailing · Ceramic</a><a href="#servicos">Tuning</a>
+        <h4 data-i18n="nav.services">Serviços</h4>
+        <a href="#servicos" data-i18n="foot.s1">Mecânica geral</a><a href="#servicos" data-i18n="foot.s2">Eletricidade auto</a><a href="#servicos" data-i18n="f.pin">Bate-chapa e pintura</a><a href="#servicos" data-i18n="foot.s4">Detailing e ceramic</a><a href="#servicos" data-i18n="f.tun">Tuning</a>
       </div>
       <div class="footer__col footer__news">
-        <h4>Novidades</h4>
-        <p>Campanhas e lembretes de manutenção. Sem spam.</p>
+        <h4 data-i18n="foot.news">Novidades</h4>
+        <p data-i18n="foot.newsLead">Campanhas e lembretes de manutenção. Sem spam.</p>
         <form class="news" onsubmit="event.preventDefault(); this.classList.add('is-sent'); this.querySelector('input').value=''">
-          <input type="email" placeholder="O seu email" aria-label="Email" required>
-          <button aria-label="Subscrever"><svg class="ico"><use href="#i-arrow"/></svg></button>
-          <span class="news__ok">Obrigado! ✓</span>
+          <input type="email" placeholder="O seu email" data-i18n-ph="foot.email" aria-label="Email" required>
+          <button aria-label="OK"><svg class="ico"><use href="#i-arrow"/></svg></button>
+          <span class="news__ok" data-i18n="foot.thanks">Obrigado!</span>
         </form>
-        <p class="footer__contact">+258 86 042 4242<br>@blp_autocare</p>
+        <p class="footer__contact"><span data-set="phone">+258 86 042 4242</span><br><span data-set="instagram">@blp_autocare</span><br><span data-set="tiktok">@blackline.perfomace</span></p>
       </div>
     </div>
     <div class="container footer__bottom">
-      <span>© <span id="year">2026</span> Blackline Performance</span>
-      <span><a href="#">Termos</a><a href="#">Privacidade</a></span>
+      <span>© <a href="admin.html" class="footer__admin" id="year" title="Área reservada">2026</a> Blackline Performance</span>
+      <span><a href="#" data-i18n="foot.terms">Termos</a><a href="#" data-i18n="foot.privacy">Privacidade</a></span>
     </div>
   </footer>
 
@@ -349,132 +383,140 @@
       <header class="bk-top">
         <div class="bk-top__brand">
           <span class="brand__badge"><svg><use href="#bl-mark"/></svg></span>
-          <span class="bk-top__name">Marcação de serviço</span>
+          <span class="bk-top__name" data-i18n="bk.name">Marcação de serviço</span>
         </div>
-        <ol class="bk-tabs" id="bk-tabs" aria-label="Etapas">
-          <li data-s="0"><button type="button"><span>1</span>Serviços</button></li>
-          <li data-s="1"><button type="button"><span>2</span>Viatura</button></li>
-          <li data-s="2"><button type="button"><span>3</span>Data e hora</button></li>
-          <li data-s="3"><button type="button"><span>4</span>Contacto</button></li>
-          <li data-s="4"><button type="button"><span>5</span>Confirmação</button></li>
+        <ol class="bk-tabs" id="bk-tabs">
+          <li data-s="0"><button type="button"><span>1</span><em data-i18n="bk.t1">Serviços</em></button></li>
+          <li data-s="1"><button type="button"><span>2</span><em data-i18n="bk.t2">Viatura</em></button></li>
+          <li data-s="2"><button type="button"><span>3</span><em data-i18n="bk.t3">Data e hora</em></button></li>
+          <li data-s="3"><button type="button"><span>4</span><em data-i18n="bk.t4">Contacto</em></button></li>
+          <li data-s="4"><button type="button"><span>5</span><em data-i18n="bk.t5">Confirmação</em></button></li>
         </ol>
-        <button class="bk-close" type="button" data-close>Fechar<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        <button class="bk-close" type="button" data-close><span data-i18n="bk.close">Fechar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </header>
       <div class="bk-progress" aria-hidden="true"><span id="bk-bar"></span></div>
 
       <div class="bk-main">
         <div class="bk-body" id="bk-body">
           <div class="bk-inner">
-            <p class="bk-step-n" id="bk-step-n">Etapa 1 de 5</p>
-            <h2 class="bk-title" id="bk-title">Que serviços pretende?</h2>
+            <p class="bk-step-n" id="bk-step-n">1 / 5</p>
+            <h2 class="bk-title" id="bk-title">—</h2>
             <p class="bk-sub" id="bk-sub"></p>
 
             <!-- 1. Serviços -->
-            <section class="bk-step" data-step="0" data-title="Que serviços pretende?" data-sub="Selecione um ou mais serviços. Os valores são indicativos; o preço final é confirmado após avaliação da viatura.">
+            <section class="bk-step" data-step="0">
               <p class="bk-err bk-err--block" data-err="services"></p>
               <div id="bk-services"></div>
             </section>
 
             <!-- 2. Viatura -->
-            <section class="bk-step" data-step="1" data-title="Dados da viatura" data-sub="Ajuda-nos a preparar as peças e o tempo de oficina.">
+            <section class="bk-step" data-step="1">
               <div class="bk-grid">
-                <div class="bk-f"><label for="bk-brand">Marca</label><div class="bk-select"><select id="bk-brand"></select></div><p class="bk-err" data-err="brand"></p></div>
-                <div class="bk-f"><label for="bk-model">Modelo</label><input id="bk-model" type="text" placeholder="Ex.: Hilux 2.8 GD-6" autocomplete="off"><p class="bk-err" data-err="model"></p></div>
-                <div class="bk-f"><label for="bk-year">Ano</label><div class="bk-select"><select id="bk-year"></select></div></div>
-                <div class="bk-f"><label for="bk-km">Quilometragem</label><div class="bk-unit"><input id="bk-km" type="text" inputmode="numeric" placeholder="85 000"><span>km</span></div></div>
+                <div class="bk-f"><label for="bk-brand" data-i18n="bk.brand">Marca</label><div class="bk-select"><select id="bk-brand"></select></div><p class="bk-err" data-err="brand"></p></div>
+                <div class="bk-f"><label for="bk-model" data-i18n="bk.model">Modelo</label><input id="bk-model" type="text" placeholder="Ex.: Vitz 1.0, Demio, Hilux 2.8" data-i18n-ph="bk.modelPh" autocomplete="off"><p class="bk-err" data-err="model"></p></div>
+                <div class="bk-f"><label for="bk-year" data-i18n="bk.year">Ano</label><div class="bk-select"><select id="bk-year"></select></div></div>
+                <div class="bk-f"><label for="bk-km" data-i18n="bk.km">Quilometragem</label><div class="bk-unit"><input id="bk-km" type="text" inputmode="numeric" placeholder="85 000"><span>km</span></div></div>
                 <div class="bk-f bk-f--full">
-                  <span class="bk-label">Combustível</span>
-                  <div class="bk-seg" id="bk-fuel" role="radiogroup" aria-label="Combustível">
-                    <button type="button" role="radio" aria-checked="false" data-v="Gasolina">Gasolina</button>
-                    <button type="button" role="radio" aria-checked="false" data-v="Diesel">Diesel</button>
-                    <button type="button" role="radio" aria-checked="false" data-v="Híbrido">Híbrido</button>
-                    <button type="button" role="radio" aria-checked="false" data-v="Elétrico">Elétrico</button>
+                  <span class="bk-label" data-i18n="bk.fuel">Combustível</span>
+                  <div class="bk-seg" id="bk-fuel" role="radiogroup">
+                    <button type="button" role="radio" aria-checked="false" data-v="gasolina" data-i18n="bk.fuelG">Gasolina</button>
+                    <button type="button" role="radio" aria-checked="false" data-v="diesel" data-i18n="bk.fuelD">Diesel</button>
+                    <button type="button" role="radio" aria-checked="false" data-v="hibrido" data-i18n="bk.fuelH">Híbrido</button>
+                    <button type="button" role="radio" aria-checked="false" data-v="eletrico" data-i18n="bk.fuelE">Elétrico</button>
                   </div>
                 </div>
-                <div class="bk-f bk-f--full">
-                  <label for="bk-plate">Matrícula</label>
-                  <div class="bk-plate"><span class="bk-plate__flag" aria-hidden="true">MOC</span><input id="bk-plate" type="text" placeholder="AFG 247 MC" maxlength="10" autocomplete="off"></div>
+                <div class="bk-f">
+                  <label for="bk-plate" data-i18n="bk.plate">Matrícula</label>
+                  <div class="bk-plate"><span class="bk-plate__flag" aria-hidden="true">MOC</span><input id="bk-plate" type="text" placeholder="AFG 247 MP" maxlength="10" autocomplete="off"></div>
                   <p class="bk-err" data-err="plate"></p>
+                </div>
+                <div class="bk-f">
+                  <label for="bk-chassis" data-i18n="bk.chassis">Número de chassis (VIN)</label>
+                  <input id="bk-chassis" class="bk-mono" type="text" placeholder="NCP10-1234567" maxlength="20" autocomplete="off" spellcheck="false">
+                  <p class="bk-hint" data-i18n="bk.chassisHint">Está no livrete e na chapa do pilar da porta ou do para-brisas. Usamos para confirmar as peças certas.</p>
+                  <p class="bk-err" data-err="chassis"></p>
                 </div>
               </div>
             </section>
 
             <!-- 3. Data e hora -->
-            <section class="bk-step" data-step="2" data-title="Data e hora" data-sub="Segunda a sexta das 08:00 às 17:00, sábado até às 12:00.">
+            <section class="bk-step" data-step="2">
               <div class="bk-cal">
                 <div class="bk-cal__head">
-                  <button type="button" class="bk-cal__nav" data-cal="-1" aria-label="Mês anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+                  <button type="button" class="bk-cal__nav" data-cal="-1" aria-label="‹"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
                   <b id="bk-cal-month">—</b>
-                  <button type="button" class="bk-cal__nav" data-cal="1" aria-label="Mês seguinte"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+                  <button type="button" class="bk-cal__nav" data-cal="1" aria-label="›"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
                 </div>
-                <div class="bk-cal__dow"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+                <div class="bk-cal__dow" id="bk-dow"></div>
                 <div class="bk-cal__grid" id="bk-cal-grid"></div>
               </div>
               <div class="bk-times" id="bk-times"></div>
               <p class="bk-err" data-err="slot"></p>
               <fieldset class="bk-drop">
-                <legend class="bk-label">Entrega da viatura</legend>
-                <label class="bk-radio"><input type="radio" name="bk-drop" value="oficina" checked><span><b>Deixo a viatura na oficina</b><small>Sem custo adicional</small></span></label>
-                <label class="bk-radio"><input type="radio" name="bk-drop" value="recolha"><span><b>Recolha e entrega no meu endereço</b><small>+500 MT · dentro da cidade</small></span></label>
+                <legend class="bk-label" data-i18n="bk.drop">Entrega da viatura</legend>
+                <label class="bk-radio"><input type="radio" name="bk-drop" value="oficina" checked><span><b data-i18n="bk.drop1">Deixo a viatura na oficina</b><small data-i18n="bk.drop1d">Sem custo adicional</small></span></label>
+                <label class="bk-radio"><input type="radio" name="bk-drop" value="recolha"><span><b data-i18n="bk.drop2">Recolha e entrega no meu endereço</b><small id="bk-pickup-note">+500 MT</small></span></label>
               </fieldset>
             </section>
 
             <!-- 4. Contacto -->
-            <section class="bk-step" data-step="3" data-title="Os seus contactos" data-sub="Usamos estes dados apenas para confirmar e acompanhar a marcação.">
+            <section class="bk-step" data-step="3">
               <div class="bk-grid">
-                <div class="bk-f"><label for="bk-first">Nome</label><input id="bk-first" type="text" autocomplete="given-name"><p class="bk-err" data-err="first"></p></div>
-                <div class="bk-f"><label for="bk-last">Apelido</label><input id="bk-last" type="text" autocomplete="family-name"><p class="bk-err" data-err="last"></p></div>
-                <div class="bk-f"><label for="bk-phone">Telemóvel</label><div class="bk-unit bk-unit--pre"><span>+258</span><input id="bk-phone" type="tel" inputmode="tel" placeholder="84 123 4567" autocomplete="tel-national"></div><p class="bk-err" data-err="phone"></p></div>
-                <div class="bk-f"><label for="bk-email">Email <em>(opcional)</em></label><input id="bk-email" type="email" autocomplete="email"><p class="bk-err" data-err="email"></p></div>
+                <div class="bk-f"><label for="bk-first" data-i18n="bk.first">Nome</label><input id="bk-first" type="text" autocomplete="given-name"><p class="bk-err" data-err="first"></p></div>
+                <div class="bk-f"><label for="bk-last" data-i18n="bk.last">Apelido</label><input id="bk-last" type="text" autocomplete="family-name"><p class="bk-err" data-err="last"></p></div>
+                <div class="bk-f"><label for="bk-phone" data-i18n="bk.phone">Telemóvel</label><div class="bk-unit bk-unit--pre"><span>+258</span><input id="bk-phone" type="tel" inputmode="tel" placeholder="84 123 4567" autocomplete="tel-national"></div><p class="bk-err" data-err="phone"></p></div>
+                <div class="bk-f"><label for="bk-email"><span data-i18n="bk.email">Email</span> <em data-i18n="bk.optional">(opcional)</em></label><input id="bk-email" type="email" autocomplete="email"><p class="bk-err" data-err="email"></p></div>
                 <div class="bk-f bk-f--full">
-                  <span class="bk-label">Como prefere ser contactado?</span>
-                  <div class="bk-seg" id="bk-pref" role="radiogroup" aria-label="Preferência de contacto">
-                    <button type="button" role="radio" aria-checked="true" data-v="WhatsApp" class="on">WhatsApp</button>
-                    <button type="button" role="radio" aria-checked="false" data-v="Chamada">Chamada</button>
-                    <button type="button" role="radio" aria-checked="false" data-v="Email">Email</button>
+                  <span class="bk-label" data-i18n="bk.pref">Como prefere ser contactado?</span>
+                  <div class="bk-seg" id="bk-pref" role="radiogroup">
+                    <button type="button" role="radio" aria-checked="true" data-v="whatsapp" class="on">WhatsApp</button>
+                    <button type="button" role="radio" aria-checked="false" data-v="chamada" data-i18n="bk.prefCall">Chamada</button>
+                    <button type="button" role="radio" aria-checked="false" data-v="email">Email</button>
                   </div>
                 </div>
-                <div class="bk-f bk-f--full"><label for="bk-notes">Descrição do problema <em>(opcional)</em></label><textarea id="bk-notes" rows="4" placeholder="Ex.: ruído na roda dianteira ao travar; luz do motor acesa desde ontem."></textarea></div>
-                <label class="bk-check bk-f--full"><input type="checkbox" id="bk-consent"><span>Aceito ser contactado pela Blackline Performance sobre esta marcação.</span></label>
+                <div class="bk-f bk-f--full"><label for="bk-notes"><span data-i18n="bk.notes">Descrição do problema</span> <em data-i18n="bk.optional">(opcional)</em></label><textarea id="bk-notes" rows="4" placeholder="Ex.: ruído na roda dianteira ao travar; luz do motor acesa desde ontem." data-i18n-ph="bk.notesPh"></textarea></div>
+                <div class="bk-hp" aria-hidden="true"><label>Website <input id="bk-website" type="text" tabindex="-1" autocomplete="off"></label></div>
+                <label class="bk-check bk-f--full"><input type="checkbox" id="bk-consent"><span data-i18n="bk.consent">Aceito ser contactado pela Blackline Performance sobre esta marcação.</span></label>
                 <p class="bk-err bk-f--full" data-err="consent"></p>
               </div>
             </section>
 
             <!-- 5. Confirmação -->
-            <section class="bk-step" data-step="4" data-title="Confirme o pedido" data-sub="Verifique os dados. Pode alterar qualquer secção antes de enviar.">
+            <section class="bk-step" data-step="4">
               <div class="bk-review" id="bk-review"></div>
+              <p class="bk-err bk-err--block" data-err="send"></p>
             </section>
 
-            <!-- Enviado -->
-            <section class="bk-step bk-sent" data-step="5" data-title="Pedido de marcação enviado" data-sub="">
-              <div class="bk-ref"><span>Referência</span><b id="bk-code">BLP-0000</b></div>
+            <!-- Registado -->
+            <section class="bk-step bk-sent" data-step="5">
+              <div class="bk-ref"><span data-i18n="bk.ref">Referência</span><b id="bk-code">BLP-0000</b></div>
               <p class="bk-sent__text" id="bk-sent-text"></p>
               <ol class="bk-next-steps">
-                <li><b>Confirmação</b><span>A oficina confirma a hora pelo contacto que escolheu, em horário de expediente.</span></li>
-                <li><b>Receção</b><span id="bk-sent-when">—</span></li>
-                <li><b>Orçamento</b><span>Recebe o orçamento para aprovação antes de qualquer trabalho.</span></li>
+                <li><b data-i18n="bk.n1">Confirmação</b><span data-i18n="bk.n1d">A oficina confirma a hora pelo contacto que escolheu, em horário de expediente.</span></li>
+                <li><b data-i18n="bk.n2">Receção</b><span id="bk-sent-when">—</span></li>
+                <li><b data-i18n="bk.n3">Orçamento</b><span data-i18n="bk.n3d">Recebe o orçamento para aprovação antes de qualquer trabalho.</span></li>
               </ol>
               <div class="bk-sent__actions">
-                <a class="btn btn--red" id="bk-wa" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> Enviar também por WhatsApp</a>
-                <button type="button" class="btn btn--ghost" id="bk-ics">Adicionar ao calendário</button>
+                <button type="button" class="btn btn--dark" id="bk-ics" data-i18n="bk.ics">Adicionar ao calendário</button>
+                <a class="btn btn--ghost" data-href="whatsapp" href="https://wa.me/258860424242" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> <span data-i18n="bk.question">Tenho uma dúvida</span></a>
               </div>
             </section>
           </div>
         </div>
 
-        <aside class="bk-summary" aria-label="Resumo do pedido">
+        <aside class="bk-summary">
           <div class="bk-summary__body">
-            <h3>O seu pedido</h3>
-            <div class="bk-sum" data-go="0"><span>Serviços</span><div id="bk-sum-services" class="bk-sum__v">—</div></div>
-            <div class="bk-sum" data-go="1"><span>Viatura</span><div id="bk-sum-car" class="bk-sum__v">—</div></div>
-            <div class="bk-sum" data-go="2"><span>Data e hora</span><div id="bk-sum-date" class="bk-sum__v">—</div></div>
-            <div class="bk-sum" data-go="3"><span>Contacto</span><div id="bk-sum-client" class="bk-sum__v">—</div></div>
+            <h3 data-i18n="bk.order">O seu pedido</h3>
+            <div class="bk-sum" data-go="0"><span data-i18n="bk.t1">Serviços</span><div id="bk-sum-services" class="bk-sum__v">—</div></div>
+            <div class="bk-sum" data-go="1"><span data-i18n="bk.t2">Viatura</span><div id="bk-sum-car" class="bk-sum__v">—</div></div>
+            <div class="bk-sum" data-go="2"><span data-i18n="bk.t3">Data e hora</span><div id="bk-sum-date" class="bk-sum__v">—</div></div>
+            <div class="bk-sum" data-go="3"><span data-i18n="bk.t4">Contacto</span><div id="bk-sum-client" class="bk-sum__v">—</div></div>
           </div>
           <div class="bk-summary__foot">
-            <div class="bk-total"><span>Total estimado</span><b id="bk-total">0 MT</b></div>
-            <p class="bk-total__note" id="bk-total-note">Valores indicativos, IVA incluído.</p>
+            <div class="bk-total"><span data-i18n="bk.total">Total estimado</span><b id="bk-total">0 MT</b></div>
+            <p class="bk-total__note" id="bk-total-note"></p>
             <div class="bk-actions">
-              <button type="button" class="bk-btn bk-btn--ghost" id="bk-back">Voltar</button>
+              <button type="button" class="bk-btn bk-btn--ghost" id="bk-back" data-i18n="bk.back">Voltar</button>
               <button type="button" class="bk-btn" id="bk-next">Continuar</button>
             </div>
           </div>
@@ -486,6 +528,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/booking.js"></script>
   <script src="js/main.js"></script>
 </body>

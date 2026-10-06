@@ -5,6 +5,88 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   $('#year').textContent = new Date().getFullYear();
+  const I = window.BLi18n;
+
+  /* ---------- Contactos e textos editáveis no painel ---------- */
+  let settings = null;
+  const applySettings = () => {
+    if (!settings) return;
+    const c = settings.contacts;
+    const wa = String(c.whatsapp || '').replace(/\D/g, '');
+    const tel = String(c.phone || '').replace(/[^\d+]/g, '');
+    const hrefs = {
+      whatsapp: wa && `https://wa.me/${wa}`,
+      phone: tel && `tel:${tel}`,
+      instagram: c.instagram && `https://www.instagram.com/${c.instagram.replace(/^@/, '')}/`,
+      tiktok: c.tiktok && `https://www.tiktok.com/@${c.tiktok.replace(/^@/, '')}`,
+    };
+    const texts = {
+      phone: c.phone, instagram: c.instagram && '@' + c.instagram.replace(/^@/, ''), tiktok: c.tiktok && '@' + c.tiktok.replace(/^@/, ''),
+      hours: I.pick(c.hours), payment: I.pick(c.payment),
+    };
+    $$('[data-href]').forEach(a => { const h = hrefs[a.dataset.href]; if (h) a.href = h; else if (a.dataset.href !== 'phone') a.hidden = !h; });
+    $$('[data-set]').forEach(el => { const v = texts[el.dataset.set]; if (v) el.textContent = v; });
+  };
+  window.BLStore.getSettings().then(s => { settings = s; applySettings(); });
+  document.addEventListener('lang:change', () => {
+    applySettings(); showcase.caption();
+    burger.setAttribute('aria-label', I.t(menu.classList.contains('is-open') ? 'nav.close' : 'nav.open'));
+  });
+
+  /* ---------- Carrossel: viaturas na oficina ---------- */
+  const showcase = (() => {
+    const slides = $$('.showcase__slide');
+    const bars = $('#sc-bars');
+    if (!slides.length) return { caption() {} };
+    let i = 0, timer = null;
+    const DUR = 5200;
+    bars.innerHTML = slides.map((_, k) => `<button type="button" aria-label="${k + 1}"><i></i></button>`).join('');
+    $('#sc-t').textContent = String(slides.length).padStart(2, '0');
+    const caption = () => {
+      const s = slides[i];
+      $('#sc-n').textContent = String(i + 1).padStart(2, '0');
+      $('#sc-name').textContent = s.dataset.name;
+      $('#sc-job').textContent = s.dataset['job' + (I.lang === 'en' ? 'En' : 'Pt')];
+    };
+    const go = (to, dir = 1) => {
+      const from = slides[i];
+      i = (to + slides.length) % slides.length;
+      const next = slides[i];
+      $$('button', bars).forEach((b, k) => b.classList.toggle('on', k === i));
+      if (window.gsap && !reduced && from !== next) {
+        gsap.to(from, { xPercent: -40 * dir, opacity: 0, duration: .6, ease: 'power3.in', onComplete: () => from.classList.remove('is-active') });
+        next.classList.add('is-active');
+        gsap.fromTo(next, { xPercent: 50 * dir, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 1, ease: 'expo.out', delay: .35 });
+        gsap.fromTo(['#sc-name', '#sc-job'], { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .6, stagger: .06, ease: 'power3.out', delay: .4, onStart: caption });
+      } else {
+        slides.forEach(sl => sl.classList.toggle('is-active', sl === next));
+        caption();
+      }
+      restart();
+    };
+    const restart = () => {
+      clearTimeout(timer);
+      const bar = $$('button i', bars)[i];
+      $$('button i', bars).forEach(x => { x.style.transition = 'none'; x.style.transform = 'scaleX(0)'; });
+      if (reduced) return;
+      requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = `transform ${DUR}ms linear`; bar.style.transform = 'scaleX(1)'; }));
+      timer = setTimeout(() => go(i + 1), DUR);
+    };
+    $$('[data-sc]').forEach(b => b.addEventListener('click', () => go(i + +b.dataset.sc, +b.dataset.sc)));
+    bars.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { const k = $$('button', bars).indexOf(b); go(k, k > i ? 1 : -1); } });
+    // arrastar no telemóvel
+    let x0 = null;
+    const stage = $('#sc-stage');
+    stage.addEventListener('pointerdown', e => { x0 = e.clientX; });
+    stage.addEventListener('pointerup', e => { if (x0 == null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); });
+    const box = $('.showcase');
+    box.addEventListener('mouseenter', () => clearTimeout(timer));
+    box.addEventListener('mouseleave', restart);
+    document.addEventListener('visibilitychange', () => (document.hidden ? clearTimeout(timer) : restart()));
+    $$('button', bars)[0].classList.add('on');
+    caption(); restart();
+    return { caption };
+  })();
 
   /* ---------- Nav: fundo ao rolar, esconde ao descer, menu mobile ---------- */
   const nav = $('.nav');
@@ -25,7 +107,7 @@
     menu.classList.toggle('is-open', open);
     menu.setAttribute('aria-hidden', !open);
     burger.setAttribute('aria-expanded', open);
-    burger.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    burger.setAttribute('aria-label', I.t(open ? 'nav.close' : 'nav.open'));
     document.documentElement.classList.toggle('is-locked', open);
     document.dispatchEvent(new CustomEvent(open ? 'menu:open' : 'menu:close'));
     if (open && window.gsap && !reduced) {
@@ -45,6 +127,7 @@
   const cards = $$('.gallery .card');
   const applyFilter = (f) => {
     const show = cards.filter(c => f === 'all' || c.dataset.cat === f);
+    $('.showcase').hidden = f !== 'all';
     cards.forEach(c => c.classList.toggle('is-hidden', !show.includes(c)));
     if (window.gsap && !reduced) {
       gsap.fromTo(show, { opacity: 0, y: 30, scale: .96 },
@@ -198,6 +281,14 @@
   gsap.from('.section-head > *', {
     y: 50, opacity: 0, stagger: .08, duration: 1, ease: 'power3.out',
     scrollTrigger: { trigger: '.services', start: 'top 75%' },
+  });
+  gsap.from('.showcase', {
+    y: 70, opacity: 0, duration: 1.1, ease: 'power3.out',
+    scrollTrigger: { trigger: '.showcase', start: 'top 88%' },
+  });
+  gsap.from('.showcase__stage', {
+    clipPath: 'inset(0 0 0 100%)', duration: 1.2, ease: 'expo.inOut',
+    scrollTrigger: { trigger: '.showcase', start: 'top 80%' },
   });
   ScrollTrigger.batch('.gallery .card', {
     start: 'top 92%',

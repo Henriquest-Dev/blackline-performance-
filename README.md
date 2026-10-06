@@ -11,12 +11,19 @@ e animações de scroll inspiradas no blueprint de referência (GSAP ScrollTrigg
 ```
 index.html                 página única (PT)
 css/styles.css             estilos + responsivo
-js/main.js                 smooth scroll, animações, filtros, contadores, menu mobile
-js/booking.js              sistema de agendamento (5 passos + confirmação)
+admin.html                 painel de administração (link no "2026" do rodapé)
+js/config.js               configuração (URL do servidor) e valores por defeito: serviços, preços, contactos
+js/store.js                camada de dados (modo demonstração / Folha Google)
+js/i18n.js                 traduções PT / EN
+js/main.js                 smooth scroll, animações, carrossel, filtros, menu mobile
+js/booking.js              marcação de serviço (5 passos + registo do pedido)
+js/admin.js, css/admin.css painel
+backend/apps-script.gs     servidor gratuito (Google Apps Script + Folha Google)
 assets/logo/               logótipo vetorizado (SVG): vermelho, branco e escuro
 assets/favicon.svg
 assets/img/bmw-m5.png      BMW M5 recortada (fundo transparente, matrícula "BLACKLINE")
-assets/img/gallery/        fotos de exemplo dos serviços (Unsplash)
+assets/img/gallery/        fotos dos serviços (Unsplash)
+assets/img/cars/           carrossel: Toyota Vitz, Mazda Demio, Mazda Verisa, Toyota Ractis (recortados)
 ```
 
 ## Secções e animações
@@ -43,8 +50,18 @@ Qualquer botão "Marcar" (ou o link `#agendar`) abre a página de marcação, em
 4. **Contacto** — nome, apelido, telemóvel (+258, validado), email, preferência de contacto e descrição do problema
 5. **Confirmação** — revisão de tudo, com "Alterar" em cada secção
 
-Ao enviar, gera uma referência `BLP-…` e permite enviar o pedido pelo WhatsApp (mensagem preenchida) ou
-adicioná-lo ao calendário (.ics). Os preços estão em `js/booking.js` (`GROUPS`) e são de exemplo.
+Inclui o **número de chassis (VIN)**. Ao enviar, o pedido é **gravado** e aparece no painel de administração;
+o cliente recebe uma referência `BLP-…` e pode adicionar a marcação ao calendário. Serviços e preços editam-se no painel.
+
+## Painel de administração
+
+Clicar no ano do rodapé → `admin.html` (utilizador `admin`, palavra-passe inicial `Blackline@2026`).
+Marcações (pesquisa, estados, notas, WhatsApp, exportar CSV), serviços e preços, contactos e horário, conta.
+Guia completo e ativação da Folha Google: [`docs/painel-admin.md`](docs/painel-admin.md).
+
+## Idiomas
+
+Botão PT / EN no topo (e no menu do telemóvel). A escolha fica guardada; também funciona com `?lang=en`.
 
 Ver também [`docs/sinais-de-ia.md`](docs/sinais-de-ia.md) — o que foi retirado para o site não parecer gerado por IA.
 
@@ -56,3 +73,9 @@ python3 -m http.server 8000
 ```
 
 > Estatísticas, avaliações, textos dos trabalhos e fotos da galeria são **dados de exemplo** — substituir pelos reais.
+
+## Créditos das imagens
+
+- Fotos da galeria: [Unsplash](https://unsplash.com) (Licença Unsplash).
+- Toyota Ractis: foto de Wikimedia Commons (licença CC BY-SA) — manter a atribuição ou substituir por foto própria.
+- Restantes viaturas: fotos fornecidas pela Blackline. A matrícula do Mazda Demio foi substituída por uma placa "BLACKLINE".

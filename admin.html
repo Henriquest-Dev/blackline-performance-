@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Área reservada — Blackline Performance</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="bl-mark" viewBox="30 125 505 425"><path d="M48 140H440V213H166L324 510Q326 526 306 525Q262 524 248 498L44 152Q40 140 48 140Z"/><path d="M400 140H430C482 140 519 180 519 248C519 286 508 310 493 326C504 346 506 380 505 420C504 478 470 522 418 522H368Q360 522 355 512L311 442H398A44 44 0 0 0 398 354H380C316 352 258 318 212 271H413A29 29 0 0 0 413 213H400Z"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(-46 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(-26 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(-6 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(14 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(34 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(54 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(74 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(94 420 428)"/><rect x="502" y="420" width="17" height="16" rx="2.5" transform="rotate(114 420 428)"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3Z" fill="currentColor"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z" fill="currentColor"/></symbol>
+  </svg>
+
+  <!-- LOGIN -->
+  <main class="login" id="login">
+    <section class="login__side">
+      <a class="login__brand" href="index.html">
+        <span class="badge"><svg><use href="#bl-mark"/></svg></span>
+        <span><b>blackline</b><small>PERFORMANCE</small></span>
+      </a>
+      <div>
+        <h1>Área reservada</h1>
+        <p>Gestão de marcações, preços e contactos do site.</p>
+      </div>
+      <p class="login__foot">© <span class="js-year">2026</span> Blackline Performance</p>
+    </section>
+    <section class="login__main">
+      <form class="login__form" id="login-form" autocomplete="on" novalidate>
+        <h2>Entrar</h2>
+        <label class="f"><span>Utilizador</span><input id="lg-user" name="username" autocomplete="username" required></label>
+        <label class="f"><span>Palavra-passe</span>
+          <span class="pw"><input id="lg-pass" name="password" type="password" autocomplete="current-password" required><button type="button" class="pw__toggle" data-pw="lg-pass">Mostrar</button></span>
+        </label>
+        <p class="form-err" id="lg-err" role="alert"></p>
+        <button class="btn btn--red btn--block" id="lg-btn" type="submit">Entrar</button>
+        <a class="link-muted" href="index.html">← Voltar ao site</a>
+        <p class="mode-note" id="lg-mode"></p>
+      </form>
+    </section>
+  </main>
+
+  <!-- PAINEL -->
+  <div class="app" id="app" hidden>
+    <aside class="side">
+      <a class="side__brand" href="index.html" title="Ver site">
+        <span class="badge"><svg><use href="#bl-mark"/></svg></span>
+        <span><b>blackline</b><small>PAINEL</small></span>
+      </a>
+      <nav class="side__nav" aria-label="Painel">
+        <button type="button" data-view="bookings" class="is-active">Marcações <span class="count" id="nav-count" hidden>0</span></button>
+        <button type="button" data-view="services">Serviços e preços</button>
+        <button type="button" data-view="contacts">Contactos e horário</button>
+        <button type="button" data-view="account">Conta</button>
+      </nav>
+      <div class="side__foot">
+        <a href="index.html" target="_blank" rel="noopener">Ver site ↗</a>
+        <button type="button" id="logout">Sair</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="top">
+        <button type="button" class="top__menu" id="top-menu" aria-label="Menu">☰</button>
+        <h1 id="view-title">Marcações</h1>
+        <span class="save" id="save-state" aria-live="polite"></span>
+      </header>
+      <div class="banner" id="mode-banner" hidden>
+        <b>Modo demonstração.</b> Os dados ficam guardados apenas neste navegador. Para receber as marcações dos clientes e publicar preços para todos, ligue a Folha Google — <button type="button" data-view="account" class="linklike">ver como</button>.
+      </div>
+
+      <!-- Marcações -->
+      <section class="view is-active" id="v-bookings">
+        <div class="toolbar">
+          <input type="search" id="bk-search" placeholder="Pesquisar nome, telemóvel, matrícula, chassis, referência…">
+          <select id="bk-status">
+            <option value="">Todos os estados</option>
+            <option value="novo">Novo</option>
+            <option value="contactado">Contactado</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <select id="bk-when">
+            <option value="upcoming">Próximas</option>
+            <option value="all">Todas as datas</option>
+            <option value="past">Passadas</option>
+          </select>
+          <button type="button" class="btn btn--ghost" id="bk-refresh">Atualizar</button>
+          <button type="button" class="btn btn--dark" id="bk-export">Exportar CSV</button>
+        </div>
+        <p class="summary-line" id="bk-summary"></p>
+        <div class="table-wrap">
+          <table class="tbl" id="bk-table">
+            <thead><tr><th>Recebido</th><th>Cliente</th><th>Viatura</th><th>Serviços</th><th>Marcação</th><th>Estado</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty" id="bk-empty" hidden>
+            <b>Sem marcações</b>
+            <p>Os pedidos feitos no site aparecem aqui assim que são enviados.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Serviços -->
+      <section class="view" id="v-services">
+        <p class="intro">Os preços e serviços são atualizados no site automaticamente ao editar. Deixe o preço vazio para "Sob orçamento". Desmarque <b>Ativo</b> para esconder um serviço sem o apagar.</p>
+        <div class="card">
+          <h2>Opções da marcação</h2>
+          <div class="grid3">
+            <label class="f"><span>Taxa de recolha e entrega (MT)</span><input type="number" min="0" step="50" data-bind="booking.pickupFee"></label>
+            <label class="f"><span>Sábado — último horário antes de</span><input type="time" data-bind="booking.satClose"></label>
+          </div>
+        </div>
+        <div id="groups"></div>
+        <div class="row-actions">
+          <button type="button" class="btn btn--ghost" id="add-group">+ Nova categoria</button>
+          <button type="button" class="btn btn--ghost btn--danger-text" id="reset-services">Repor serviços e preços originais</button>
+        </div>
+      </section>
+
+      <!-- Contactos -->
+      <section class="view" id="v-contacts">
+        <p class="intro">Estes dados aparecem no site (topo, rodapé, botões de WhatsApp e redes sociais). As alterações são guardadas automaticamente.</p>
+        <div class="card">
+          <h2>Contactos</h2>
+          <div class="grid2">
+            <label class="f"><span>Telefone (como aparece no site)</span><input data-bind="contacts.phone" placeholder="+258 86 042 4242"></label>
+            <label class="f"><span>WhatsApp (só números, com 258)</span><input data-bind="contacts.whatsapp" inputmode="numeric" placeholder="258860424242"></label>
+            <label class="f"><span>Instagram (utilizador)</span><input data-bind="contacts.instagram" placeholder="blp_autocare"></label>
+            <label class="f"><span>TikTok (utilizador)</span><input data-bind="contacts.tiktok" placeholder="blackline.perfomace"></label>
+            <label class="f"><span>Email</span><input type="email" data-bind="contacts.email"></label>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Horário, morada e pagamentos</h2>
+          <div class="grid2">
+            <label class="f"><span>Horário — português</span><input data-bind="contacts.hours.pt"></label>
+            <label class="f"><span>Horário — inglês</span><input data-bind="contacts.hours.en"></label>
+            <label class="f"><span>Morada — português</span><input data-bind="contacts.address.pt"></label>
+            <label class="f"><span>Morada — inglês</span><input data-bind="contacts.address.en"></label>
+            <label class="f"><span>Pagamentos — português</span><input data-bind="contacts.payment.pt"></label>
+            <label class="f"><span>Pagamentos — inglês</span><input data-bind="contacts.payment.en"></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conta -->
+      <section class="view" id="v-account">
+        <div class="card">
+          <h2>Alterar palavra-passe</h2>
+          <form id="pw-form" class="grid3" novalidate>
+            <label class="f"><span>Palavra-passe atual</span><input type="password" id="pw-old" autocomplete="current-password"></label>
+            <label class="f"><span>Nova palavra-passe</span><input type="password" id="pw-new" autocomplete="new-password" minlength="8"></label>
+            <label class="f"><span>Repetir nova</span><input type="password" id="pw-new2" autocomplete="new-password"></label>
+            <div class="f f--actions"><button class="btn btn--dark" type="submit">Guardar palavra-passe</button><span class="form-msg" id="pw-msg"></span></div>
+          </form>
+        </div>
+        <div class="card">
+          <h2>Armazenamento</h2>
+          <p id="storage-info"></p>
+          <ol class="steps-list" id="storage-steps">
+            <li>Crie uma Folha Google nova na conta da Blackline (ex.: "Blackline — Marcações").</li>
+            <li>No menu <b>Extensões → Apps Script</b>, apague o código e cole o conteúdo de <code>backend/apps-script.gs</code> (está no repositório do site).</li>
+            <li><b>Implementar → Nova implementação → Aplicação Web</b>. Executar como: <i>Eu</i>. Quem tem acesso: <i>Qualquer pessoa</i>. Autorize.</li>
+            <li>Copie o URL que termina em <code>/exec</code> e coloque-o em <code>js/config.js</code> no campo <code>backendUrl</code> (ou envie-o ao programador).</li>
+            <li>Entre de novo neste painel com <b>admin</b> / <b>Blackline@2026</b> e mude a palavra-passe aqui.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h2>Cópia de segurança</h2>
+          <p>Descarregue todos os dados (marcações, preços, contactos) num ficheiro, ou reponha a partir de uma cópia.</p>
+          <div class="row-actions">
+            <button type="button" class="btn btn--ghost" id="backup-export">Descarregar cópia (.json)</button>
+            <label class="btn btn--ghost">Repor cópia<input type="file" id="backup-import" accept="application/json" hidden></label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Detalhe da marcação -->
+  <div class="drawer" id="drawer" hidden>
+    <div class="drawer__bg" data-close-drawer></div>
+    <aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="dr-title">
+      <header class="drawer__head">
+        <div><small id="dr-ref">BLP-…</small><h2 id="dr-title">—</h2></div>
+        <button type="button" class="x" data-close-drawer aria-label="Fechar">×</button>
+      </header>
+      <div class="drawer__body">
+        <div class="status-seg" id="dr-status" role="radiogroup" aria-label="Estado">
+          <button type="button" data-v="novo">Novo</button>
+          <button type="button" data-v="contactado">Contactado</button>
+          <button type="button" data-v="confirmado">Confirmado</button>
+          <button type="button" data-v="concluido">Concluído</button>
+          <button type="button" data-v="cancelado">Cancelado</button>
+        </div>
+        <div class="dr-actions">
+          <a class="btn btn--red" id="dr-wa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg> WhatsApp</a>
+          <a class="btn btn--ghost" id="dr-call"><svg class="ico"><use href="#i-phone"/></svg> Ligar</a>
+          <a class="btn btn--ghost" id="dr-mail">Email</a>
+        </div>
+        <div id="dr-details"></div>
+        <label class="f"><span>Nota interna (só visível no painel)</span><textarea id="dr-note" rows="4" placeholder="Ex.: confirmado por telefone, cliente traz peças próprias…"></textarea></label>
+        <button type="button" class="btn btn--ghost btn--danger-text" id="dr-delete">Eliminar marcação</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
