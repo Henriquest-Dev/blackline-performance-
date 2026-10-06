@@ -1,13 +1,10 @@
 /* Blackline Performance — configuração e valores por defeito
  *
- * backendUrl: URL da aplicação web do Google Apps Script (ver docs/painel-admin.md).
- *   Vazio  → modo demonstração: marcações e alterações ficam guardadas só no navegador.
- *   Preenchido → modo online: marcações e alterações ficam na Folha Google da Blackline
- *                e valem para todos os visitantes.
+ * A ligação ao Supabase está em js/env.js (gerado a partir de .env com: node scripts/build-env.mjs).
+ * Sem Supabase o site funciona em modo demonstração (dados só no navegador).
  */
 window.BL_CONFIG = {
-  backendUrl: '',
-  // Apenas para o modo demonstração. No modo online a palavra-passe é validada no servidor.
+  // Só para o modo demonstração. Com Supabase o login é feito com email e palavra-passe do Supabase Auth.
   adminUser: 'admin',
   adminPassHash: '2e71858c36954a6c40cb339e20f82ae72ea53895be6a2222865cb724f1a94b9d', // Blackline@2026
 };

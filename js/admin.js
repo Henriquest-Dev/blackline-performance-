@@ -12,6 +12,10 @@
     locked: 'Demasiadas tentativas. Tente novamente dentro de 15 minutos.',
     session_expired: 'A sessão expirou. Entre novamente.',
     weak_password: 'A nova palavra-passe deve ter pelo menos 8 caracteres.',
+    not_admin: 'Esta conta não tem acesso ao painel. Peça para ser adicionada como administradora.',
+    unconfirmed: 'O email desta conta ainda não foi confirmado.',
+    network: 'Sem ligação à internet ou ao servidor.',
+    forbidden: 'Sem permissão para esta operação.',
   };
   const errMsg = e => ERR[e.code || e.message] || (e.message === 'Failed to fetch' ? 'Sem ligação ao servidor.' : e.message || 'Ocorreu um erro.');
 
@@ -32,6 +36,7 @@
   const guard = async fn => {
     try { return await fn(); } catch (e) {
       if ((e.code || e.message) === 'session_expired') { S.logout(); showLogin(ERR.session_expired); }
+      if (e.code === 'forbidden') toast(ERR.forbidden, 'err');
       throw e;
     }
   };
@@ -41,10 +46,12 @@
   }));
 
   /* ---------------- login ---------------- */
-  const modeText = S.mode === 'remote'
-    ? 'Ligado à Folha Google da Blackline.'
+  const modeText = S.mode !== 'local'
+    ? 'Ligado à base de dados da Blackline (Supabase).'
     : 'Modo demonstração — os dados ficam neste navegador.';
   $('#lg-mode').textContent = modeText;
+  $('#lg-user-label').textContent = S.loginLabel;
+  if (S.mode !== 'local') { $('#lg-user').type = 'email'; $('#lg-user').autocomplete = 'email'; $('#lg-user').placeholder = 'nome@empresa.co.mz'; }
 
   function showLogin(msg) {
     $('#app').hidden = true; $('#login').hidden = false;
@@ -53,11 +60,17 @@
   }
   async function showApp() {
     $('#login').hidden = true; $('#app').hidden = false;
-    $('#mode-banner').hidden = S.mode === 'remote';
+    $('#mode-banner').hidden = S.mode !== 'local';
     renderStorage();
     await loadSettings();
     await loadBookings();
+    if (!unsubscribe) unsubscribe = S.onNewBooking(b => {
+      if (bookings.some(x => x.id === b.id)) return;
+      bookings.unshift(b); renderBookings();
+      toast(`Nova marcação: ${name(b)} — ${fmtDay(b.date, b.time)}`);
+    });
   }
+  let unsubscribe = null;
   $('#login-form').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = $('#lg-btn'); btn.disabled = true; btn.textContent = 'A entrar…';
@@ -69,7 +82,7 @@
     } catch (err) { $('#lg-err').textContent = errMsg(err); }
     finally { btn.disabled = false; btn.textContent = 'Entrar'; }
   });
-  $('#logout').addEventListener('click', () => { S.logout(); showLogin(); });
+  $('#logout').addEventListener('click', async () => { unsubscribe?.(); unsubscribe = null; await S.logout(); showLogin(); });
 
   /* ---------------- navegação ---------------- */
   const TITLES = { bookings: 'Marcações', services: 'Serviços e preços', promos: 'Promoções', contacts: 'Contactos e horário', account: 'Conta' };
@@ -455,10 +468,10 @@
 
   /* ---------------- conta ---------------- */
   function renderStorage() {
-    $('#storage-info').innerHTML = S.mode === 'remote'
-      ? '<span class="pill pill--confirmado">Ligado</span> As marcações e definições estão guardadas na Folha Google da Blackline. Pode também abrir a folha "Marcações" diretamente no Google Sheets.'
-      : '<span class="pill pill--novo">Demonstração</span> Os dados estão guardados apenas neste navegador. Clientes noutros dispositivos não aparecem aqui até ligar a Folha Google:';
-    $('#storage-steps').hidden = S.mode === 'remote';
+    $('#storage-info').innerHTML = S.mode !== 'local'
+      ? '<span class="pill pill--confirmado">Ligado</span> Marcações, serviços, preços, promoções, contactos e cotações estão guardados na base de dados Supabase da Blackline. Os PDFs das cotações ficam no Storage (privado).'
+      : '<span class="pill pill--novo">Demonstração</span> Os dados estão guardados apenas neste navegador. Para ligar a base de dados:';
+    $('#storage-steps').hidden = S.mode !== 'local';
   }
   $('#pw-form').addEventListener('submit', async e => {
     e.preventDefault();
@@ -497,5 +510,5 @@
   };
 
   /* ---------------- arranque ---------------- */
-  S.token ? showApp().catch(() => showLogin()) : showLogin();
+  S.hasSession().then(ok => (ok ? showApp() : showLogin())).catch(() => showLogin());
 })();

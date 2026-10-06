@@ -17,11 +17,11 @@
     pt: { title: 'COTAÇÃO', no: 'Nº', date: 'Data', valid: 'Válida até', booking: 'Ref. marcação', appt: 'Marcação', client: 'CLIENTE', vehicle: 'VIATURA', details: 'DETALHES',
       desc: 'Descrição', qty: 'Qtd', unit: 'Preço unit.', total: 'Total', subtotal: 'Subtotal', discount: 'Desconto', vatIncl: 'IVA incluído ({r}%)', vatAdd: 'IVA ({r}%)', net: 'Valor sem IVA',
       grand: 'TOTAL', notes: 'Observações', terms: 'Condições', bank: 'Pagamento', plate: 'Matrícula', chassis: 'Chassis', km: 'Km', page: 'Página {p} de {n}', quoteLine: '(a orçamentar)',
-      pickup: 'Recolha e entrega', msg: 'Olá {n}, segue em anexo a cotação {q} da Blackline Performance para {car}: total {t}, válida até {v}. Qualquer dúvida estamos ao dispor.' },
+      pickup: 'Recolha e entrega', msg: 'Olá {n}, segue em anexo a cotação {q} da Blackline Performance para {car}: total {t}, válida até {v}. Qualquer dúvida estamos ao dispor.', link: 'Ver / descarregar a cotação (PDF): {u}' },
     en: { title: 'QUOTATION', no: 'No.', date: 'Date', valid: 'Valid until', booking: 'Booking ref.', appt: 'Appointment', client: 'CUSTOMER', vehicle: 'VEHICLE', details: 'DETAILS',
       desc: 'Description', qty: 'Qty', unit: 'Unit price', total: 'Total', subtotal: 'Subtotal', discount: 'Discount', vatIncl: 'VAT included ({r}%)', vatAdd: 'VAT ({r}%)', net: 'Amount excl. VAT',
       grand: 'TOTAL', notes: 'Notes', terms: 'Terms', bank: 'Payment', plate: 'Plate', chassis: 'Chassis', km: 'Mileage', page: 'Page {p} of {n}', quoteLine: '(to be quoted)',
-      pickup: 'Collection and delivery', msg: 'Hello {n}, please find attached quotation {q} from Blackline Performance for {car}: total {t}, valid until {v}. Let us know if you have any questions.' },
+      pickup: 'Collection and delivery', msg: 'Hello {n}, please find attached quotation {q} from Blackline Performance for {car}: total {t}, valid until {v}. Let us know if you have any questions.', link: 'View / download the quotation (PDF): {u}' },
   };
   const tr = (lang, k, v) => (T[lang][k] || k).replace(/\{(\w+)\}/g, (_, x) => v?.[x] ?? '');
 
@@ -117,9 +117,11 @@
     $('#q-notes').value = q.notes || ''; $('#q-discount').value = q.discount || 0; $('#q-vatmode').value = q.vatMode;
     $('#q-svc-pick').innerHTML = svcOptions(); $('#q-svc-pick').hidden = true;
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }));
-    $('#q-hint').textContent = canShare
-      ? 'Ao enviar, escolha o WhatsApp na lista de partilha e a conversa do cliente.'
-      : 'Neste computador o PDF é descarregado e a conversa do cliente abre no WhatsApp — arraste o ficheiro para a conversa.';
+    $('#q-hint').textContent = window.BLStore.canUploadPdf
+      ? (canShare ? 'O PDF é guardado na base de dados e partilhado: escolha o WhatsApp e a conversa do cliente. A mensagem leva também um link para o PDF.'
+                  : 'O PDF é guardado na base de dados e a conversa do cliente abre no WhatsApp com a mensagem e o link para o PDF — é só carregar em enviar.')
+      : (canShare ? 'Ao enviar, escolha o WhatsApp na lista de partilha e a conversa do cliente.'
+                  : 'Neste computador o PDF é descarregado e a conversa do cliente abre no WhatsApp — arraste o ficheiro para a conversa.');
     renderItems();
     $('#qmodal').hidden = false;
     document.body.classList.add('no-scroll');
@@ -277,11 +279,12 @@
   }
 
   const fileName = () => `Cotacao-${(q.number || 'Blackline').replace(/[^\w-]+/g, '_')}.pdf`;
-  const persist = async (sent) => {
+  const persist = async (sent, pdfPath) => {
     readHead();
     const t = totals(q);
     const data = { ...q, total: Math.round(t.total * 100) / 100 };
     const patch = { quote: JSON.stringify(data) };
+    if (pdfPath) patch.quotePdf = pdfPath;
     if (sent) { patch.quoteAt = new Date().toISOString(); if (booking.status === 'novo') patch.status = 'contactado'; }
     return A().savePatch(booking, patch);
   };
@@ -305,18 +308,31 @@
       const t = totals(q);
       const car = [booking.brand, booking.model].filter(Boolean).join(' ');
       const validStr = addDays(q.date, q.validDays).toLocaleDateString(q.lang === 'en' ? 'en-GB' : 'pt-PT');
-      const msg = tr(q.lang, 'msg', { n: booking.firstName || '', q: q.number, car, t: mt(t.total), v: validStr });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      let msg = tr(q.lang, 'msg', { n: booking.firstName || '', q: q.number, car, t: mt(t.total), v: validStr });
+      // abre já a janela do WhatsApp (os navegadores bloqueiam janelas abertas depois de esperar pela rede)
+      const canShareFile = navigator.canShare && navigator.canShare({ files: [file] });
+      const win = canShareFile ? null : window.open('about:blank', '_blank');
+      let uploaded = null;
+      if (window.BLStore.canUploadPdf) {
+        btn.textContent = 'A guardar PDF…';
+        uploaded = await window.BLStore.uploadQuotePdf(booking.id, q.number, blob, Math.max(q.validDays || 15, 7) + 7);
+        msg += '\n\n' + tr(q.lang, 'link', { u: uploaded.url });
+      }
+      const wa = `https://wa.me/258${booking.phone}?text=${encodeURIComponent(msg)}`;
+      if (canShareFile) {
         try { await navigator.share({ files: [file], title: fileName(), text: msg }); }
-        catch (e) { if (e.name === 'AbortError') return; throw e; }
+        catch (e) { if (e.name === 'AbortError') { await persist(false, uploaded?.path); return; } throw e; }
+      } else if (uploaded) {
+        win ? (win.location.href = wa) : window.open(wa, '_blank', 'noopener');
+        A().toast('Conversa aberta no WhatsApp com o link do PDF — carregue em enviar.');
       } else {
         download(blob);
-        window.open(`https://wa.me/258${booking.phone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+        win ? (win.location.href = wa) : window.open(wa, '_blank', 'noopener');
         A().toast('PDF descarregado — arraste-o para a conversa do WhatsApp que abriu.');
       }
-      await persist(true);
-    } catch (e) { A().toast(e.message || 'Não foi possível gerar o PDF.', 'err'); }
-    finally { btn.disabled = false; }
+      await persist(true, uploaded?.path);
+    } catch (e) { A().toast(A().errMsg ? A().errMsg(e) : (e.message || 'Não foi possível gerar o PDF.'), 'err'); }
+    finally { btn.disabled = false; btn.innerHTML = '<svg class="ico"><use href="#i-wa"/></svg> Enviar PDF por WhatsApp'; }
   });
 
   window.BLQuote = { open, buildPdf: async b => { if (b) open(b); return buildPdf(); } };

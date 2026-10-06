@@ -12,13 +12,17 @@ e animações de scroll inspiradas no blueprint de referência (GSAP ScrollTrigg
 index.html                 página única (PT)
 css/styles.css             estilos + responsivo
 admin.html                 painel de administração (link no "2026" do rodapé)
-js/config.js               configuração (URL do servidor) e valores por defeito: serviços, preços, contactos
-js/store.js                camada de dados (modo demonstração / Folha Google)
+js/config.js               valores por defeito: serviços, preços, promoções, contactos, empresa
+js/env.js                  ligação ao Supabase (gerado de .env por scripts/build-env.mjs)
+js/store.js                camada de dados (Supabase; modo demonstração sem configuração)
+js/quote.js                editor de cotação + PDF
+js/vendor/                 supabase-js e jsPDF (locais, sem depender de CDN)
+supabase/schema.sql        tabelas, segurança (RLS), Storage — executar no SQL Editor do Supabase
+.env.example               modelo do ficheiro .env
 js/i18n.js                 traduções PT / EN
 js/main.js                 smooth scroll, animações, carrossel, filtros, menu mobile
 js/booking.js              marcação de serviço (5 passos + registo do pedido)
 js/admin.js, css/admin.css painel
-backend/apps-script.gs     servidor gratuito (Google Apps Script + Folha Google)
 assets/logo/               logótipo vetorizado (SVG): vermelho, branco e escuro
 assets/favicon.svg
 assets/img/bmw-m5.png      BMW M5 recortada (fundo transparente, matrícula "BLACKLINE")
@@ -55,9 +59,9 @@ o cliente recebe uma referência `BLP-…` e pode adicionar a marcação ao cale
 
 ## Painel de administração
 
-Clicar no ano do rodapé → `admin.html` (utilizador `admin`, palavra-passe inicial `Blackline@2026`).
+Clicar no ano do rodapé → `admin.html` (login com email/palavra-passe do Supabase).
 Marcações (pesquisa, estados, notas, WhatsApp, exportar CSV), serviços e preços, contactos e horário, conta.
-Guia completo e ativação da Folha Google: [`docs/painel-admin.md`](docs/painel-admin.md).
+Dados no **Supabase** (marcações, definições, cotações e PDFs). Guia completo e ligação: [`docs/painel-admin.md`](docs/painel-admin.md).
 
 ## Idiomas
 

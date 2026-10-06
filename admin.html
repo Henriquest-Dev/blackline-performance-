@@ -34,7 +34,7 @@
     <section class="login__main">
       <form class="login__form" id="login-form" autocomplete="on" novalidate>
         <h2>Entrar</h2>
-        <label class="f"><span>Utilizador</span><input id="lg-user" name="username" autocomplete="username" required></label>
+        <label class="f"><span id="lg-user-label">Utilizador</span><input id="lg-user" name="username" autocomplete="username" required></label>
         <label class="f"><span>Palavra-passe</span>
           <span class="pw"><input id="lg-pass" name="password" type="password" autocomplete="current-password" required><button type="button" class="pw__toggle" data-pw="lg-pass">Mostrar</button></span>
         </label>
@@ -73,7 +73,7 @@
         <span class="save" id="save-state" aria-live="polite"></span>
       </header>
       <div class="banner" id="mode-banner" hidden>
-        <b>Modo demonstração.</b> Os dados ficam guardados apenas neste navegador. Para receber as marcações dos clientes e publicar preços para todos, ligue a Folha Google — <button type="button" data-view="account" class="linklike">ver como</button>.
+        <b>Modo demonstração.</b> Os dados ficam guardados apenas neste navegador. Para receber as marcações dos clientes e publicar preços para todos, ligue o Supabase — <button type="button" data-view="account" class="linklike">ver como</button>.
       </div>
 
       <!-- Marcações -->
@@ -248,11 +248,11 @@
           <h2>Armazenamento</h2>
           <p id="storage-info"></p>
           <ol class="steps-list" id="storage-steps">
-            <li>Crie uma Folha Google nova na conta da Blackline (ex.: "Blackline — Marcações").</li>
-            <li>No menu <b>Extensões → Apps Script</b>, apague o código e cole o conteúdo de <code>backend/apps-script.gs</code> (está no repositório do site).</li>
-            <li><b>Implementar → Nova implementação → Aplicação Web</b>. Executar como: <i>Eu</i>. Quem tem acesso: <i>Qualquer pessoa</i>. Autorize.</li>
-            <li>Copie o URL que termina em <code>/exec</code> e coloque-o em <code>js/config.js</code> no campo <code>backendUrl</code> (ou envie-o ao programador).</li>
-            <li>Entre de novo neste painel com <b>admin</b> / <b>Blackline@2026</b> e mude a palavra-passe aqui.</li>
+            <li>Preencha <code>.env</code> com o URL e a chave <i>publishable</i> do projeto Supabase e execute <code>node scripts/build-env.mjs</code>.</li>
+            <li>No Supabase, abra <b>SQL Editor</b>, cole o conteúdo de <code>supabase/schema.sql</code> e carregue em <b>Run</b>.</li>
+            <li>Em <b>Authentication → Users → Add user</b>, crie o utilizador do administrador (marque <i>Auto Confirm User</i>).</li>
+            <li>No SQL Editor, execute a linha final do ficheiro com o email desse utilizador, para o tornar administrador.</li>
+            <li>Publique o site e entre neste painel com esse email e palavra-passe.</li>
           </ol>
         </div>
         <div class="card">
@@ -349,7 +349,9 @@
 
   <div class="toast" id="toast" role="status" hidden></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/vendor/jspdf.umd.min.js"></script>
+  <script src="js/vendor/supabase.min.js"></script>
+  <script src="js/env.js"></script>
   <script src="js/config.js"></script>
   <script src="js/store.js"></script>
   <script src="js/admin.js"></script>

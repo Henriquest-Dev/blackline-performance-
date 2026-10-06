@@ -1,13 +1,21 @@
 /* Blackline Performance — camada de dados
- * Modo local  (BL_CONFIG.backendUrl vazio): localStorage do navegador — para demonstração.
- * Modo online (backendUrl preenchido): Google Apps Script + Folha Google (ver backend/apps-script.gs).
+ * Modo Supabase (js/env.js preenchido): base de dados Supabase — marcações, definições, cotações e PDFs.
+ * Modo local    (sem Supabase): localStorage do navegador — só para demonstração.
  */
 (() => {
+  const ENV = window.BL_ENV || {};
   const CFG = window.BL_CONFIG || {};
   const DEFAULTS = window.BL_DEFAULTS;
-  const REMOTE = !!CFG.backendUrl;
-  const K = { settings: 'blp:settings', bookings: 'blp:bookings', pass: 'blp:adminHash', token: 'blp:adminToken' };
+  const CONFIGURED = !!(ENV.SUPABASE_URL && ENV.SUPABASE_PUBLISHABLE_KEY);
+  const SB = CONFIGURED && !!window.supabase?.createClient;
+  const db = SB ? window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: 'blp-admin-auth' },
+  }) : null;
+  // Supabase configurado mas indisponível: nunca guardar marcações só no navegador do cliente
+  const OFFLINE = CONFIGURED && !SB;
+  if (OFFLINE) console.error('Supabase configurado mas a biblioteca não carregou.');
 
+  const K = { settings: 'blp:settings', bookings: 'blp:bookings', pass: 'blp:adminHash', token: 'blp:adminToken' };
   const clone = o => JSON.parse(JSON.stringify(o));
   const ls = {
     get(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } },
@@ -17,16 +25,29 @@
     get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) { /* */ } },
   };
-
   async function sha256(text) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
     return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
+  const fail = (code, msg) => Object.assign(new Error(msg || code), { code });
+  // traduz erros do Supabase para códigos usados na interface
+  const sbErr = e => {
+    const m = String(e?.message || e || '');
+    if (/too_many_requests/.test(m)) return fail('too_many_requests', 'too_many_requests');
+    if (/invalid_date/.test(m)) return fail('invalid_date');
+    if (/Invalid login credentials/i.test(m)) return fail('auth');
+    if (/Email not confirmed/i.test(m)) return fail('unconfirmed');
+    if (/JWT|session|not authenticated/i.test(m)) return fail('session_expired');
+    if (/row-level security|permission denied/i.test(m)) return fail('forbidden');
+    if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return fail('network');
+    return fail(e?.code || 'error', m);
+  };
+  const must = ({ data, error }) => { if (error) throw sbErr(error); return data; };
 
   // junta definições guardadas com os valores por defeito (campos novos aparecem sempre)
   function merge(saved) {
     const s = clone(DEFAULTS);
-    if (!saved) return s;
+    if (!saved || typeof saved !== 'object') return s;
     if (saved.contacts) s.contacts = Object.assign(s.contacts, saved.contacts);
     if (saved.booking) s.booking = Object.assign(s.booking, saved.booking);
     if (Array.isArray(saved.groups) && saved.groups.length) s.groups = saved.groups;
@@ -35,109 +56,191 @@
     return s;
   }
 
-  async function remote(payload) {
-    // text/plain evita o "preflight" CORS que o Apps Script não suporta
-    const res = await fetch(CFG.backendUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-    const data = await res.json();
-    if (!data.ok) throw Object.assign(new Error(data.error || 'Erro no servidor'), { code: data.error });
-    return data;
-  }
-
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const newRef = () => {
     const d = new Date();
     return 'BLP-' + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + Math.random().toString(36).slice(2, 5).toUpperCase();
   };
 
+  /* ---------- conversão marcação ↔ linha da tabela ---------- */
+  const toRow = b => ({
+    ref: b.ref, first_name: b.firstName, last_name: b.lastName || '', phone: b.phone, email: b.email || null,
+    contact_pref: b.contactPref || 'whatsapp', lang: b.lang || 'pt',
+    services: b.services, services_label: b.servicesLabel || null, total: b.total || null, promo: b.promo || null,
+    brand: b.brand || null, model: b.model, year: b.year || null, km: b.km || null, fuel: b.fuel || null, plate: b.plate || null, chassis: b.chassis,
+    appt_date: b.date, appt_time: b.time, dropoff: b.dropoff || 'oficina', notes: b.notes || null,
+  });
+  const fromRow = r => {
+    const q = Array.isArray(r.quotes) ? r.quotes[0] : r.quotes;
+    return {
+      id: r.id, ref: r.ref, createdAt: r.created_at, status: r.status,
+      firstName: r.first_name, lastName: r.last_name, phone: r.phone, email: r.email || '', contactPref: r.contact_pref, lang: r.lang,
+      services: r.services || [], servicesLabel: r.services_label || '', total: r.total || '', promo: r.promo || '',
+      brand: r.brand || '', model: r.model || '', year: r.year || '', km: r.km || '', fuel: r.fuel || '', plate: r.plate || '', chassis: r.chassis || '',
+      date: r.appt_date, time: r.appt_time, dropoff: r.dropoff, notes: r.notes || '', internalNote: r.internal_note || '',
+      quote: q ? Object.assign({}, q.data, { number: q.number, total: Number(q.total) }) : null,
+      quoteAt: q?.sent_at || '', quotePdf: q?.pdf_path || '',
+    };
+  };
+
   let settingsCache = null;
+  let isAdminCache = null;
 
   const Store = {
-    mode: REMOTE ? 'remote' : 'local',
+    mode: SB ? 'supabase' : OFFLINE ? 'offline' : 'local',
+    client: db,
     defaults: () => clone(DEFAULTS),
 
     /* ---------- público ---------- */
     async getSettings() {
       if (settingsCache) return settingsCache;
-      if (!REMOTE) return (settingsCache = merge(ls.get(K.settings)));
+      if (!SB) return (settingsCache = merge(ls.get(K.settings)));
       try {
-        const cached = ss.get(K.settings);
-        if (cached) return (settingsCache = merge(JSON.parse(cached)));
-        const res = await fetch(CFG.backendUrl + '?action=settings');
-        const data = await res.json();
-        ss.set(K.settings, JSON.stringify(data.settings || null));
-        return (settingsCache = merge(data.settings));
+        const row = must(await db.from('settings').select('data').eq('id', 1).maybeSingle());
+        return (settingsCache = merge(row?.data));
       } catch (e) {
-        console.warn('Definições online indisponíveis — a usar valores por defeito.', e);
+        console.warn('Definições indisponíveis — a usar valores por defeito.', e);
         return (settingsCache = merge(null));
       }
     },
 
     async addBooking(b) {
-      const rec = Object.assign({ id: newId(), ref: newRef(), createdAt: new Date().toISOString(), status: 'novo', internalNote: '' }, b);
-      if (!REMOTE) {
+      const { website, ...data } = b;
+      const rec = Object.assign({ id: newId(), ref: newRef(), createdAt: new Date().toISOString(), status: 'novo', internalNote: '' }, data);
+      if (website) return rec;                                   // robô: finge sucesso
+      if (OFFLINE) throw fail('network');
+      if (!SB) {
         const list = ls.get(K.bookings, []);
         list.unshift(rec);
-        if (!ls.set(K.bookings, list)) throw new Error('storage');
+        if (!ls.set(K.bookings, list)) throw fail('storage');
         return rec;
       }
-      const data = await remote({ action: 'booking', booking: rec });
-      return Object.assign(rec, { ref: data.ref || rec.ref });
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { error } = await db.from('bookings').insert(toRow(rec));   // sem .select(): visitantes não leem marcações
+        if (!error) return rec;
+        if (error.code === '23505' && /ref/.test(error.message)) { rec.ref = newRef(); continue; }
+        throw sbErr(error);
+      }
+      throw fail('error');
     },
 
     /* ---------- administração ---------- */
-    get token() { return ss.get(K.token); },
+    loginLabel: SB ? 'Email' : 'Utilizador',
+    async hasSession() {
+      if (!SB) return !!ss.get(K.token);
+      const { data } = await db.auth.getSession();
+      if (!data.session) return false;
+      return this.isAdmin();
+    },
+    async isAdmin() {
+      if (!SB) return true;
+      if (isAdminCache !== null) return isAdminCache;
+      const { data, error } = await db.rpc('is_admin');
+      if (error) throw sbErr(error);
+      return (isAdminCache = !!data);
+    },
+    async currentEmail() {
+      if (!SB) return CFG.adminUser || 'admin';
+      const { data } = await db.auth.getUser();
+      return data.user?.email || '';
+    },
     async login(user, pass) {
-      if (REMOTE) {
-        const data = await remote({ action: 'login', user, pass });
-        ss.set(K.token, data.token);
+      if (OFFLINE) throw fail('network');
+      if (SB) {
+        isAdminCache = null;
+        const { error } = await db.auth.signInWithPassword({ email: String(user).trim(), password: pass });
+        if (error) throw sbErr(error);
+        if (!(await this.isAdmin())) { await db.auth.signOut(); isAdminCache = null; throw fail('not_admin'); }
         return true;
       }
       const hash = await sha256(pass);
       const expected = ls.get(K.pass, CFG.adminPassHash);
-      if (user.trim().toLowerCase() !== (CFG.adminUser || 'admin') || hash !== expected) throw Object.assign(new Error('Credenciais inválidas'), { code: 'auth' });
+      if (user.trim().toLowerCase() !== (CFG.adminUser || 'admin') || hash !== expected) throw fail('auth');
       ss.set(K.token, 'local-' + newId());
       return true;
     },
-    logout() { ss.set(K.token, null); },
+    async logout() {
+      isAdminCache = null;
+      if (SB) await db.auth.signOut(); else ss.set(K.token, null);
+    },
 
     async listBookings() {
-      if (!REMOTE) return ls.get(K.bookings, []);
-      return (await remote({ action: 'list', token: this.token })).bookings || [];
+      if (!SB) return ls.get(K.bookings, []);
+      const rows = must(await db.from('bookings').select('*, quotes(*)').order('created_at', { ascending: false }).limit(2000));
+      return rows.map(fromRow);
     },
     async updateBooking(id, patch) {
-      if (!REMOTE) {
+      if (!SB) {
         const list = ls.get(K.bookings, []);
         const i = list.findIndex(b => b.id === id);
         if (i > -1) { Object.assign(list[i], patch); ls.set(K.bookings, list); }
         return true;
       }
-      await remote({ action: 'update', token: this.token, id, patch });
+      const row = {};
+      if ('status' in patch) row.status = patch.status;
+      if ('internalNote' in patch) row.internal_note = patch.internalNote || null;
+      if (Object.keys(row).length) must(await db.from('bookings').update(row).eq('id', id));
+      if ('quote' in patch) {
+        const q = typeof patch.quote === 'string' ? JSON.parse(patch.quote) : patch.quote;
+        const up = { booking_id: id, number: q.number, lang: q.lang || 'pt', data: q, total: Number(q.total) || 0 };
+        if (patch.quoteAt) up.sent_at = patch.quoteAt;
+        if (patch.quotePdf) up.pdf_path = patch.quotePdf;
+        must(await db.from('quotes').upsert(up, { onConflict: 'booking_id' }));
+      }
       return true;
     },
     async deleteBooking(id) {
-      if (!REMOTE) { ls.set(K.bookings, ls.get(K.bookings, []).filter(b => b.id !== id)); return true; }
-      await remote({ action: 'delete', token: this.token, id });
+      if (!SB) { ls.set(K.bookings, ls.get(K.bookings, []).filter(b => b.id !== id)); return true; }
+      const b = must(await db.from('quotes').select('pdf_path').eq('booking_id', id).maybeSingle());
+      if (b?.pdf_path) await db.storage.from('quotes').remove([b.pdf_path]);
+      must(await db.from('bookings').delete().eq('id', id));
       return true;
     },
     async saveSettings(settings) {
       settingsCache = merge(settings);
-      if (!REMOTE) { ls.set(K.settings, settings); return true; }
-      await remote({ action: 'saveSettings', token: this.token, settings });
-      ss.set(K.settings, JSON.stringify(settings));
+      if (!SB) { ls.set(K.settings, settings); return true; }
+      const { data: u } = await db.auth.getUser();
+      must(await db.from('settings').upsert({ id: 1, data: settings, updated_by: u.user?.id || null }));
       return true;
     },
     async changePassword(oldPass, newPass) {
-      if (REMOTE) { await remote({ action: 'password', token: this.token, old: oldPass, new: newPass }); return true; }
+      if (SB) {
+        const email = await this.currentEmail();
+        const { error: e1 } = await db.auth.signInWithPassword({ email, password: oldPass });
+        if (e1) throw fail('auth');
+        const { error: e2 } = await db.auth.updateUser({ password: newPass });
+        if (e2) throw sbErr(e2);
+        return true;
+      }
       const expected = ls.get(K.pass, CFG.adminPassHash);
-      if (await sha256(oldPass) !== expected) throw Object.assign(new Error('A palavra-passe atual não está correta.'), { code: 'auth' });
+      if (await sha256(oldPass) !== expected) throw fail('auth');
       ls.set(K.pass, await sha256(newPass));
       return true;
     },
-    // cópia de segurança (útil no modo local)
+
+    /* ---------- PDF da cotação no Storage + link temporário para o cliente ---------- */
+    canUploadPdf: SB,
+    async uploadQuotePdf(bookingId, number, blob, days = 30) {
+      if (!SB) return null;
+      const path = `${bookingId}/${String(number).replace(/[^\w-]+/g, '_')}.pdf`;
+      must(await db.storage.from('quotes').upload(path, blob, { upsert: true, contentType: 'application/pdf', cacheControl: '60' }));
+      const signed = must(await db.storage.from('quotes').createSignedUrl(path, Math.max(1, Math.min(365, days)) * 86400));
+      return { path, url: signed.signedUrl };
+    },
+
+    /* ---------- novas marcações em tempo real (painel) ---------- */
+    onNewBooking(cb) {
+      if (!SB) return () => {};
+      const ch = db.channel('blp-bookings')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, p => cb(fromRow(p.new)))
+        .subscribe();
+      return () => db.removeChannel(ch);
+    },
+
     async exportAll() { return { settings: await this.getSettings(), bookings: await this.listBookings(), exportedAt: new Date().toISOString() }; },
     async importAll(data) {
       if (data.settings) await this.saveSettings(data.settings);
-      if (!REMOTE && Array.isArray(data.bookings)) ls.set(K.bookings, data.bookings);
+      if (!SB && Array.isArray(data.bookings)) ls.set(K.bookings, data.bookings);
     },
   };
 

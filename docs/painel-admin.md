@@ -5,11 +5,10 @@
 No rodapé do site, clique no ano **"2026"** (em "© 2026 Blackline Performance"). Abre a página
 `admin.html` com o ecrã de login.
 
-| Utilizador | Palavra-passe inicial |
-|---|---|
-| `admin` | `Blackline@2026` |
+Entra-se com o **email e palavra-passe** de um utilizador do Supabase que esteja na lista de administradores
+(ver "Ligar ao Supabase" abaixo). A palavra-passe muda-se no painel → Conta.
 
-**Mude a palavra-passe logo no primeiro acesso** (painel → Conta).
+> Sem Supabase configurado, o painel funciona em modo demonstração com `admin` / `Blackline@2026`.
 
 ## O que tem o painel
 
@@ -57,39 +56,51 @@ Mudar palavra-passe, cópia de segurança (descarregar / repor) e estado do arma
 
 ---
 
-## Onde ficam os dados
+## Onde ficam os dados — Supabase
 
-O site está no GitHub Pages, que **só serve ficheiros** — não consegue guardar nada sozinho. Por isso há dois modos:
+Tudo passa pela base de dados Supabase do projeto `qgaechfinlpsoygqvzll`:
 
-| | Modo demonstração (atual) | Modo online |
-|---|---|---|
-| Configuração | nenhuma | ~10 minutos, uma vez |
-| Onde ficam os dados | só no navegador onde foram criados | numa Folha Google da Blackline |
-| Marcações dos clientes chegam ao painel? | **Não** (só as feitas no mesmo navegador) | **Sim**, de qualquer telemóvel/computador |
-| Preços editados valem para todos? | **Não** | **Sim** |
-| Custo | 0 | 0 (conta Google gratuita) |
+| Tabela | Conteúdo | Quem lê | Quem escreve |
+|---|---|---|---|
+| `settings` | serviços, preços, promoções, contactos, dados das cotações | todos (o site precisa) | só administradores |
+| `bookings` | marcações feitas no site | só administradores | visitantes criam; administradores editam/apagam |
+| `quotes` | cotações (linhas, totais, IVA, nº, data de envio) | só administradores | só administradores |
+| `admins` | utilizadores com acesso ao painel | o próprio | só no SQL Editor |
+| Storage `quotes` | PDFs das cotações (privado) | administradores; o cliente recebe um link temporário | só administradores |
 
-O modo demonstração serve para mostrar o painel ao cliente. **Para usar a sério é preciso o modo online.**
-Não é uma base de dados a instalar: é uma Folha Google normal, que a Blackline pode abrir, filtrar e partilhar.
+A segurança é feita por **Row Level Security** no próprio Supabase (`supabase/schema.sql`):
+um visitante só consegue ler as definições públicas e criar uma marcação — não consegue ver marcações de ninguém,
+alterar preços ou mudar o estado de uma marcação. A base de dados também valida o telemóvel, o chassis, a data
+(não aceita datas passadas) e bloqueia pedidos repetidos do mesmo número durante 60 segundos.
 
-### Ativar o modo online (passo a passo)
+### Ligar ao Supabase (uma vez)
 
-1. Entre na conta Google da Blackline e crie uma **Folha Google** nova (ex.: "Blackline — Marcações").
-2. Menu **Extensões → Apps Script**. Apague o código que aparece e cole todo o conteúdo do ficheiro
-   [`backend/apps-script.gs`](../backend/apps-script.gs). Guarde (ícone da disquete).
-3. Botão **Implementar → Nova implementação**. Em "Tipo", escolha **Aplicação Web**.
-   - Executar como: **Eu**
-   - Quem tem acesso: **Qualquer pessoa**
-   Clique **Implementar** e autorize o acesso (o Google mostra um aviso "app não verificada": *Avançadas → Aceder*).
-4. Copie o **URL da aplicação Web** (termina em `/exec`).
-5. Abra [`js/config.js`](../js/config.js) e cole o URL em `backendUrl: '...'` — ou envie o URL ao programador.
-6. Publique o site. Entre no painel com `admin` / `Blackline@2026` e **mude a palavra-passe** em Conta.
+1. **Tabelas** — no Supabase: **SQL Editor → New query**, cole todo o ficheiro
+   [`supabase/schema.sql`](../supabase/schema.sql) e carregue em **Run**. (Pode repetir sem perder dados.)
+2. **Utilizador do painel** — **Authentication → Users → Add user → Create new user**: email + palavra-passe,
+   com **Auto Confirm User** ligado.
+3. **Torná-lo administrador** — no SQL Editor, execute (com o email do passo 2):
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'o-email@exemplo.co.mz'
+   on conflict do nothing;
+   ```
+4. **Fechar registos** (recomendado) — **Authentication → Sign In / Providers → Email** →
+   desligar *Allow new users to sign up*. (Mesmo ligado, quem se registar não entra no painel — só quem está em `admins`.)
+5. Abra o site → clique no "2026" do rodapé → entre com o email e a palavra-passe.
 
-A partir daí a folha ganha duas abas automaticamente: **Marcações** (uma linha por pedido) e **Config** (preços e contactos — não editar à mão).
+Para dar acesso a outra pessoa: repita os passos 2 e 3 com o email dela.
 
-### Segurança
-- No modo online a palavra-passe é verificada no servidor (Google), guardada só como *hash*,
-  com bloqueio de 15 minutos após 5 tentativas erradas. A sessão expira ao fim de 8 horas.
-- O formulário tem proteção contra robôs (campo invisível) e limita pedidos repetidos do mesmo número.
-- No modo demonstração a verificação é feita no navegador — serve apenas para demonstrar.
-- A página do painel não é indexada pelos motores de pesquisa (`noindex`).
+### Chaves e ficheiro `.env`
+
+- `.env` (não vai para o GitHub) guarda `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`.
+- O site é estático, por isso o navegador não lê `.env`: depois de o alterar execute
+  `node scripts/build-env.mjs`, que gera `js/env.js` (este sim publicado).
+- A chave **publishable** (`sb_publishable_…`) é pública por natureza — foi feita para ir no navegador e é
+  protegida pelas regras RLS. **Nunca** use no site a chave **secret** (`sb_secret_…`) nem a `service_role`;
+  o script recusa-as.
+
+### Envio da cotação por WhatsApp
+O PDF é guardado no Storage e a mensagem de WhatsApp leva um **link seguro** para o PDF (válido durante o prazo da
+cotação + 7 dias). No telemóvel abre-se a partilha com o PDF anexado; no computador abre-se a conversa do cliente
+já com a mensagem e o link — basta carregar em enviar.
