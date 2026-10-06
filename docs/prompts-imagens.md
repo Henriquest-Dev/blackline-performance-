@@ -20,6 +20,25 @@ Depois de gerar, se o ficheiro for PNG, converta para JPG (qualidade ~80%) para 
 
 ---
 
+## Opção recomendada: 3 quadros 2×2 (4 imagens por geração)
+
+Gera 4 imagens de uma vez com o mesmo estilo. Cada quadro sai em **1536 × 1024** e cada painel fica com
+768 × 512 (já no formato 3:2 dos cartões). Depois recorte com:
+
+```bash
+python3 scripts/crop-grid.py quadro1.png tuning-remap ceramic-coating correcao-pintura revisao-completa
+python3 scripts/crop-grid.py quadro2.png lavagem-premium diagnostico-eletronico suspensao-jantes mudanca-oleo
+python3 scripts/crop-grid.py quadro3.png bate-chapa smash-grab polimento-vidros hero-oficina
+```
+(ordem dos nomes: cima-esquerda, cima-direita, baixo-esquerda, baixo-direita). O script deteta as divisórias,
+recorta, redimensiona para 1200 × 800 e grava em `assets/img/servicos/`.
+
+Os três prompts estão na conversa e abaixo.
+
+---
+
+## Prompts individuais (uma imagem de cada vez)
+
 ### 1. `tuning-remap.jpg` — Tuning · Remap e escape desportivo
 ```
 Photorealistic commercial photo, horizontal 3:2. Inside a clean modern auto workshop in Maputo, Mozambique, with dark charcoal walls, glossy black epoxy floor, red accent stripes (#E11D2A) and white LED strip lights. A Black Mozambican technician in a black uniform with red details sits by the open driver's door of a dark grey Toyota Hilux double cab, holding a laptop connected to the car's OBD port by a cable, showing abstract engine graphs (no readable text). In the background, the rear of the Hilux with a polished stainless sport exhaust tip catches the light. Moody, premium lighting, shallow depth of field, 35mm lens f/2.8. No legible text, no brand logos, blank licence plate. Main subject in the centre and upper two thirds, darker and simpler lower third. Deep blacks, neutral whites, red only as an accent.
@@ -73,4 +92,34 @@ Photorealistic commercial photo, horizontal 3:2. A Black Mozambican installer in
 ### 11. `polimento-vidros.jpg` — Detailing · Polimento e vidros
 ```
 Photorealistic commercial photo, horizontal 3:2. The front of a freshly polished black Mitsubishi Pajero in a dark detailing studio in Maputo, Mozambique, with a mirror-like bonnet reflecting long white LED strip lights; a Black Mozambican detailer in a black uniform with red details wipes the windscreen with a microfibre cloth, water beading on the glass. Red accent light (#E11D2A) on the back wall, black floor. 35mm lens f/2.8, premium automotive mood. No legible text, no brand logos, blank licence plate. Subject centred, darker lower third.
+```
+
+### Quadro 1 — `quadro1.png`
+```
+Create ONE horizontal image, 1536x1024, divided into a 2x2 grid of four equal photographs (each exactly one quarter of the image, 768x512), separated by thin straight white lines, no other borders, no captions, no text anywhere.
+Shared style for all four panels: photorealistic commercial automotive photography, full-frame camera, 35mm lens, f/2.8, shallow depth of field. A clean modern auto workshop in Maputo, Mozambique: dark charcoal walls, glossy black epoxy floor, red accent stripes (#E11D2A) on walls and tool cabinets, white LED strip lights. Black Mozambican technicians in black uniforms with red details and black gloves. Everyday cars common in Mozambique, no supercars. No legible text, no brand logos, blank licence plates. In each panel the main subject sits in the centre/upper two thirds and the lower third is darker and simpler. Deep blacks, neutral whites, red only as an accent. Consistent lighting and colour grade across all panels.
+Top-left: a technician sits by the open driver's door of a dark grey Toyota Hilux double cab with a laptop connected to the OBD port showing abstract engine graphs; the polished stainless sport exhaust tip of the Hilux shines in the background (ECU remap).
+Top-right: close-up of gloved hands applying ceramic coating with a small applicator block to the mirror-like black bonnet of a Toyota Corolla, LED strip reflections on the paint.
+Bottom-left: a technician uses a dual-action machine polisher on the door of a white Mazda Demio, an inspection light showing half the panel swirl-free and half with fine swirls (paint correction).
+Bottom-right: a Toyota Land Cruiser raised on a two-post lift, a mechanic inspecting the front brake disc and suspension with a torch, a tidy red tool trolley beside him (full service).
+```
+
+### Quadro 2 — `quadro2.png`
+```
+Create ONE horizontal image, 1536x1024, divided into a 2x2 grid of four equal photographs (each exactly one quarter of the image, 768x512), separated by thin straight white lines, no other borders, no captions, no text anywhere.
+Shared style for all four panels: photorealistic commercial automotive photography, full-frame camera, 35mm lens, f/2.8, shallow depth of field. A clean modern auto workshop in Maputo, Mozambique: dark charcoal walls, glossy black epoxy floor, red accent stripes (#E11D2A) on walls and tool cabinets, white LED strip lights. Black Mozambican technicians in black uniforms with red details and black gloves. Everyday cars common in Mozambique, no supercars. No legible text, no brand logos, blank licence plates. In each panel the main subject sits in the centre/upper two thirds and the lower third is darker and simpler. Deep blacks, neutral whites, red only as an accent. Consistent lighting and colour grade across all panels.
+Top-left: a dark blue Toyota Ractis covered in thick white snow foam in a wash bay, a worker in a black waterproof uniform rinsing it with a pressure washer, water droplets frozen in the light, wet black floor (premium wash).
+Top-right: close-up under the open bonnet of a silver Toyota Vitz, gloved hands measuring the fuse box with a digital multimeter (red and black probes), a tablet with abstract diagnostic graphs on the wing cover (electronic diagnostics).
+Bottom-left: a lowered dark grey Honda Fit with new black alloy wheels on a wheel alignment ramp, a technician kneeling to adjust an alignment target clamp on the front wheel, low camera angle (suspension and wheels).
+Bottom-right: under a Toyota Corolla on a lift, a mechanic removing the oil filter while fresh golden oil drains into a red drain pan (oil change).
+```
+
+### Quadro 3 — `quadro3.png`
+```
+Create ONE horizontal image, 1536x1024, divided into a 2x2 grid of four equal photographs (each exactly one quarter of the image, 768x512), separated by thin straight white lines, no other borders, no captions, no text anywhere.
+Shared style for all four panels: photorealistic commercial automotive photography, full-frame camera, 35mm lens, f/2.8, shallow depth of field. A clean modern auto workshop in Maputo, Mozambique: dark charcoal walls, glossy black epoxy floor, red accent stripes (#E11D2A) on walls and tool cabinets, white LED strip lights. Black Mozambican technicians in black uniforms with red details and black gloves. Everyday cars common in Mozambique, no supercars. No legible text, no brand logos, blank licence plates. In each panel the main subject sits in the centre/upper two thirds and the lower third is darker and simpler. Deep blacks, neutral whites, red only as an accent. Consistent lighting and colour grade across all panels.
+Top-left: a panel beater wearing safety glasses repairs a dent on the rear quarter panel of a white Toyota Hilux with a dent-pulling tool, the panel partly sanded to bare metal and grey primer (panel repair).
+Top-right: an installer applies clear security window film to the rear side window of a dark grey Toyota Corolla with a squeegee, water spray droplets and the film edge catching the light (smash and grab film).
+Bottom-left: the front of a freshly polished black Mitsubishi Pajero with a mirror-like bonnet reflecting long LED strips, a detailer wiping the windscreen with a microfibre cloth, water beading on the glass (polish and glass).
+Bottom-right: wide shot of the whole workshop at dusk seen from the entrance: three bays with a Toyota Hilux, a Mazda Demio and a Toyota Land Cruiser, technicians at work, black walls with red stripes, warm evening sky outside (workshop overview).
 ```
