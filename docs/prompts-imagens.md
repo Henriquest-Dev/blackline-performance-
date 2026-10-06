@@ -20,7 +20,36 @@ Depois de gerar, se o ficheiro for PNG, converta para JPG (qualidade ~80%) para 
 
 ---
 
-## Opção recomendada: 3 quadros 2×2 (4 imagens por geração)
+## Um só prompt: todas as imagens num quadro 4×3
+
+```
+Create ONE single horizontal image (1536x1024) that is a clean contact sheet: a grid of 12 separate photographs arranged in 4 columns and 3 rows, all panels the same size, separated by thin straight white lines, no outer border, no numbers, no captions, no text anywhere.
+Shared style for ALL 12 panels: photorealistic commercial automotive photography, full-frame camera, 35mm lens, shallow depth of field, consistent lighting and colour grade. A clean modern auto workshop in Maputo, Mozambique: dark charcoal walls, glossy black epoxy floor, red accent stripes (#E11D2A) on walls and tool cabinets, white LED strip lights. Black Mozambican technicians in black uniforms with red details and black gloves. Everyday cars common in Mozambique, no supercars. No legible text, no brand logos, blank licence plates. In every panel the main subject is centred with some space around it. Deep blacks, neutral whites, red only as an accent.
+Row 1, left to right:
+1) a technician by the open door of a dark grey Toyota Hilux with a laptop plugged into the OBD port, polished sport exhaust tip visible (ECU remap);
+2) close-up of gloved hands applying ceramic coating to the mirror-like black bonnet of a Toyota Corolla;
+3) a technician machine-polishing the door of a white Mazda Demio under an inspection light (paint correction);
+4) a Toyota Land Cruiser on a two-post lift, a mechanic inspecting the front brake disc with a torch, red tool trolley (full service).
+Row 2, left to right:
+5) a dark blue Toyota Ractis covered in white snow foam, a worker rinsing it with a pressure washer (premium wash);
+6) close-up under the bonnet of a silver Toyota Vitz, gloved hands testing the fuse box with a multimeter (electronic diagnostics);
+7) a lowered dark grey Honda Fit with black alloy wheels on an alignment ramp, technician kneeling at the front wheel (suspension and wheels);
+8) under a Toyota Corolla on a lift, a mechanic removing the oil filter, golden oil draining into a red pan (oil change).
+Row 3, left to right:
+9) a panel beater with safety glasses pulling a dent on the rear panel of a white Toyota Hilux, bare metal and grey primer (panel repair);
+10) an installer applying clear security film to the rear side window of a dark grey Toyota Corolla with a squeegee (smash and grab film);
+11) a freshly polished black Mitsubishi Pajero, a detailer wiping the windscreen with a microfibre cloth, water beading (polish and glass);
+12) wide shot of the whole workshop at dusk from the entrance, three bays with a Hilux, a Demio and a Land Cruiser, technicians at work (workshop overview).
+```
+
+Recortar:
+```bash
+python3 scripts/crop-grid.py quadro.png --grid 4x3 tuning-remap ceramic-coating correcao-pintura revisao-completa lavagem-premium diagnostico-eletronico suspensao-jantes mudanca-oleo bate-chapa smash-grab polimento-vidros oficina
+```
+
+---
+
+## Alternativa: 3 quadros 2×2 (mais resolução) (4 imagens por geração)
 
 Gera 4 imagens de uma vez com o mesmo estilo. Cada quadro sai em **1536 × 1024** e cada painel fica com
 768 × 512 (já no formato 3:2 dos cartões). Depois recorte com:
