@@ -9,7 +9,7 @@
   const CONFIGURED = !!(ENV.SUPABASE_URL && ENV.SUPABASE_PUBLISHABLE_KEY);
   const SB = CONFIGURED && !!window.supabase?.createClient;
   const db = SB ? window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, storageKey: 'blp-admin-auth' },
+    auth: { persistSession: false, autoRefreshToken: false },
   }) : null;
   // Supabase configurado mas indisponível: nunca guardar marcações só no navegador do cliente
   const OFFLINE = CONFIGURED && !SB;
@@ -31,8 +31,10 @@
   }
   const fail = (code, msg) => Object.assign(new Error(msg || code), { code });
   // traduz erros do Supabase para códigos usados na interface
+  const CODES = ['auth', 'locked', 'session_expired', 'weak_password', 'too_many_requests', 'invalid_date', 'not_found', 'bad_settings'];
   const sbErr = e => {
     const m = String(e?.message || e || '');
+    if (CODES.includes(m.trim())) return fail(m.trim(), m.trim());
     if (/too_many_requests/.test(m)) return fail('too_many_requests', 'too_many_requests');
     if (/invalid_date/.test(m)) return fail('invalid_date');
     if (/Invalid login credentials/i.test(m)) return fail('auth');
@@ -71,7 +73,7 @@
     appt_date: b.date, appt_time: b.time, dropoff: b.dropoff || 'oficina', notes: b.notes || null,
   });
   const fromRow = r => {
-    const q = Array.isArray(r.quotes) ? r.quotes[0] : r.quotes;
+    const q = r.quote || (Array.isArray(r.quotes) ? r.quotes[0] : r.quotes);
     return {
       id: r.id, ref: r.ref, createdAt: r.created_at, status: r.status,
       firstName: r.first_name, lastName: r.last_name, phone: r.phone, email: r.email || '', contactPref: r.contact_pref, lang: r.lang,
@@ -79,12 +81,29 @@
       brand: r.brand || '', model: r.model || '', year: r.year || '', km: r.km || '', fuel: r.fuel || '', plate: r.plate || '', chassis: r.chassis || '',
       date: r.appt_date, time: r.appt_time, dropoff: r.dropoff, notes: r.notes || '', internalNote: r.internal_note || '',
       quote: q ? Object.assign({}, q.data, { number: q.number, total: Number(q.total) }) : null,
-      quoteAt: q?.sent_at || '', quotePdf: q?.pdf_path || '',
+      quoteAt: q?.sent_at || '', quoteHasPdf: !!q?.has_pdf,
+      quoteUrl: q?.has_pdf && q?.public_key ? new URL('cotacao.html?q=' + q.public_key, location.href).href : '',
     };
   };
 
   let settingsCache = null;
-  let isAdminCache = null;
+  const TOKEN_KEY = 'blp:sbToken';
+  const tok = {
+    get() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } },
+    set(v) { try { v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY); } catch (e) { /* */ } },
+  };
+  const rpc = async (fn, args = {}) => {
+    const { data, error } = await db.rpc(fn, args);
+    if (error) { const e = sbErr(error); if (e.code === 'session_expired') tok.set(null); throw e; }
+    return data;
+  };
+  const adminRpc = (fn, args = {}) => rpc(fn, Object.assign({ p_token: tok.get() }, args));
+  const blobToBase64 = blob => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
 
   const Store = {
     mode: SB ? 'supabase' : OFFLINE ? 'offline' : 'local',
@@ -124,33 +143,19 @@
       throw fail('error');
     },
 
-    /* ---------- administração ---------- */
-    loginLabel: SB ? 'Email' : 'Utilizador',
+    /* ---------- administração (sessão validada no Supabase) ---------- */
+    loginLabel: 'Utilizador',
     async hasSession() {
       if (!SB) return !!ss.get(K.token);
-      const { data } = await db.auth.getSession();
-      if (!data.session) return false;
-      return this.isAdmin();
-    },
-    async isAdmin() {
-      if (!SB) return true;
-      if (isAdminCache !== null) return isAdminCache;
-      const { data, error } = await db.rpc('is_admin');
-      if (error) throw sbErr(error);
-      return (isAdminCache = !!data);
-    },
-    async currentEmail() {
-      if (!SB) return CFG.adminUser || 'admin';
-      const { data } = await db.auth.getUser();
-      return data.user?.email || '';
+      if (!tok.get()) return false;
+      try { return !!(await adminRpc('admin_ping')); } catch (e) { return false; }
     },
     async login(user, pass) {
       if (OFFLINE) throw fail('network');
       if (SB) {
-        isAdminCache = null;
-        const { error } = await db.auth.signInWithPassword({ email: String(user).trim(), password: pass });
-        if (error) throw sbErr(error);
-        if (!(await this.isAdmin())) { await db.auth.signOut(); isAdminCache = null; throw fail('not_admin'); }
+        const token = await rpc('admin_login', { p_username: String(user), p_password: String(pass) });
+        if (!token) throw fail('auth');
+        tok.set(token);
         return true;
       }
       const hash = await sha256(pass);
@@ -160,14 +165,13 @@
       return true;
     },
     async logout() {
-      isAdminCache = null;
-      if (SB) await db.auth.signOut(); else ss.set(K.token, null);
+      if (SB) { try { await adminRpc('admin_logout'); } catch (e) { /* */ } tok.set(null); }
+      else ss.set(K.token, null);
     },
 
     async listBookings() {
       if (!SB) return ls.get(K.bookings, []);
-      const rows = must(await db.from('bookings').select('*, quotes(*)').order('created_at', { ascending: false }).limit(2000));
-      return rows.map(fromRow);
+      return (await adminRpc('admin_list_bookings') || []).map(fromRow);
     },
     async updateBooking(id, patch) {
       if (!SB) {
@@ -176,65 +180,62 @@
         if (i > -1) { Object.assign(list[i], patch); ls.set(K.bookings, list); }
         return true;
       }
-      const row = {};
-      if ('status' in patch) row.status = patch.status;
-      if ('internalNote' in patch) row.internal_note = patch.internalNote || null;
-      if (Object.keys(row).length) must(await db.from('bookings').update(row).eq('id', id));
-      if ('quote' in patch) {
-        const q = typeof patch.quote === 'string' ? JSON.parse(patch.quote) : patch.quote;
-        const up = { booking_id: id, number: q.number, lang: q.lang || 'pt', data: q, total: Number(q.total) || 0 };
-        if (patch.quoteAt) up.sent_at = patch.quoteAt;
-        if (patch.quotePdf) up.pdf_path = patch.quotePdf;
-        must(await db.from('quotes').upsert(up, { onConflict: 'booking_id' }));
-      }
+      const p = {};
+      if ('status' in patch) p.status = patch.status;
+      if ('internalNote' in patch) p.internal_note = patch.internalNote || '';
+      if (Object.keys(p).length) await adminRpc('admin_update_booking', { p_id: id, p_patch: p });
       return true;
     },
     async deleteBooking(id) {
       if (!SB) { ls.set(K.bookings, ls.get(K.bookings, []).filter(b => b.id !== id)); return true; }
-      const b = must(await db.from('quotes').select('pdf_path').eq('booking_id', id).maybeSingle());
-      if (b?.pdf_path) await db.storage.from('quotes').remove([b.pdf_path]);
-      must(await db.from('bookings').delete().eq('id', id));
+      await adminRpc('admin_delete_booking', { p_id: id });
       return true;
     },
     async saveSettings(settings) {
       settingsCache = merge(settings);
       if (!SB) { ls.set(K.settings, settings); return true; }
-      const { data: u } = await db.auth.getUser();
-      must(await db.from('settings').upsert({ id: 1, data: settings, updated_by: u.user?.id || null }));
+      await adminRpc('admin_save_settings', { p_data: settings });
       return true;
     },
     async changePassword(oldPass, newPass) {
-      if (SB) {
-        const email = await this.currentEmail();
-        const { error: e1 } = await db.auth.signInWithPassword({ email, password: oldPass });
-        if (e1) throw fail('auth');
-        const { error: e2 } = await db.auth.updateUser({ password: newPass });
-        if (e2) throw sbErr(e2);
-        return true;
-      }
+      if (SB) { await adminRpc('admin_change_password', { p_old: oldPass, p_new: newPass }); return true; }
       const expected = ls.get(K.pass, CFG.adminPassHash);
       if (await sha256(oldPass) !== expected) throw fail('auth');
       ls.set(K.pass, await sha256(newPass));
       return true;
     },
 
-    /* ---------- PDF da cotação no Storage + link temporário para o cliente ---------- */
-    canUploadPdf: SB,
-    async uploadQuotePdf(bookingId, number, blob, days = 30) {
-      if (!SB) return null;
-      const path = `${bookingId}/${String(number).replace(/[^\w-]+/g, '_')}.pdf`;
-      must(await db.storage.from('quotes').upload(path, blob, { upsert: true, contentType: 'application/pdf', cacheControl: '60' }));
-      const signed = must(await db.storage.from('quotes').createSignedUrl(path, Math.max(1, Math.min(365, days)) * 86400));
-      return { path, url: signed.signedUrl };
+    /* ---------- cotações: dados + PDF guardados no Supabase ---------- */
+    // devolve { url } — link para o cliente abrir o PDF (só no Supabase)
+    async saveQuote(bookingId, quote, { sent = false, blob = null } = {}) {
+      if (!SB) {
+        const patch = { quote: JSON.stringify(quote) };
+        if (sent) patch.quoteAt = new Date().toISOString();
+        const list = ls.get(K.bookings, []);
+        const b = list.find(x => x.id === bookingId);
+        if (b) { Object.assign(b, patch); if (sent && b.status === 'novo') b.status = 'contactado'; ls.set(K.bookings, list); }
+        return { url: null };
+      }
+      const pdf = blob ? await blobToBase64(blob) : null;
+      const key = await adminRpc('admin_save_quote', { p_booking_id: bookingId, p_quote: quote, p_pdf_base64: pdf, p_sent: !!sent });
+      return { url: key && pdf ? new URL('cotacao.html?q=' + key, location.href).href : null, key };
     },
+    canLinkPdf: SB,
 
-    /* ---------- novas marcações em tempo real (painel) ---------- */
-    onNewBooking(cb) {
+    /* ---------- verificação periódica de novas marcações (painel) ---------- */
+    onNewBooking(cb, ms = 30000) {
       if (!SB) return () => {};
-      const ch = db.channel('blp-bookings')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, p => cb(fromRow(p.new)))
-        .subscribe();
-      return () => db.removeChannel(ch);
+      let known = null;
+      const tick = async () => {
+        try {
+          const list = await this.listBookings();
+          if (known) list.filter(b => !known.has(b.id)).forEach(cb);
+          known = new Set(list.map(b => b.id));
+        } catch (e) { /* tenta na próxima */ }
+      };
+      tick();
+      const t = setInterval(tick, ms);
+      return () => clearInterval(t);
     },
 
     async exportAll() { return { settings: await this.getSettings(), bookings: await this.listBookings(), exportedAt: new Date().toISOString() }; },

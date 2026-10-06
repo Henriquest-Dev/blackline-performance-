@@ -117,7 +117,7 @@
     $('#q-notes').value = q.notes || ''; $('#q-discount').value = q.discount || 0; $('#q-vatmode').value = q.vatMode;
     $('#q-svc-pick').innerHTML = svcOptions(); $('#q-svc-pick').hidden = true;
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }));
-    $('#q-hint').textContent = window.BLStore.canUploadPdf
+    $('#q-hint').textContent = window.BLStore.canLinkPdf
       ? (canShare ? 'O PDF é guardado na base de dados e partilhado: escolha o WhatsApp e a conversa do cliente. A mensagem leva também um link para o PDF.'
                   : 'O PDF é guardado na base de dados e a conversa do cliente abre no WhatsApp com a mensagem e o link para o PDF — é só carregar em enviar.')
       : (canShare ? 'Ao enviar, escolha o WhatsApp na lista de partilha e a conversa do cliente.'
@@ -279,50 +279,45 @@
   }
 
   const fileName = () => `Cotacao-${(q.number || 'Blackline').replace(/[^\w-]+/g, '_')}.pdf`;
-  const persist = async (sent, pdfPath) => {
-    readHead();
-    const t = totals(q);
-    const data = { ...q, total: Math.round(t.total * 100) / 100 };
-    const patch = { quote: JSON.stringify(data) };
-    if (pdfPath) patch.quotePdf = pdfPath;
-    if (sent) { patch.quoteAt = new Date().toISOString(); if (booking.status === 'novo') patch.status = 'contactado'; }
-    return A().savePatch(booking, patch);
-  };
+  const quoteData = () => { readHead(); const t = totals(q); return { ...q, total: Math.round(t.total * 100) / 100 }; };
   const download = blob => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = fileName(); a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
 
-  $('#q-save').addEventListener('click', async () => { if (await persist(false)) A().toast('Cotação guardada.'); });
+  $('#q-save').addEventListener('click', async () => {
+    try { await A().saveQuote(booking, quoteData(), { sent: false }); A().toast('Cotação guardada.'); } catch (e) { /* já mostrado */ }
+  });
   $('#q-download').addEventListener('click', async () => {
-    try { const doc = await buildPdf(); download(doc.output('blob')); await persist(false); }
-    catch (e) { A().toast(e.message, 'err'); }
+    try {
+      const doc = await buildPdf(); const blob = doc.output('blob');
+      download(blob);
+      await A().saveQuote(booking, quoteData(), { sent: false, blob });
+    } catch (e) { A().toast(A().errMsg(e), 'err'); }
   });
   $('#q-send').addEventListener('click', async () => {
     const btn = $('#q-send'); btn.disabled = true;
+    // abre já a janela (os navegadores bloqueiam janelas abertas depois de esperar pela rede)
+    const probe = new File(['x'], 'x.pdf', { type: 'application/pdf' });
+    const canShareFile = !!(navigator.canShare && navigator.canShare({ files: [probe] }));
+    const win = canShareFile ? null : window.open('about:blank', '_blank');
     try {
       const doc = await buildPdf();
       const blob = doc.output('blob');
       const file = new File([blob], fileName(), { type: 'application/pdf' });
-      const t = totals(q);
+      const data = quoteData(), t = totals(q);
       const car = [booking.brand, booking.model].filter(Boolean).join(' ');
       const validStr = addDays(q.date, q.validDays).toLocaleDateString(q.lang === 'en' ? 'en-GB' : 'pt-PT');
       let msg = tr(q.lang, 'msg', { n: booking.firstName || '', q: q.number, car, t: mt(t.total), v: validStr });
-      // abre já a janela do WhatsApp (os navegadores bloqueiam janelas abertas depois de esperar pela rede)
-      const canShareFile = navigator.canShare && navigator.canShare({ files: [file] });
-      const win = canShareFile ? null : window.open('about:blank', '_blank');
-      let uploaded = null;
-      if (window.BLStore.canUploadPdf) {
-        btn.textContent = 'A guardar PDF…';
-        uploaded = await window.BLStore.uploadQuotePdf(booking.id, q.number, blob, Math.max(q.validDays || 15, 7) + 7);
-        msg += '\n\n' + tr(q.lang, 'link', { u: uploaded.url });
-      }
+      btn.textContent = 'A guardar…';
+      const saved = await A().saveQuote(booking, data, { sent: true, blob });
+      if (saved.url) msg += '\n\n' + tr(q.lang, 'link', { u: saved.url });
       const wa = `https://wa.me/258${booking.phone}?text=${encodeURIComponent(msg)}`;
       if (canShareFile) {
         try { await navigator.share({ files: [file], title: fileName(), text: msg }); }
-        catch (e) { if (e.name === 'AbortError') { await persist(false, uploaded?.path); return; } throw e; }
-      } else if (uploaded) {
+        catch (e) { if (e.name !== 'AbortError') throw e; }
+      } else if (saved.url) {
         win ? (win.location.href = wa) : window.open(wa, '_blank', 'noopener');
         A().toast('Conversa aberta no WhatsApp com o link do PDF — carregue em enviar.');
       } else {
@@ -330,9 +325,12 @@
         win ? (win.location.href = wa) : window.open(wa, '_blank', 'noopener');
         A().toast('PDF descarregado — arraste-o para a conversa do WhatsApp que abriu.');
       }
-      await persist(true, uploaded?.path);
-    } catch (e) { A().toast(A().errMsg ? A().errMsg(e) : (e.message || 'Não foi possível gerar o PDF.'), 'err'); }
-    finally { btn.disabled = false; btn.innerHTML = '<svg class="ico"><use href="#i-wa"/></svg> Enviar PDF por WhatsApp'; }
+    } catch (e) {
+      win && win.close();
+      A().toast(A().errMsg ? A().errMsg(e) : (e.message || 'Não foi possível gerar o PDF.'), 'err');
+    } finally {
+      btn.disabled = false; btn.innerHTML = '<svg class="ico"><use href="#i-wa"/></svg> Enviar PDF por WhatsApp';
+    }
   });
 
   window.BLQuote = { open, buildPdf: async b => { if (b) open(b); return buildPdf(); } };

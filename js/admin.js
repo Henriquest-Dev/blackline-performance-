@@ -51,7 +51,6 @@
     : 'Modo demonstração — os dados ficam neste navegador.';
   $('#lg-mode').textContent = modeText;
   $('#lg-user-label').textContent = S.loginLabel;
-  if (S.mode !== 'local') { $('#lg-user').type = 'email'; $('#lg-user').autocomplete = 'email'; $('#lg-user').placeholder = 'nome@empresa.co.mz'; }
 
   function showLogin(msg) {
     $('#app').hidden = true; $('#login').hidden = false;
@@ -183,7 +182,7 @@
     $('#dr-mail').hidden = !b.email; $('#dr-mail').href = `mailto:${b.email}?subject=${encodeURIComponent('Marcação ' + b.ref)}`;
     $('#dr-note').value = b.internalNote || '';
     const q = parseQuote(b);
-    $('#dr-quote-state').textContent = q ? `Nº ${q.number} · ${mt(q.total || 0)}${b.quoteAt ? ' · enviada ' + fmtDT(b.quoteAt) : ' · guardada'}` : 'Ainda não preparada';
+    $('#dr-quote-state').innerHTML = q ? `Nº ${esc(q.number)} · ${mt(q.total || 0)}${b.quoteAt ? ' · enviada ' + esc(fmtDT(b.quoteAt)) : ' · guardada'}${b.quoteUrl ? ` · <a href="${esc(b.quoteUrl)}" target="_blank" rel="noopener">ver PDF</a>` : ''}` : 'Ainda não preparada';
     $('#dr-quote').textContent = q ? 'Abrir cotação' : 'Preparar cotação PDF';
     $('#drawer').hidden = false;
     document.body.classList.add('no-scroll');
@@ -469,7 +468,7 @@
   /* ---------------- conta ---------------- */
   function renderStorage() {
     $('#storage-info').innerHTML = S.mode !== 'local'
-      ? '<span class="pill pill--confirmado">Ligado</span> Marcações, serviços, preços, promoções, contactos e cotações estão guardados na base de dados Supabase da Blackline. Os PDFs das cotações ficam no Storage (privado).'
+      ? '<span class="pill pill--confirmado">Ligado</span> Marcações, serviços, preços, promoções, contactos, cotações e os PDFs das cotações estão guardados na base de dados Supabase da Blackline. A palavra-passe do painel é verificada no Supabase.'
       : '<span class="pill pill--novo">Demonstração</span> Os dados estão guardados apenas neste navegador. Para ligar a base de dados:';
     $('#storage-steps').hidden = S.mode !== 'local';
   }
@@ -500,6 +499,17 @@
 
   window.BLAdmin = {
     settings: () => settings,
+    async saveQuote(b, data, opts = {}) {
+      saveState('saving');
+      try {
+        const r = await guard(() => S.saveQuote(b.id, data, opts));
+        b.quote = data;
+        if (opts.sent) { b.quoteAt = new Date().toISOString(); if (b.status === 'novo') b.status = 'contactado'; }
+        if (r?.url) { b.quoteUrl = r.url; b.quoteHasPdf = true; }
+        saveState('saved'); renderBookings(); if (current === b) openDrawer(b.id);
+        return r || {};
+      } catch (e) { saveState('error'); toast(errMsg(e), 'err'); throw e; }
+    },
     parseQuote, fmtDay, tel, name, toast, errMsg,
     async savePatch(b, p) {
       Object.assign(b, p);

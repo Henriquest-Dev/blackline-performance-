@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Cotação — Blackline Performance</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --red: #E11D2A; --ink: #0B0B0C; --muted: #6B6B73; --line: #E6E6EA; --soft: #F5F5F7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; font-family: "Montserrat", system-ui, sans-serif; color: var(--ink); background: var(--soft); -webkit-font-smoothing: antialiased; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; background: var(--ink); color: #fff; position: relative; overflow: hidden; }
+    header::after { content: ""; position: absolute; right: -40px; top: 0; bottom: 0; width: 160px; background: var(--red); transform: skewX(-18deg); }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; position: relative; z-index: 1; }
+    .badge { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 8px; background: var(--red); transform: skewX(-8deg); }
+    .badge img { width: 26px; transform: skewX(8deg); }
+    .brand b { display: block; font-size: 18px; line-height: 1; }
+    .brand small { display: block; margin-top: 4px; font-size: 8.5px; font-weight: 700; letter-spacing: .4em; color: var(--red); }
+    main { flex: 1; width: min(980px, 100% - 32px); margin: 28px auto 40px; }
+    .card { padding: 24px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+    h1 { margin: 0 0 4px; font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
+    p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 26px; border: 0; background: var(--red); color: #fff; font: inherit; font-size: 14px; font-weight: 800; text-decoration: none; cursor: pointer; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .btn--ghost { background: #EFEFF2; color: var(--ink); }
+    .viewer { margin-top: 20px; height: 78vh; border: 1px solid var(--line); border-radius: 4px; background: #fff; overflow: hidden; }
+    .viewer iframe { width: 100%; height: 100%; border: 0; }
+    .state { padding: 50px 24px; text-align: center; }
+    .state b { display: block; margin-bottom: 8px; font-size: 18px; }
+    footer { padding: 18px 24px; font-size: 12px; color: var(--muted); text-align: center; }
+    footer a { color: inherit; }
+    @media (max-width: 700px) { .viewer { display: none; } .btn { flex: 1; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html"><span class="badge"><img src="assets/logo/blackline-mark-white.svg" alt=""></span><span><b>blackline</b><small>PERFORMANCE</small></span></a>
+  </header>
+  <main>
+    <div class="card" id="box">
+      <div class="state" id="state"><b id="st-title">A carregar a cotação…</b><p id="st-text"></p></div>
+    </div>
+    <div class="viewer" id="viewer" hidden><iframe id="frame" title="Cotação"></iframe></div>
+  </main>
+  <footer>Blackline Performance · <a href="index.html">blackline</a></footer>
+
+  <script src="js/vendor/supabase.min.js"></script>
+  <script src="js/env.js"></script>
+  <script>
+    (async () => {
+      const $ = s => document.querySelector(s);
+      const T = {
+        pt: { title: 'Cotação', lead: 'Blackline Performance — pode abrir, guardar ou partilhar o PDF.', open: 'Abrir PDF', dl: 'Descarregar PDF', bad: 'Link inválido ou expirado', badText: 'Peça uma nova cotação à Blackline Performance pelo WhatsApp.', err: 'Não foi possível carregar', errText: 'Verifique a ligação à internet e tente novamente.' },
+        en: { title: 'Quotation', lead: 'Blackline Performance — you can open, save or share the PDF.', open: 'Open PDF', dl: 'Download PDF', bad: 'Invalid or expired link', badText: 'Please ask Blackline Performance for a new quotation on WhatsApp.', err: 'Could not load', errText: 'Check your internet connection and try again.' },
+      };
+      const show = (t, x) => { $('#st-title').textContent = t; $('#st-text').textContent = x; };
+      const key = new URLSearchParams(location.search).get('q');
+      const env = window.BL_ENV || {};
+      if (!key || !/^[0-9a-f-]{36}$/i.test(key) || !env.SUPABASE_URL || !window.supabase) return show(T.pt.bad, T.pt.badText);
+      try {
+        const db = window.supabase.createClient(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } });
+        const { data, error } = await db.rpc('get_quote_pdf', { p_key: key });
+        if (error) throw error;
+        if (!data || !data.pdf) return show(T.pt.bad, T.pt.badText);
+        const L = T[data.lang === 'en' ? 'en' : 'pt'];
+        document.documentElement.lang = data.lang || 'pt';
+        const bytes = Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+        const name = `Cotacao-${String(data.number).replace(/[^\w-]+/g, '_')}.pdf`;
+        document.title = `${L.title} ${data.number} — Blackline Performance`;
+        $('#box').innerHTML = `<h1>${L.title} ${data.number.replace(/[<>&]/g, '')}</h1><p>${L.lead}</p>
+          <div class="actions"><a class="btn" href="${url}" target="_blank" rel="noopener">${L.open}</a><a class="btn btn--ghost" href="${url}" download="${name}">${L.dl}</a></div>`;
+        $('#frame').src = url; $('#viewer').hidden = false;
+      } catch (e) { show(T.pt.err, T.pt.errText); }
+    })();
+  </script>
+</body>
+</html>

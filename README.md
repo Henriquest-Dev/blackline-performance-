@@ -17,7 +17,8 @@ js/env.js                  ligação ao Supabase (gerado de .env por scripts/bui
 js/store.js                camada de dados (Supabase; modo demonstração sem configuração)
 js/quote.js                editor de cotação + PDF
 js/vendor/                 supabase-js e jsPDF (locais, sem depender de CDN)
-supabase/schema.sql        tabelas, segurança (RLS), Storage — executar no SQL Editor do Supabase
+supabase/schema.sql        tabelas, segurança, funções do painel — executar no SQL Editor do Supabase
+cotacao.html               página onde o cliente abre o PDF da cotação (link enviado por WhatsApp)
 .env.example               modelo do ficheiro .env
 js/i18n.js                 traduções PT / EN
 js/main.js                 smooth scroll, animações, carrossel, filtros, menu mobile
@@ -59,7 +60,7 @@ o cliente recebe uma referência `BLP-…` e pode adicionar a marcação ao cale
 
 ## Painel de administração
 
-Clicar no ano do rodapé → `admin.html` (login com email/palavra-passe do Supabase).
+Clicar no ano do rodapé → `admin.html` (utilizador `admin`, palavra-passe inicial `Blackline@2026`, verificada no Supabase).
 Marcações (pesquisa, estados, notas, WhatsApp, exportar CSV), serviços e preços, contactos e horário, conta.
 Dados no **Supabase** (marcações, definições, cotações e PDFs). Guia completo e ligação: [`docs/painel-admin.md`](docs/painel-admin.md).
 

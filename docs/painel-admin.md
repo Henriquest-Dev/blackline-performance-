@@ -5,10 +5,13 @@
 No rodapé do site, clique no ano **"2026"** (em "© 2026 Blackline Performance"). Abre a página
 `admin.html` com o ecrã de login.
 
-Entra-se com o **email e palavra-passe** de um utilizador do Supabase que esteja na lista de administradores
-(ver "Ligar ao Supabase" abaixo). A palavra-passe muda-se no painel → Conta.
+| Utilizador | Palavra-passe inicial |
+|---|---|
+| `admin` | `Blackline@2026` |
 
-> Sem Supabase configurado, o painel funciona em modo demonstração com `admin` / `Blackline@2026`.
+A palavra-passe é verificada no Supabase (guardada encriptada, nunca no site). Mude-a no painel → **Conta**:
+a partir daí só quem souber a nova palavra-passe entra. Ao mudar, as outras sessões abertas terminam.
+Após 8 tentativas erradas em 15 minutos, o login fica bloqueado durante 15 minutos.
 
 ## O que tem o painel
 
@@ -41,10 +44,8 @@ No detalhe de uma marcação → **Preparar cotação PDF**. A cotação vem pre
 pode ajustar preços e quantidades, acrescentar **peças/material**, **mão de obra** ou outros serviços, desconto, IVA
 (incluído, acrescentado ou isento), validade e observações, em português ou inglês.
 
-- **Enviar PDF por WhatsApp**: no telemóvel (e em computadores com partilha de ficheiros) abre a lista de partilha — escolha
-  o WhatsApp e a conversa do cliente; o PDF segue anexado com a mensagem.
-  Nos outros computadores o PDF é descarregado e abre-se a conversa do cliente no WhatsApp com a mensagem escrita — basta arrastar o ficheiro.
-  (O WhatsApp não permite anexar ficheiros automaticamente a partir de um link.)
+- **Enviar PDF por WhatsApp**: o PDF é guardado e abre-se a conversa do cliente com a mensagem e o link para o PDF
+  (no telemóvel aparece também a partilha com o PDF anexado).
 - A cotação fica guardada na marcação e o estado passa a **Contactado**.
 - Os dados da empresa no PDF (NUIT, morada, IVA, validade, condições, dados bancários) editam-se em **Contactos e horário**.
 
@@ -58,38 +59,24 @@ Mudar palavra-passe, cópia de segurança (descarregar / repor) e estado do arma
 
 ## Onde ficam os dados — Supabase
 
-Tudo passa pela base de dados Supabase do projeto `qgaechfinlpsoygqvzll`:
+Tudo o que se edita no painel e tudo o que os clientes enviam fica na base de dados Supabase:
 
-| Tabela | Conteúdo | Quem lê | Quem escreve |
-|---|---|---|---|
-| `settings` | serviços, preços, promoções, contactos, dados das cotações | todos (o site precisa) | só administradores |
-| `bookings` | marcações feitas no site | só administradores | visitantes criam; administradores editam/apagam |
-| `quotes` | cotações (linhas, totais, IVA, nº, data de envio) | só administradores | só administradores |
-| `admins` | utilizadores com acesso ao painel | o próprio | só no SQL Editor |
-| Storage `quotes` | PDFs das cotações (privado) | administradores; o cliente recebe um link temporário | só administradores |
+| Tabela | Conteúdo |
+|---|---|
+| `settings` | serviços, preços, promoções, contactos, dados das cotações |
+| `bookings` | marcações do site (incluindo chassis, estado e notas internas) |
+| `quotes` | cotações: linhas, totais, IVA, número, data de envio **e o PDF** |
+| `private.admin_account` / `admin_sessions` | palavra-passe do painel (encriptada) e sessões |
 
-A segurança é feita por **Row Level Security** no próprio Supabase (`supabase/schema.sql`):
-um visitante só consegue ler as definições públicas e criar uma marcação — não consegue ver marcações de ninguém,
-alterar preços ou mudar o estado de uma marcação. A base de dados também valida o telemóvel, o chassis, a data
-(não aceita datas passadas) e bloqueia pedidos repetidos do mesmo número durante 60 segundos.
+Segurança: um visitante só consegue **ler os preços** e **criar marcações**. Não consegue ver marcações,
+cotações ou alterar nada. As operações do painel são funções da base de dados que exigem uma sessão válida
+(obtida com a palavra-passe). A base de dados também valida telemóvel, chassis e data, e bloqueia pedidos
+repetidos do mesmo número durante 60 segundos.
 
 ### Ligar ao Supabase (uma vez)
-
-1. **Tabelas** — no Supabase: **SQL Editor → New query**, cole todo o ficheiro
-   [`supabase/schema.sql`](../supabase/schema.sql) e carregue em **Run**. (Pode repetir sem perder dados.)
-2. **Utilizador do painel** — **Authentication → Users → Add user → Create new user**: email + palavra-passe,
-   com **Auto Confirm User** ligado.
-3. **Torná-lo administrador** — no SQL Editor, execute (com o email do passo 2):
-   ```sql
-   insert into public.admins (user_id)
-   select id from auth.users where email = 'o-email@exemplo.co.mz'
-   on conflict do nothing;
-   ```
-4. **Fechar registos** (recomendado) — **Authentication → Sign In / Providers → Email** →
-   desligar *Allow new users to sign up*. (Mesmo ligado, quem se registar não entra no painel — só quem está em `admins`.)
-5. Abra o site → clique no "2026" do rodapé → entre com o email e a palavra-passe.
-
-Para dar acesso a outra pessoa: repita os passos 2 e 3 com o email dela.
+Supabase → **SQL Editor → New query** → colar todo o ficheiro [`supabase/schema.sql`](../supabase/schema.sql) → **Run**.
+É só isto: o acesso `admin` / `Blackline@2026` fica criado no mesmo passo. Pode voltar a executar o SQL sem perder
+dados nem repor a palavra-passe.
 
 ### Chaves e ficheiro `.env`
 
@@ -101,6 +88,6 @@ Para dar acesso a outra pessoa: repita os passos 2 e 3 com o email dela.
   o script recusa-as.
 
 ### Envio da cotação por WhatsApp
-O PDF é guardado no Storage e a mensagem de WhatsApp leva um **link seguro** para o PDF (válido durante o prazo da
-cotação + 7 dias). No telemóvel abre-se a partilha com o PDF anexado; no computador abre-se a conversa do cliente
-já com a mensagem e o link — basta carregar em enviar.
+O PDF é guardado na base de dados e a mensagem de WhatsApp leva um link (`cotacao.html?q=…`) onde o cliente
+abre ou descarrega o PDF. O link só funciona com a chave única de cada cotação e expira 180 dias após o envio.
+No telemóvel abre-se também a partilha com o PDF anexado.
