@@ -454,6 +454,14 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   .process__steps li { padding: 0 0 34px 34px; }
   .process__num { position: absolute; left: -28px; top: -6px; width: 50px; height: 46px; }
   .process__steps h3 { padding-top: 6px; }
+  /* telemóvel: linha vermelha vertical que desce com o scroll e acende cada etapa */
+  .process__steps { position: relative; }
+  .process__steps::before { content: ""; position: absolute; left: -3px; top: 0; width: 3px; height: 100%; background: var(--red); transform-origin: top; transform: scaleY(var(--p, 0)); }
+  .process__steps li > h3, .process__steps li > p { transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .process__steps.is-live li:not(.is-lit) > h3, .process__steps.is-live li:not(.is-lit) > p { opacity: .3; transform: translateX(14px); }
+  .process__steps.is-live li:not(.is-lit) .process__num { opacity: .55; transform: skewX(-12deg) scale(.82); }
+  .process__steps li.is-current .process__num { box-shadow: 0 0 0 6px rgba(225,29,42,.18); }
+  .process__num { z-index: 1; transition: background .4s, box-shadow .4s, opacity .4s, transform .45s cubic-bezier(.3,1.6,.5,1); }
 }
 
 

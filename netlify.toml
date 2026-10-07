@@ -1,0 +1,9 @@
+# Netlify: site estático, sem passo de compilação. O ficheiro js/env.js (ligação ao Supabase) já está no repositório.
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex"

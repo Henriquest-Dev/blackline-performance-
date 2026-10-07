@@ -302,10 +302,21 @@
     gsap.from('.app__copy > *', { y: 40, opacity: 0, stagger: .08, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: '.app__copy', start: 'top 85%' } });
     gsap.utils.toArray('.feat').forEach(f => gsap.from(f, { y: 60, opacity: 0, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: f, start: 'top 90%' } }));
     gsap.from('.cta__card', { scale: .92, y: 40, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.cta', start: 'top 85%' } });
-    $$('.process__steps li').forEach(li => gsap.from(li, {
-      x: 40, opacity: 0, duration: .8, ease: 'power3.out',
-      scrollTrigger: { trigger: li, start: 'top 85%', onEnter: () => li.classList.add('is-lit') },
-    }));
+    /* Como funciona: a linha vermelha desce com o scroll e passa de etapa em etapa */
+    const list = $('.process__steps'), steps = $$('.process__steps li');
+    list.classList.add('is-live');
+    const st = ScrollTrigger.create({
+      trigger: list, start: 'top 70%', end: 'bottom 55%', scrub: .6,
+      onUpdate: self => {
+        list.style.setProperty('--p', self.progress.toFixed(4));
+        // a etapa acende quando a linha chega ao seu número
+        const reach = self.progress * list.offsetHeight;
+        let cur = -1;
+        steps.forEach((li, i) => { const on = reach >= li.offsetTop - 4; li.classList.toggle('is-lit', on); if (on) cur = i; });
+        steps.forEach((li, i) => li.classList.toggle('is-current', i === cur));
+      },
+    });
+    return () => { st.kill(); list.classList.remove('is-live'); list.style.removeProperty('--p'); steps.forEach(li => li.classList.remove('is-current')); };
   });
 
   /* 3) Serviços: título sobe, galeria aparece em cascata */

@@ -98,7 +98,8 @@
 
   /* ---------------- marcações ---------------- */
   let bookings = [];
-  const fmtDT = iso => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }); };
+  const TZ = 'Africa/Maputo';   // hora de Moçambique, em qualquer dispositivo
+  const fmtDT = iso => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: TZ }) + ' ' + d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', timeZone: TZ }); };
   const fmtDay = (date, time) => { if (!date) return '—'; const d = new Date(date + 'T00:00'); return (isNaN(d) ? date : d.toLocaleDateString('pt-PT', { weekday: 'short', day: '2-digit', month: 'short' })) + (time ? ' · ' + time : ''); };
   const tel = p => '+258 ' + String(p || '').replace(/^(\d{2})(\d{3})(\d{0,4}).*/, '$1 $2 $3').trim();
   const name = b => [b.firstName, b.lastName].filter(Boolean).join(' ');
