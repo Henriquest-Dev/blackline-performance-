@@ -1,0 +1,9 @@
+# Blackline Performance
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /cotacao.html
+Disallow: /supabase/
+Disallow: /scripts/
+
+Sitemap: https://blacklineperformance.space/sitemap.xml

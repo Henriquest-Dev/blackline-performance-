@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://blacklineperformance.space/</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://blacklineperformance.space/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://blacklineperformance.space/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://blacklineperformance.space/"/>
+    <image:image><image:loc>https://blacklineperformance.space/assets/og-image.jpg</image:loc></image:image>
+    <image:image><image:loc>https://blacklineperformance.space/assets/img/servicos/smash-grab.jpg</image:loc></image:image>
+    <image:image><image:loc>https://blacklineperformance.space/assets/img/servicos/diagnostico-eletronico.jpg</image:loc></image:image>
+    <image:image><image:loc>https://blacklineperformance.space/assets/img/servicos/ceramic-coating.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://blacklineperformance.space/?lang=en</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://blacklineperformance.space/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://blacklineperformance.space/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://blacklineperformance.space/"/>
+  </url>
+</urlset>

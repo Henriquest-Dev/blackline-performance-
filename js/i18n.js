@@ -2,13 +2,14 @@
 (() => {
   const DICT = {
     pt: {
-      'meta.title': 'Blackline Performance — Excelência em Serviços Automóveis',
+      'meta.title': 'Blackline Performance — Oficina Auto em Moçambique | Smash & Grab, PPF, Diagnóstico',
+      'meta.desc': 'Oficina auto Blackline Performance em Moçambique: Smash & Grab, diagnóstico computorizado, montagem de PPF, sistema de som, facelift, mecânica, bate-chapa e pintura. Marcação online.',
       'nav.aria': 'Principal', 'nav.about': 'Sobre', 'nav.services': 'Serviços', 'nav.process': 'Como funciona', 'nav.why': 'Porquê nós', 'nav.contact': 'Contacto',
       'nav.open': 'Abrir menu', 'nav.close': 'Fechar menu',
       'cta.book': 'Marcar serviço', 'cta.bookService': 'Marcar revisão', 'cta.online': 'Marcar online',
       'cta.title': 'Agende já uma revisão!', 'cta.lead': 'Marque online em poucos passos ou fale diretamente com a oficina.',
       'hero.l1': '<em>Excelência</em> em', 'hero.l2': 'Serviços', 'hero.l3': 'Automóveis',
-      'hero.lead': 'Mecânica, eletricidade, bate-chapa, detailing e performance — tudo num só lugar, com o rigor que a sua viatura merece.',
+      'hero.lead': 'Oficina auto em Moçambique: mecânica, diagnóstico, bate-chapa, Smash & Grab, PPF e performance — tudo num só lugar, com o rigor que a sua viatura merece.',
       'hero.follow': 'Siga-nos', 'hero.bar1': 'Atendimento profissional & personalizado.', 'hero.bar2': 'Agende já uma revisão!',
       'ph.status': 'Estado da viatura', 'ph.s1': 'Viatura recebida', 'ph.s2': 'Diagnóstico', 'ph.s2d': '09:02 · Computorizado', 'ph.s3': 'Em reparação', 'ph.s3d': 'Troca de pastilhas e discos',
       'ph.s4': 'Lavagem', 'ph.s4d': 'Previsto 15:30', 'ph.s5': 'Pronta a levantar', 'ph.s5d': 'Previsto 17:30', 'ph.eta': 'Entrega estimada',
@@ -94,13 +95,14 @@
       'err.rate': 'Já recebemos um pedido deste número há instantes. Aguarde um minuto antes de enviar outro.',
     },
     en: {
-      'meta.title': 'Blackline Performance — Automotive Service Excellence',
+      'meta.title': 'Blackline Performance — Car Workshop in Mozambique | Smash & Grab, PPF, Diagnostics',
+      'meta.desc': 'Blackline Performance car workshop in Mozambique: smash & grab window film, computer diagnostics, PPF, sound systems, facelifts, mechanics, panel beating and paint. Book online.',
       'nav.aria': 'Main', 'nav.about': 'About', 'nav.services': 'Services', 'nav.process': 'How it works', 'nav.why': 'Why us', 'nav.contact': 'Contact',
       'nav.open': 'Open menu', 'nav.close': 'Close menu',
       'cta.book': 'Book a service', 'cta.bookService': 'Book a service', 'cta.online': 'Book online',
       'cta.title': 'Book your service today!', 'cta.lead': 'Book online in a few steps or talk to the workshop directly.',
       'hero.l1': '<em>Excellence</em> in', 'hero.l2': 'Automotive', 'hero.l3': 'Services',
-      'hero.lead': 'Mechanical, electrical, panel beating, detailing and performance — all in one place, with the care your vehicle deserves.',
+      'hero.lead': 'Car workshop in Mozambique: mechanics, diagnostics, panel beating, smash & grab, PPF and performance — all in one place, with the care your vehicle deserves.',
       'hero.follow': 'Follow us', 'hero.bar1': 'Professional, personal service.', 'hero.bar2': 'Book your service today!',
       'ph.status': 'Vehicle status', 'ph.s1': 'Vehicle received', 'ph.s2': 'Diagnostics', 'ph.s2d': '09:02 · Computer scan', 'ph.s3': 'In repair', 'ph.s3d': 'Brake pads and discs',
       'ph.s4': 'Wash', 'ph.s4d': 'Expected 15:30', 'ph.s5': 'Ready for collection', 'ph.s5d': 'Expected 17:30', 'ph.eta': 'Estimated delivery',
@@ -213,6 +215,10 @@
       root.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', this.t(el.dataset.i18nAria)); });
       document.documentElement.lang = this.lang;
       document.title = this.t('meta.title');
+      // descrição e endereço canónico de cada idioma (pt = /, en = /?lang=en)
+      const md = document.querySelector('meta[name="description"]'); if (md) md.content = this.t('meta.desc');
+      const cn = document.querySelector('link[rel="canonical"]');
+      if (cn) { const base = cn.href.split('?')[0]; cn.href = this.lang === 'en' ? base + '?lang=en' : base; }
       document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === this.lang));
     },
     set(lang) {
