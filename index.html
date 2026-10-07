@@ -54,7 +54,7 @@
   </header>
 
   <!-- MENU MOBILE -->
-  <div class="menu" id="menu" aria-hidden="true">
+  <div class="menu" id="menu" data-lenis-prevent aria-hidden="true">
     <svg class="menu__mark" aria-hidden="true"><use href="#bl-mark"/></svg>
     <nav class="menu__links" aria-label="Menu">
       <a href="#sobre"><small>01</small><span data-i18n="nav.about">Sobre</span></a>
@@ -407,7 +407,7 @@
   </footer>
 
   <!-- MARCAÇÃO DE SERVIÇO -->
-  <div class="booking" id="agendar" role="dialog" aria-modal="true" aria-labelledby="bk-title" aria-hidden="true">
+  <div class="booking" id="agendar" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="bk-title" aria-hidden="true">
     <div class="bk">
       <header class="bk-top">
         <div class="bk-top__brand">
@@ -466,6 +466,60 @@
                   <p class="bk-err" data-err="chassis"></p>
                 </div>
               </div>
+
+              <div class="bk-about">
+                <h3 class="bk-about__title" data-i18n="bk.aboutT">Sobre o pedido</h3>
+                <p class="bk-hint" data-i18n="bk.aboutD">Ajuda-nos a preparar a viatura e as peças antes de chegar. Tudo opcional.</p>
+                <div class="bk-f bk-f--full">
+                  <span class="bk-label" data-i18n="bk.goal">O que pretende?</span>
+                  <div class="bk-chips" id="bk-goal" data-single>
+                    <button type="button" data-v="manutencao" data-i18n="bk.goal1">Manutenção programada</button>
+                    <button type="button" data-v="problema" data-i18n="bk.goal2">Resolver um problema</button>
+                    <button type="button" data-v="estetica" data-i18n="bk.goal3">Estética / aspeto</button>
+                    <button type="button" data-v="desempenho" data-i18n="bk.goal4">Mais desempenho</button>
+                    <button type="button" data-v="avaliacao" data-i18n="bk.goal5">Avaliação / orçamento</button>
+                  </div>
+                </div>
+                <div class="bk-f bk-f--full">
+                  <span class="bk-label" data-i18n="bk.symptoms">Sinais que notou</span>
+                  <div class="bk-chips" id="bk-symptoms">
+                    <button type="button" data-v="ruido" data-i18n="bk.sy1">Ruído</button>
+                    <button type="button" data-v="vibracao" data-i18n="bk.sy2">Vibração</button>
+                    <button type="button" data-v="luz" data-i18n="bk.sy3">Luz de aviso no painel</button>
+                    <button type="button" data-v="fuga" data-i18n="bk.sy4">Fuga de líquido</button>
+                    <button type="button" data-v="potencia" data-i18n="bk.sy5">Perda de potência</button>
+                    <button type="button" data-v="arranque" data-i18n="bk.sy6">Dificuldade a arrancar</button>
+                    <button type="button" data-v="aquece" data-i18n="bk.sy7">Aquece demais</button>
+                    <button type="button" data-v="travoes" data-i18n="bk.sy8">Travões fracos</button>
+                    <button type="button" data-v="ac" data-i18n="bk.sy9">Ar condicionado fraco</button>
+                    <button type="button" data-v="danos" data-i18n="bk.sy10">Riscos / amolgadelas</button>
+                  </div>
+                </div>
+                <div class="bk-grid">
+                  <div class="bk-f"><label for="bk-since" data-i18n="bk.since">Desde quando?</label><div class="bk-select"><select id="bk-since">
+                    <option value="" data-i18n="bk.sel">—</option>
+                    <option value="hoje" data-i18n="bk.since1">Hoje</option>
+                    <option value="semana" data-i18n="bk.since2">Esta semana</option>
+                    <option value="mes" data-i18n="bk.since3">Este mês</option>
+                    <option value="mais" data-i18n="bk.since4">Há mais tempo</option>
+                  </select></div></div>
+                  <div class="bk-f"><label for="bk-drive" data-i18n="bk.drive">A viatura anda?</label><div class="bk-select"><select id="bk-drive">
+                    <option value="" data-i18n="bk.sel">—</option>
+                    <option value="sim" data-i18n="bk.drive1">Sim, normalmente</option>
+                    <option value="limitado" data-i18n="bk.drive2">Sim, com dificuldade</option>
+                    <option value="nao" data-i18n="bk.drive3">Não — precisa de reboque</option>
+                  </select></div></div>
+                  <div class="bk-f"><label for="bk-urgency" data-i18n="bk.urgency">Urgência</label><div class="bk-select"><select id="bk-urgency">
+                    <option value="normal" data-i18n="bk.urg1">Normal</option>
+                    <option value="urgente" data-i18n="bk.urg2">Urgente — preciso da viatura rápido</option>
+                  </select></div></div>
+                  <div class="bk-f"><label for="bk-parts" data-i18n="bk.parts">Peças</label><div class="bk-select"><select id="bk-parts">
+                    <option value="oficina" data-i18n="bk.parts1">A oficina fornece as peças</option>
+                    <option value="cliente" data-i18n="bk.parts2">Eu trago as minhas peças</option>
+                    <option value="avaliar" data-i18n="bk.parts3">Decidir depois do orçamento</option>
+                  </select></div></div>
+                </div>
+              </div>
             </section>
 
             <!-- 3. Data e hora -->
@@ -503,7 +557,7 @@
                     <button type="button" role="radio" aria-checked="false" data-v="email">Email</button>
                   </div>
                 </div>
-                <div class="bk-f bk-f--full"><label for="bk-notes"><span data-i18n="bk.notes">Descrição do problema</span> <em data-i18n="bk.optional">(opcional)</em></label><textarea id="bk-notes" rows="4" placeholder="Ex.: ruído na roda dianteira ao travar; luz do motor acesa desde ontem." data-i18n-ph="bk.notesPh"></textarea></div>
+                <div class="bk-f bk-f--full"><label for="bk-notes"><span data-i18n="bk.notes">Outros detalhes</span> <em data-i18n="bk.optional">(opcional)</em></label><textarea id="bk-notes" rows="4" maxlength="800" placeholder="Ex.: ruído na roda dianteira ao travar; luz do motor acesa desde ontem." data-i18n-ph="bk.notesPh"></textarea></div>
                 <div class="bk-hp" aria-hidden="true"><label>Website <input id="bk-website" type="text" tabindex="-1" autocomplete="off"></label></div>
                 <label class="bk-check bk-f--full"><input type="checkbox" id="bk-consent"><span data-i18n="bk.consent">Aceito ser contactado pela Blackline Performance sobre esta marcação.</span></label>
                 <p class="bk-err bk-f--full" data-err="consent"></p>

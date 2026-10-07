@@ -147,7 +147,7 @@
   $('#bk-export').addEventListener('click', () => {
     const cols = [['ref', 'Referência'], ['createdAt', 'Recebido'], ['status', 'Estado'], ['firstName', 'Nome'], ['lastName', 'Apelido'], ['phone', 'Telemóvel'], ['email', 'Email'], ['contactPref', 'Contacto preferido'],
       ['servicesLabel', 'Serviços'], ['total', 'Total estimado'], ['brand', 'Marca'], ['model', 'Modelo'], ['year', 'Ano'], ['km', 'Km'], ['fuel', 'Combustível'], ['plate', 'Matrícula'], ['chassis', 'Chassis'],
-      ['date', 'Data'], ['time', 'Hora'], ['dropoff', 'Entrega'], ['notes', 'Descrição'], ['internalNote', 'Nota interna']];
+      ['date', 'Data'], ['time', 'Hora'], ['dropoff', 'Entrega'], ['notes', 'Pedido do cliente'], ['internalNote', 'Nota interna']];
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const csv = '﻿' + cols.map(c => q(c[1])).join(';') + '\n' + filtered().map(b => cols.map(c => q(c[0] === 'phone' ? tel(b.phone) : b[c[0]])).join(';')).join('\n');
     const a = document.createElement('a');
@@ -168,13 +168,14 @@
     $('#dr-details').innerHTML = `
       <h3>Marcação</h3><dl>
         ${row('Data e hora', esc(fmtDay(b.date, b.time)))}${row('Entrega', b.dropoff === 'recolha' ? 'Recolha e entrega no endereço' : 'Na oficina')}
-        ${row('Serviços', esc(b.servicesLabel))}${row('Total estimado', esc(b.total))}</dl>
+        ${row('Serviços', `<span class="pre">${String(b.servicesLabel || '').split('; ').map(esc).join('\n')}</span>`)}${row('Total estimado', esc(b.total))}</dl>
+      ${b.notes ? `<h3>Pedido do cliente</h3><div class="dr-notes">${esc(b.notes)}</div>` : ''}
       <h3>Viatura</h3><dl>
         ${row('Marca e modelo', esc([b.brand, b.model].filter(Boolean).join(' ')))}${row('Ano', esc(b.year))}${row('Combustível', esc(FUEL[b.fuel] || b.fuel))}
         ${row('Quilometragem', b.km && esc(b.km) + ' km')}${row('Matrícula', b.plate && `<span class="plate">${esc(b.plate)}</span>`)}${row('Chassis (VIN)', `<span class="mono">${esc(b.chassis) || '—'}</span>`)}</dl>
       <h3>Cliente</h3><dl>
         ${row('Telemóvel', esc(tel(b.phone)))}${row('Email', esc(b.email))}${row('Contacto preferido', esc(PREF[b.contactPref] || b.contactPref))}
-        ${row('Idioma', b.lang === 'en' ? 'Inglês' : 'Português')}${row('Descrição', esc(b.notes))}</dl>`;
+        ${row('Idioma', b.lang === 'en' ? 'Inglês' : 'Português')}</dl>`;
     const first = b.firstName || '';
     const msg = `Olá ${first}, daqui fala a Blackline Performance. Recebemos o seu pedido ${b.ref} para ${fmtDay(b.date, b.time)} (${[b.brand, b.model].filter(Boolean).join(' ')}). Podemos confirmar?`;
     $('#dr-wa').href = `https://wa.me/258${b.phone}?text=${encodeURIComponent(msg)}`;
@@ -285,6 +286,35 @@
     const row = $(`.svc-row[data-id="${id}"]`); row?.classList.add('flash'); row?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   });
 
+  /* --- subopções (subpreços) de cada serviço --- */
+  const hasOpts = s => (s.options || []).some(o => o.active !== false);
+  const openOpts = new Set();
+  function optsEditor(s, si) {
+    const list = s.options || [];
+    const sum = list.filter(o => o.active !== false && o.price != null && o.price !== '').reduce((a, o) => a + Number(o.price), 0);
+    return `
+    <details class="svc-opts" data-s="${si}" data-sid="${esc(s.id)}" ${openOpts.has(s.id) ? 'open' : ''}>
+      <summary><span>Subopções e subpreços</span> <b>${list.length ? list.length + (list.length === 1 ? ' opção' : ' opções') : 'nenhuma'}</b>${list.length ? `<em>todas juntas: ${mt(sum)}</em>` : ''}</summary>
+      <div class="svc-opts__body">
+        <p class="muted">O cliente escolhe as partes que quer e vê a descrição e o preço de cada uma; o preço do serviço passa a ser a soma das escolhidas. Preço vazio = a orçamentar.</p>
+        <label class="f f--inline"><span>O cliente pode escolher</span><select data-sf="optMode">
+          <option value="multi" ${s.optMode !== 'single' ? 'selected' : ''}>Várias opções (ex.: frente + trás + laterais)</option>
+          <option value="single" ${s.optMode === 'single' ? 'selected' : ''}>Só uma opção (ex.: tamanho do motor)</option></select></label>
+        ${list.length ? `<div class="opt-row opt-row--head"><span>Ativa</span><span>Opção (PT / EN)</span><span>Descrição (PT / EN)</span><span>Preço (MT)</span><span>Ordem</span><span></span></div>` : ''}
+        ${list.map((o, oi) => `
+        <div class="opt-row ${o.active === false ? 'is-off' : ''}" data-o="${oi}">
+          <label class="chk" data-l="Ativa"><input type="checkbox" data-of="active" ${o.active !== false ? 'checked' : ''}><span></span></label>
+          <div class="stack" data-l="Opção"><input data-of="name.pt" value="${esc(o.name?.pt)}" placeholder="Ex.: Frente (para-brisas)"><input data-of="name.en" value="${esc(o.name?.en)}" placeholder="Ex.: Front (windscreen)"></div>
+          <div class="stack" data-l="Descrição"><input data-of="desc.pt" value="${esc(o.desc?.pt)}" placeholder="Descrição curta"><input data-of="desc.en" value="${esc(o.desc?.en)}" placeholder="Short description"></div>
+          <div data-l="Preço (MT)"><input type="number" min="0" step="50" data-of="price" value="${o.price ?? ''}" placeholder="Orçamento"></div>
+          <div class="order" data-l="Ordem"><button type="button" class="icon-btn" data-omove="-1" ${oi === 0 ? 'disabled' : ''} title="Subir">↑</button><button type="button" class="icon-btn" data-omove="1" ${oi === list.length - 1 ? 'disabled' : ''} title="Descer">↓</button></div>
+          <button type="button" class="icon-btn icon-btn--danger" data-odel title="Apagar opção">×</button>
+        </div>`).join('')}
+        <button type="button" class="btn btn--ghost btn--sm" data-oadd>+ Adicionar subopção</button>
+      </div>
+    </details>`;
+  }
+
   /* --- lista de serviços --- */
   function renderGroups() {
     fillGroupSelects();
@@ -317,12 +347,13 @@
               <div class="stack" data-l="Serviço"><input data-sf="name.pt" value="${esc(s.name?.pt)}" placeholder="Nome em português"><input data-sf="name.en" value="${esc(s.name?.en)}" placeholder="Name in English"></div>
               <div class="stack" data-l="Descrição"><input data-sf="desc.pt" value="${esc(s.desc?.pt)}" placeholder="Descrição"><input data-sf="desc.en" value="${esc(s.desc?.en)}" placeholder="Description"></div>
               <div class="stack" data-l="Duração"><input data-sf="dur.pt" value="${esc(s.dur?.pt)}" placeholder="1 h"><input data-sf="dur.en" value="${esc(s.dur?.en)}" placeholder="1 h"></div>
-              <div data-l="Preço (MT)"><input type="number" min="0" step="50" data-sf="price" value="${s.price ?? ''}" placeholder="Orçamento">${d ? `<small class="promo-hint">Promoção: ${mt(d.price)}</small>` : ''}</div>
+              <div data-l="Preço (MT)"><input type="number" min="0" step="50" data-sf="price" value="${s.price ?? ''}" placeholder="Orçamento" ${hasOpts(s) ? 'disabled title="Com subopções o preço é a soma das subopções escolhidas pelo cliente"' : ''}>${hasOpts(s) ? '<small class="opt-hint">soma das subopções</small>' : d ? `<small class="promo-hint">Promoção: ${mt(d.price)}</small>` : ''}</div>
               <label class="chk" data-l="desde"><input type="checkbox" data-sf="from" ${s.from ? 'checked' : ''}><span></span></label>
               <div data-l="Categoria"><select data-smove-group>${gOpts(gi)}</select></div>
               <div class="order" data-l="Ordem"><button type="button" class="icon-btn" data-smove="-1" ${si === 0 ? 'disabled' : ''} title="Subir">↑</button><button type="button" class="icon-btn" data-smove="1" ${si === g.items.length - 1 ? 'disabled' : ''} title="Descer">↓</button></div>
               <button type="button" class="icon-btn icon-btn--danger" data-sdel title="Apagar serviço">×</button>
-            </div>`; }).join('')}
+            </div>
+            ${optsEditor(s, si)}`; }).join('')}
           ${!g.items.length ? '<p class="muted pad">Sem serviços nesta categoria.</p>' : ''}
         </div>
       </div>`; }).join('') || '<div class="card"><p>Nenhum serviço corresponde à pesquisa.</p></div>';
@@ -342,7 +373,24 @@
       else setPath(s, k, el.value);
       queueSave();
     }
+    if (el.dataset.of) {
+      const s = sOf(el), o = s.options[+el.closest('[data-o]').dataset.o], k = el.dataset.of;
+      if (el.type === 'checkbox') { o[k] = el.checked; el.closest('.opt-row').classList.toggle('is-off', !el.checked); }
+      else if (k === 'price') o.price = el.value === '' ? null : Number(el.value);
+      else setPath(o, k, el.value);
+      if (k === 'price' || k === 'active') refreshOptsSummary(el);
+      queueSave();
+    }
   });
+  const refreshOptsSummary = el => {
+    const box = el.closest('.svc-opts'), s = sOf(el);
+    const sum = (s.options || []).filter(o => o.active !== false && o.price != null && o.price !== '').reduce((a, o) => a + Number(o.price), 0);
+    const em = box.querySelector('summary em'); if (em) em.textContent = 'todas juntas: ' + mt(sum);
+  };
+  $('#groups').addEventListener('toggle', e => {
+    const d = e.target; if (!d.matches?.('.svc-opts')) return;
+    d.open ? openOpts.add(d.dataset.sid) : openOpts.delete(d.dataset.sid);
+  }, true);
   $('#groups').addEventListener('change', e => {
     const el = e.target; if (!el.matches('[data-smove-group]')) return;
     const from = gOf(el), s = sOf(el), to = settings.groups[+el.value];
@@ -352,6 +400,22 @@
   });
   $('#groups').addEventListener('click', e => {
     const el = e.target.closest('button'); if (!el) return;
+    if (el.hasAttribute('data-oadd')) {
+      const s = sOf(el); s.options = s.options || []; if (!s.optMode) s.optMode = 'multi';
+      s.options.push({ id: uid('op'), active: true, price: null, name: { pt: '', en: '' }, desc: { pt: '', en: '' } });
+      openOpts.add(s.id); renderGroups(); queueSave();
+      $$(`.svc-opts[data-sid="${CSS.escape(s.id)}"] .opt-row:last-of-type input[data-of="name.pt"]`)[0]?.focus();
+      return;
+    }
+    if (el.hasAttribute('data-odel')) {
+      const s = sOf(el), oi = +el.closest('[data-o]').dataset.o;
+      if (!confirm(`Apagar a subopção "${s.options[oi].name?.pt || 'sem nome'}"?`)) return;
+      s.options.splice(oi, 1); renderGroups(); queueSave(); return;
+    }
+    if (el.dataset.omove) {
+      const s = sOf(el), i = +el.closest('[data-o]').dataset.o, j = i + +el.dataset.omove;
+      [s.options[i], s.options[j]] = [s.options[j], s.options[i]]; renderGroups(); queueSave(); return;
+    }
     if (el.hasAttribute('data-sdel')) {
       const g = gOf(el), s = sOf(el);
       if (!confirm(`Apagar o serviço "${s.name?.pt || 'sem nome'}"?`)) return;

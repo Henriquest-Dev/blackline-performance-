@@ -15,11 +15,11 @@
 
   const T = {
     pt: { title: 'COTAÇÃO', no: 'Nº', date: 'Data', valid: 'Válida até', booking: 'Ref. marcação', appt: 'Marcação', client: 'CLIENTE', vehicle: 'VIATURA', details: 'DETALHES',
-      desc: 'Descrição', qty: 'Qtd', unit: 'Preço unit.', total: 'Total', subtotal: 'Subtotal', discount: 'Desconto', vatIncl: 'IVA incluído ({r}%)', vatAdd: 'IVA ({r}%)', net: 'Valor sem IVA',
+      desc: 'Descrição', qty: 'Qtd', unit: 'Preço unit.', total: 'Total', subtotal: 'Subtotal', discount: 'Desconto', vatIncl: 'IVA incluído ({r}%)', vatInclM: 'IVA incluído', vatAdd: 'IVA ({r}%)', net: 'Valor sem IVA',
       grand: 'TOTAL', notes: 'Observações', terms: 'Condições', bank: 'Pagamento', plate: 'Matrícula', chassis: 'Chassis', km: 'Km', page: 'Página {p} de {n}', quoteLine: '(a orçamentar)',
       pickup: 'Recolha e entrega', msg: 'Olá {n}, segue em anexo a cotação {q} da Blackline Performance para {car}: total {t}, válida até {v}. Qualquer dúvida estamos ao dispor.', link: 'Ver / descarregar a cotação (PDF): {u}' },
     en: { title: 'QUOTATION', no: 'No.', date: 'Date', valid: 'Valid until', booking: 'Booking ref.', appt: 'Appointment', client: 'CUSTOMER', vehicle: 'VEHICLE', details: 'DETAILS',
-      desc: 'Description', qty: 'Qty', unit: 'Unit price', total: 'Total', subtotal: 'Subtotal', discount: 'Discount', vatIncl: 'VAT included ({r}%)', vatAdd: 'VAT ({r}%)', net: 'Amount excl. VAT',
+      desc: 'Description', qty: 'Qty', unit: 'Unit price', total: 'Total', subtotal: 'Subtotal', discount: 'Discount', vatIncl: 'VAT included ({r}%)', vatInclM: 'VAT included', vatAdd: 'VAT ({r}%)', net: 'Amount excl. VAT',
       grand: 'TOTAL', notes: 'Notes', terms: 'Terms', bank: 'Payment', plate: 'Plate', chassis: 'Chassis', km: 'Mileage', page: 'Page {p} of {n}', quoteLine: '(to be quoted)',
       pickup: 'Collection and delivery', msg: 'Hello {n}, please find attached quotation {q} from Blackline Performance for {car}: total {t}, valid until {v}. Let us know if you have any questions.', link: 'View / download the quotation (PDF): {u}' },
   };
@@ -46,20 +46,34 @@
     const s = A().settings(), co = s.company || {};
     const lang = b.lang === 'en' ? 'en' : 'pt';
     const all = s.groups.flatMap(g => g.items);
-    const ids = Array.isArray(b.services) ? b.services : String(b.services || '').split(',').filter(Boolean);
-    const items = ids.map(id => {
+    const P = window.BLStore.pricing;
+    const tokens = Array.isArray(b.services) ? b.services : String(b.services || '').split(',').filter(Boolean);
+    const ids = tokens.filter(x => !x.includes(':'));
+    const optsOf = id => tokens.filter(x => x.startsWith(id + ':')).map(x => x.slice(id.length + 1));
+    let discount = 0;
+    const items = ids.flatMap(id => {
       const sv = all.find(x => x.id === id);
-      if (!sv) return null;
-      const deal = window.BLStore.pricing.best(s, sv);
-      const price = deal ? deal.price : (sv.price == null || sv.price === '' ? 0 : Number(sv.price));
-      const name = (sv.name?.[lang] || sv.name?.pt || id) + (sv.price == null || sv.price === '' ? ' ' + tr(lang, 'quoteLine') : '');
-      return { desc: name, qty: 1, price, kind: 'service' };
-    }).filter(Boolean);
+      if (!sv) return [];
+      const nm = v => v?.[lang] || v?.pt || '';
+      const sel = optsOf(id);
+      const chosen = P.chosen(sv, sel);
+      if (chosen.length) {
+        // uma linha por subopção; promoção do serviço entra como desconto
+        const deal = P.best(s, sv, undefined, sel);
+        if (deal) discount += deal.was - deal.price;
+        return chosen.map(o => ({ desc: `${nm(sv.name) || id} — ${nm(o.name)}` + (o.price == null || o.price === '' ? ' ' + tr(lang, 'quoteLine') : ''), qty: 1, price: Number(o.price) || 0, kind: 'service' }));
+      }
+      const deal = P.best(s, sv);
+      const base = P.base(sv);
+      const price = deal ? deal.price : (base == null ? 0 : base);
+      const name = (nm(sv.name) || id) + (base == null ? ' ' + tr(lang, 'quoteLine') : '');
+      return [{ desc: name, qty: 1, price, kind: 'service' }];
+    });
     if (b.dropoff === 'recolha') items.push({ desc: tr(lang, 'pickup'), qty: 1, price: Number(s.booking?.pickupFee) || 0, kind: 'service' });
     if (!items.length) items.push({ desc: '', qty: 1, price: 0, kind: 'labour' });
     return {
       number: `${b.ref}-C1`, date: todayISO(), validDays: Number(co.quoteValidityDays) || 15, lang,
-      items, discount: 0, vatMode: co.pricesIncludeVat === false ? 'add' : 'incl', vatRate: Number(co.vatRate) || 0,
+      items, discount, vatMode: co.pricesIncludeVat === false ? 'add' : 'incl', vatRate: Number(co.vatRate) || 0, vatAmount: 0, showVat: true,
       notes: b.notes ? (lang === 'en' ? 'Reported by customer: ' : 'Indicado pelo cliente: ') + b.notes : '',
     };
   }
@@ -71,14 +85,19 @@
     let net, vat, total;
     if (x.vatMode === 'add') { net = after; vat = after * r; total = net + vat; }
     else if (x.vatMode === 'incl') { total = after; net = after / (1 + r); vat = total - net; }
+    else if (x.vatMode === 'manual') { total = after; vat = Math.min(Math.max(0, num(x.vatAmount)), after); net = total - vat; }
     else { total = after; net = after; vat = 0; }
     return { items, after, net, vat, total };
   }
 
   /* ---------- editor ---------- */
   const svcOptions = () => {
-    const s = A().settings();
-    return '<option value="">Escolher serviço…</option>' + s.groups.map(g => `<optgroup label="${esc(g.name?.pt)}">${g.items.map(x => `<option value="${esc(x.id)}">${esc(x.name?.pt)} — ${x.price == null ? 'orçamento' : mt(window.BLStore.pricing.best(s, x)?.price ?? x.price)}</option>`).join('')}</optgroup>`).join('');
+    const s = A().settings(), P = window.BLStore.pricing;
+    const price = x => { const b = P.base(x); return b == null ? 'orçamento' : (P.hasOpts(x) ? 'desde ' : '') + mt(P.best(s, x)?.price ?? b); };
+    const oprice = o => o.price == null || o.price === '' ? 'orçamento' : mt(o.price);
+    return '<option value="">Escolher serviço…</option>' + s.groups.map(g => `<optgroup label="${esc(g.name?.pt)}">${g.items.map(x =>
+      `<option value="${esc(x.id)}">${esc(x.name?.pt)} — ${price(x)}</option>` +
+      P.opts(x).map(o => `<option value="${esc(x.id + ':' + o.id)}">&nbsp;&nbsp;↳ ${esc(o.name?.pt)} — ${oprice(o)}</option>`).join('')).join('')}</optgroup>`).join('');
   };
   function renderItems() {
     $('#q-items').innerHTML = q.items.map((it, i) => `
@@ -99,13 +118,24 @@
       ${num(q.discount) ? `<div><dt>${tr(L, 'discount')}</dt><dd>−${mt(q.discount)}</dd></div>` : ''}
       ${q.vatMode === 'add' ? `<div><dt>${tr(L, 'vatAdd', { r: q.vatRate })}</dt><dd>${mt(t.vat)}</dd></div>` : ''}
       ${q.vatMode === 'incl' ? `<div class="muted"><dt>${tr(L, 'vatIncl', { r: q.vatRate })}</dt><dd>${mt(t.vat)}</dd></div>` : ''}
+      ${q.vatMode === 'manual' ? `<div class="muted"><dt>${tr(L, 'vatInclM')}</dt><dd>${mt(t.vat)}</dd></div>` : ''}
       <div class="grand"><dt>${tr(L, 'grand')}</dt><dd>${mt(t.total)}</dd></div>`;
+    $('#q-vatrate-f').hidden = !['incl', 'add'].includes(q.vatMode);
+    $('#q-vatamount-f').hidden = q.vatMode !== 'manual';
+    $('.q-showvat').hidden = q.vatMode === 'none';
+    $('#q-vathelp').textContent = {
+      incl: `O cliente paga ${mt(t.total)}. O IVA (${num(q.vatRate)}%) já está dentro deste valor e é calculado sozinho.`,
+      manual: `O cliente paga ${mt(t.total)}. Escreva o valor do IVA que está dentro deste total.`,
+      add: `O IVA (${num(q.vatRate)}%) é somado aos preços: o cliente paga ${mt(t.total)}.`,
+      none: 'Sem IVA na cotação.',
+    }[q.vatMode] || '';
     $$('#q-items tr').forEach(r => { const it = q.items[+r.dataset.i]; r.querySelector('.line-total').textContent = mt(num(it.qty) * num(it.price)); });
   }
   const readHead = () => {
     q.number = $('#q-number').value.trim(); q.date = $('#q-date').value || todayISO();
     q.validDays = num($('#q-valid').value) || 15; q.lang = $('#q-lang').value;
     q.notes = $('#q-notes').value; q.discount = num($('#q-discount').value); q.vatMode = $('#q-vatmode').value;
+    q.vatRate = num($('#q-vatrate').value); q.vatAmount = num($('#q-vatamount').value); q.showVat = $('#q-showvat').checked;
   };
 
   function open(b) {
@@ -115,6 +145,9 @@
     $('#q-sub').textContent = `${A().name(b)} · ${[b.brand, b.model].filter(Boolean).join(' ')} · ${A().fmtDay(b.date, b.time)}`;
     $('#q-number').value = q.number; $('#q-date').value = q.date; $('#q-valid').value = q.validDays; $('#q-lang').value = q.lang;
     $('#q-notes').value = q.notes || ''; $('#q-discount').value = q.discount || 0; $('#q-vatmode').value = q.vatMode;
+    if (q.vatAmount == null) q.vatAmount = 0;
+    if (q.showVat == null) q.showVat = true;
+    $('#q-vatrate').value = q.vatRate; $('#q-vatamount').value = q.vatAmount || ''; $('#q-showvat').checked = q.showVat;
     $('#q-svc-pick').innerHTML = svcOptions(); $('#q-svc-pick').hidden = true;
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }));
     $('#q-hint').textContent = window.BLStore.canLinkPdf
@@ -148,12 +181,23 @@
     $$('#q-items tr:last-child input')[0]?.focus();
   }));
   $('#q-svc-pick').addEventListener('change', e => {
-    const s = A().settings(); const sv = s.groups.flatMap(g => g.items).find(x => x.id === e.target.value); if (!sv) return;
-    const d = window.BLStore.pricing.best(s, sv);
-    q.items.push({ desc: sv.name?.[q.lang] || sv.name?.pt, qty: 1, price: d ? d.price : Number(sv.price) || 0, kind: 'service' });
+    const s = A().settings(), P = window.BLStore.pricing;
+    const [id, oid] = e.target.value.split(':');
+    const sv = s.groups.flatMap(g => g.items).find(x => x.id === id); if (!sv) return;
+    const nm = v => v?.[q.lang] || v?.pt || '';
+    const o = oid && P.opts(sv).find(x => x.id === oid);
+    if (o) q.items.push({ desc: `${nm(sv.name)} — ${nm(o.name)}`, qty: 1, price: Number(o.price) || 0, kind: 'service' });
+    else { const d = P.best(s, sv); q.items.push({ desc: nm(sv.name), qty: 1, price: d ? d.price : Number(P.base(sv)) || 0, kind: 'service' }); }
     e.target.hidden = true; renderItems();
   });
-  ['#q-discount', '#q-vatmode', '#q-lang'].forEach(sel => $(sel).addEventListener('input', () => { readHead(); renderTotals(); }));
+  ['#q-discount', '#q-vatmode', '#q-lang', '#q-vatrate', '#q-vatamount', '#q-showvat'].forEach(sel => ['input', 'change'].forEach(ev => $(sel).addEventListener(ev, () => {
+    readHead();
+    // ao passar para valor manual, começa pelo IVA automático
+    if (sel === '#q-vatmode' && q.vatMode === 'manual' && !q.vatAmount) {
+      const t = totals({ ...q, vatMode: 'incl' }); q.vatAmount = Math.round(t.vat); $('#q-vatamount').value = q.vatAmount;
+    }
+    renderTotals();
+  })));
 
   /* ---------- PDF ---------- */
   async function buildPdf() {
@@ -245,7 +289,8 @@
     const tx = 122, rows = [[tr(L, 'subtotal'), mt(t.items)]];
     if (num(q.discount)) rows.push([tr(L, 'discount'), '- ' + mt(q.discount)]);
     if (q.vatMode === 'add') { rows.push([tr(L, 'net'), mt(t.net)]); rows.push([tr(L, 'vatAdd', { r: q.vatRate }), mt(t.vat)]); }
-    if (q.vatMode === 'incl') rows.push([tr(L, 'vatIncl', { r: q.vatRate }), mt(t.vat)]);
+    if (q.vatMode === 'incl' && q.showVat !== false) rows.push([tr(L, 'vatIncl', { r: q.vatRate }), mt(t.vat)]);
+    if (q.vatMode === 'manual' && q.showVat !== false) rows.push([tr(L, 'vatInclM'), mt(t.vat)]);
     const ty0 = y;
     rows.forEach(([k, v]) => {
       doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED); doc.text(k, tx, y + 4);

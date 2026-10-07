@@ -52,7 +52,14 @@
     if (!saved || typeof saved !== 'object') return s;
     if (saved.contacts) s.contacts = Object.assign(s.contacts, saved.contacts);
     if (saved.booking) s.booking = Object.assign(s.booking, saved.booking);
-    if (Array.isArray(saved.groups) && saved.groups.length) s.groups = saved.groups;
+    if (Array.isArray(saved.groups) && saved.groups.length) {
+      // serviços gravados antes das subopções recebem as subopções por defeito (até o painel as gravar)
+      const defs = {}; s.groups.forEach(g => g.items.forEach(i => (defs[i.id] = i)));
+      saved.groups.forEach(g => (g.items || []).forEach(i => {
+        if (i.options === undefined && defs[i.id]?.options) { i.options = clone(defs[i.id].options); i.optMode = defs[i.id].optMode; }
+      }));
+      s.groups = saved.groups;
+    }
     if (saved.company) s.company = Object.assign(s.company, saved.company);
     if (Array.isArray(saved.promos)) s.promos = saved.promos;
     return s;
@@ -263,10 +270,26 @@
       if (p.type === 'price') return Math.max(0, v);
       return price;
     },
+    /* subopções: [{id, name, desc, price|null, active}] — o preço do serviço passa a ser a soma das escolhidas */
+    opts(service) { return (service.options || []).filter(o => o.active !== false && (o.name?.pt || o.name?.en)); },
+    hasOpts(service) { return this.opts(service).length > 0; },
+    chosen(service, sel) { const set = new Set(sel || []); return this.opts(service).filter(o => set.has(o.id)); },
+    // preço base de um serviço com as subopções escolhidas (null = sob orçamento)
+    base(service, sel) {
+      if (this.hasOpts(service)) {
+        const list = sel ? this.chosen(service, sel) : [];
+        if (!sel) { const p = this.opts(service).map(o => o.price).filter(v => v != null && v !== ''); return p.length ? Math.min(...p.map(Number)) : null; }
+        const priced = list.filter(o => o.price != null && o.price !== '');
+        return priced.length ? priced.reduce((a, o) => a + Number(o.price), 0) : (list.length ? null : 0);
+      }
+      return service.price == null || service.price === '' ? null : Number(service.price);
+    },
+    // há subopções escolhidas sem preço (a orçamentar)?
+    partQuote(service, sel) { return this.hasOpts(service) && sel ? this.chosen(service, sel).some(o => o.price == null || o.price === '') : false; },
     // melhor promoção válida para um serviço (só para serviços com preço)
-    best(settings, service, day) {
-      if (service.price == null || service.price === '') return null;
-      const base = Number(service.price);
+    best(settings, service, day, sel) {
+      const base = this.base(service, sel);
+      if (base == null || (!base && this.hasOpts(service))) return null;
       let bestP = null, bestV = base;
       this.livePromos(settings, day).filter(p => this.applies(p, service.id)).forEach(p => {
         const v = this.discounted(base, p);

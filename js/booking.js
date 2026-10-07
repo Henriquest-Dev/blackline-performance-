@@ -29,14 +29,28 @@
     brand: '', model: '', year: '', km: '', fuel: '', plate: '', chassis: '',
     date: null, slot: '', drop: 'oficina',
     first: '', last: '', phone: '', email: '', pref: 'whatsapp', notes: '', consent: false, ref: '',
+    opts: {}, svcNotes: {}, goal: '', symptoms: new Set(), since: '', drive: '', urgency: 'normal', parts: 'oficina',
   };
 
   const mt = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' MT';
   const P = window.BLStore.pricing;
-  const deal = s => P.best(settings, s);
-  const finalPrice = s => { const d = deal(s); return d ? d.price : Number(s.price) || 0; };
-  const priceLabel = s => s.price == null || s.price === '' ? t('bk.quote') : (s.from ? t('bk.from') + ' ' : '') + mt(finalPrice(s));
-  const priceHTML = s => { const d = deal(s); return d ? `<s>${mt(d.was)}</s><span class="now">${(s.from ? t('bk.from') + ' ' : '') + mt(d.price)}</span>` : priceLabel(s); };
+  // subopções escolhidas (null = serviço sem subopções)
+  const picked = s => P.hasOpts(s) && (state.opts[s.id]?.size || 0) > 0;
+  const sel = s => picked(s) ? [...state.opts[s.id]] : undefined;
+  const deal = s => P.best(settings, s, undefined, sel(s));
+  const base = s => P.base(s, sel(s));
+  const finalPrice = s => { const d = deal(s); return d ? d.price : Number(base(s)) || 0; };
+  // "desde": preço fixo marcado como "desde", ou subopções ainda por escolher
+  const isFrom = s => P.hasOpts(s) ? !picked(s) : !!s.from;
+  const isQuote = s => base(s) == null || P.partQuote(s, sel(s));
+  const priceLabel = s => {
+    if (base(s) == null) return t('bk.quote');
+    return (isFrom(s) ? t('bk.from') + ' ' : '') + mt(finalPrice(s)) + (P.partQuote(s, sel(s)) ? ' + ' + t('bk.quote').toLowerCase() : '');
+  };
+  const priceHTML = s => { const d = deal(s); return d ? `<s>${mt(d.was)}</s><span class="now">${(isFrom(s) ? t('bk.from') + ' ' : '') + mt(d.price)}</span>` : priceLabel(s); };
+  const optPrice = o => o.price == null || o.price === '' ? t('bk.quote') : mt(o.price);
+  const optNames = s => P.chosen(s, sel(s)).map(o => L(o.name));
+  const svcLine = s => L(s.name) + (picked(s) ? ' — ' + optNames(s).join(', ') : '');
   const promoTag = s => { const d = deal(s); return d ? `<span class="bk-promo-tag">${P.label(d.promo, mt)}</span>` : ''; };
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
   const dateLong = d => cap(d.toLocaleDateString(I.locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
@@ -56,19 +70,71 @@
       <div class="bk-group">
         <h3 class="bk-group__name">${esc(L(g.name))}</h3>
         ${g.items.map(s => `
+          <div class="bk-svc-wrap${state.services.has(s.id) ? ' is-on' : ''}" data-svc="${esc(s.id)}">
           <label class="bk-svc">
             <input type="checkbox" value="${esc(s.id)}" ${state.services.has(s.id) ? 'checked' : ''}>
             <span class="bk-box" aria-hidden="true"></span>
             <span class="bk-svc__main"><b>${esc(L(s.name))}${promoTag(s)}</b><small>${esc(L(s.desc))}</small></span>
             <span class="bk-svc__dur">${esc(L(s.dur))}</span>
             <span class="bk-svc__price">${priceHTML(s)}</span>
-          </label>`).join('')}
+          </label>
+          ${state.services.has(s.id) ? optsHTML(s) : ''}
+          </div>`).join('')}
       </div>`).join('');
   };
+  // painel de subopções + detalhe do serviço (aparece quando o serviço está escolhido)
+  function optsHTML(s) {
+    const has = P.hasOpts(s), single = s.optMode === 'single', cur = new Set(state.opts[s.id] || []);
+    const list = has ? `
+      <div class="bk-opts__head"><span>${single ? t('bk.optsSingle') : t('bk.optsMulti')}</span>
+        ${single ? '' : `<button type="button" data-opt-all>${cur.size === P.opts(s).length ? t('bk.optsNone') : t('bk.optsAll')}</button>`}</div>
+      <div class="bk-opts__list">${P.opts(s).map(o => `
+        <label class="bk-opt">
+          <input type="${single ? 'radio' : 'checkbox'}" name="opt-${esc(s.id)}" value="${esc(o.id)}" ${cur.has(o.id) ? 'checked' : ''}>
+          <span class="bk-opt__mark" aria-hidden="true"></span>
+          <span class="bk-opt__main"><b>${esc(L(o.name))}</b>${L(o.desc) ? `<small>${esc(L(o.desc))}</small>` : ''}</span>
+          <span class="bk-opt__price">${optPrice(o)}</span>
+        </label>`).join('')}</div>
+      ${picked(s) ? `<div class="bk-opts__sum"><span>${esc(L(s.name))}</span><b>${priceLabel(s)}</b></div>` : ''}` : '';
+    return `<div class="bk-opts">${list}
+      <label class="bk-opts__note"><span>${t('bk.svcNote')}</span><input type="text" maxlength="160" data-svc-note value="${esc(state.svcNotes[s.id] || '')}" placeholder="${esc(t('bk.svcNotePh'))}"></label>
+      <p class="bk-err" data-err="opt-${esc(s.id)}"></p></div>`;
+  }
+  const refreshSvc = id => {
+    const w = $(`.bk-svc-wrap[data-svc="${CSS.escape(id)}"]`, root); if (!w) return;
+    const s = SERVICES.find(x => x.id === id);
+    const on = state.services.has(id);
+    w.classList.toggle('is-on', on);
+    w.querySelector('.bk-svc__price').innerHTML = priceHTML(s);
+    const old = w.querySelector('.bk-opts'), focusNote = document.activeElement?.matches?.('[data-svc-note]') && w.contains(document.activeElement);
+    if (old && focusNote) return;
+    old?.remove();
+    if (on) w.insertAdjacentHTML('beforeend', optsHTML(s));
+  };
   $('#bk-services').addEventListener('change', e => {
-    if (!e.target.matches('input[type=checkbox]')) return;
-    e.target.checked ? state.services.add(e.target.value) : state.services.delete(e.target.value);
-    clearErr('services'); update();
+    const w = e.target.closest('.bk-svc-wrap'); if (!w) return;
+    const id = w.dataset.svc;
+    if (e.target.matches('.bk-svc input[type=checkbox]')) {
+      e.target.checked ? state.services.add(id) : state.services.delete(id);
+      clearErr('services'); refreshSvc(id); update(); return;
+    }
+    if (e.target.closest('.bk-opt')) {
+      const set = new Set(state.opts[id] || []);
+      if (e.target.type === 'radio') { set.clear(); set.add(e.target.value); }
+      else e.target.checked ? set.add(e.target.value) : set.delete(e.target.value);
+      state.opts[id] = set; clearErr('opt-' + id); clearErr('services'); refreshSvc(id); update();
+    }
+  });
+  $('#bk-services').addEventListener('input', e => {
+    if (!e.target.matches('[data-svc-note]')) return;
+    state.svcNotes[e.target.closest('.bk-svc-wrap').dataset.svc] = e.target.value.trim();
+  });
+  $('#bk-services').addEventListener('click', e => {
+    const b = e.target.closest('[data-opt-all]'); if (!b) return;
+    const id = b.closest('.bk-svc-wrap').dataset.svc, s = SERVICES.find(x => x.id === id);
+    const all = P.opts(s).map(o => o.id), cur = state.opts[id] || new Set();
+    state.opts[id] = new Set(cur.size === all.length ? [] : all);
+    clearErr('opt-' + id); refreshSvc(id); update();
   });
 
   /* ---------------- Viatura ---------------- */
@@ -105,6 +171,30 @@
     update();
   });
   segmented('#bk-fuel', 'fuel'); segmented('#bk-pref', 'pref');
+  // "Sobre o pedido": objetivo (uma escolha) e sinais (várias)
+  $('#bk-goal').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    state.goal = state.goal === b.dataset.v ? '' : b.dataset.v;
+    $$('button', $('#bk-goal')).forEach(x => x.setAttribute('aria-pressed', x.dataset.v === state.goal));
+  });
+  $('#bk-symptoms').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    state.symptoms.has(b.dataset.v) ? state.symptoms.delete(b.dataset.v) : state.symptoms.add(b.dataset.v);
+    b.setAttribute('aria-pressed', state.symptoms.has(b.dataset.v));
+  });
+  [['#bk-since', 'since'], ['#bk-drive', 'drive'], ['#bk-urgency', 'urgency'], ['#bk-parts', 'parts']]
+    .forEach(([sel, k]) => $(sel).addEventListener('change', e => (state[k] = e.target.value)));
+  const optText = (sel, v) => { const o = v && $(`${sel} option[value="${v}"]`); return o ? o.textContent : ''; };
+  const chipText = (sel, v) => { const b = $(`${sel} button[data-v="${v}"]`); return b ? b.textContent : v; };
+  // linhas do pedido (para o resumo e para o painel)
+  const aboutRows = () => [
+    [t('bk.goal'), state.goal && chipText('#bk-goal', state.goal)],
+    [t('bk.symptoms'), [...state.symptoms].map(v => chipText('#bk-symptoms', v)).join(', ')],
+    [t('bk.since'), optText('#bk-since', state.since)],
+    [t('bk.drive'), optText('#bk-drive', state.drive)],
+    [t('bk.urgency'), state.urgency === 'urgente' ? optText('#bk-urgency', 'urgente') : ''],
+    [t('bk.parts'), optText('#bk-parts', state.parts)],
+  ].filter(r => r[1]);
   $$('input[name="bk-drop"]').forEach(r => r.addEventListener('change', () => { state.drop = r.value; update(); }));
 
   /* ---------------- Calendário ---------------- */
@@ -183,6 +273,7 @@
   const validate = step => {
     const e = {};
     if (step === 0 && !state.services.size) e.services = t('err.services');
+    if (step === 0) chosen().filter(s => P.hasOpts(s) && !picked(s)).forEach(s => (e['opt-' + s.id] = t('err.opts', { s: L(s.name) })));
     if (step === 1) {
       if (!state.brand) e.brand = t('err.brand');
       if (!state.model) e.model = t('err.model');
@@ -213,13 +304,13 @@
   const totals = () => {
     const list = chosen();
     const sum = list.reduce((a, s) => a + finalPrice(s), 0) + (state.drop === 'recolha' ? pickupFee() : 0);
-    return { sum, quote: list.some(s => s.price == null || s.price === ''), from: list.some(s => s.from) };
+    return { sum, quote: list.some(isQuote), from: list.some(isFrom) };
   };
   const totalLabel = () => { const x = totals(); return (x.from ? t('bk.from') + ' ' : '') + mt(x.sum); };
   const update = () => {
     const list = chosen();
     $('#bk-sum-services').innerHTML = list.length
-      ? '<ul>' + list.map(s => `<li><span>${esc(L(s.name))}</span><span>${priceLabel(s)}</span></li>`).join('') +
+      ? '<ul>' + list.map(s => `<li><span>${esc(L(s.name))}${picked(s) ? `<small>${esc(optNames(s).join(', '))}</small>` : ''}</span><span>${priceLabel(s)}</span></li>`).join('') +
         (state.drop === 'recolha' ? `<li><span>${t('bk.pickup')}</span><span>${mt(pickupFee())}</span></li>` : '') + '</ul>'
       : '—';
     $('#bk-sum-car').innerHTML = carLabel()
@@ -238,9 +329,11 @@
         <dl>${rows.filter(r => r[1]).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
       </div>`;
     $('#bk-review').innerHTML =
-      sec(t('bk.t1'), 0, chosen().map(s => [esc(L(s.name)), priceLabel(s)]).concat(state.drop === 'recolha' ? [[t('bk.pickup'), mt(pickupFee())]] : [])) +
+      sec(t('bk.t1'), 0, chosen().map(s => [esc(L(s.name)), priceLabel(s) + (picked(s) ? `<small class="bk-rv__sub">${esc(optNames(s).join(', '))}</small>` : '') +
+        (state.svcNotes[s.id] ? `<small class="bk-rv__sub">“${esc(state.svcNotes[s.id])}”</small>` : '')]).concat(state.drop === 'recolha' ? [[t('bk.pickup'), mt(pickupFee())]] : [])) +
       sec(t('bk.t2'), 1, [[t('bk.rvMakeModel'), esc(carLabel())], [t('bk.year'), state.year], [t('bk.fuel'), fuelLabel()], [t('bk.km'), state.km && state.km + ' km'],
         [t('bk.plate'), state.plate && `<span class="bk-mini-plate">${esc(state.plate)}</span>`], [t('bk.chassis'), `<span class="bk-mono-sm">${esc(state.chassis)}</span>`]]) +
+      (aboutRows().length ? sec(t('bk.rvDetails'), 1, aboutRows().map(([k, v]) => [k, esc(v)])) : '') +
       sec(t('bk.t3'), 2, [[t('bk.rvDate'), state.date && dateLong(state.date)], [t('bk.rvTime'), state.slot], [t('bk.rvDrop'), state.drop === 'recolha' ? t('bk.rvDropHome') : t('bk.rvDropShop')]]) +
       sec(t('bk.t4'), 3, [[t('bk.rvName'), esc(fullName())], [t('bk.phone'), telLabel()], [t('bk.email'), esc(state.email)], [t('bk.rvPref'), t('bk.pref.' + state.pref)], [t('bk.notes'), esc(state.notes)]]) +
       `<div class="bk-rv__total"><span>${t('bk.total')}</span><b>${totalLabel()}</b></div>`;
@@ -294,11 +387,13 @@
     const x = totals();
     const record = {
       firstName: state.first, lastName: state.last, phone: state.phone, email: state.email, contactPref: state.pref,
-      services: [...state.services], servicesLabel: chosen().map(s => s.name?.pt || L(s.name)).join(', '),
+      // serviços + subopções escolhidas ("smash", "smash:frente", …)
+      services: chosen().flatMap(s => [s.id, ...(picked(s) ? sel(s).map(o => s.id + ':' + o) : [])]).slice(0, 40),
+      servicesLabel: chosen().map(s => (s.name?.pt || L(s.name)) + (picked(s) ? ' (' + P.chosen(s, sel(s)).map(o => o.name?.pt || L(o.name)).join(', ') + ')' : '')).join('; ').slice(0, 1500),
       total: (x.from ? 'desde ' : '') + mt(x.sum) + (x.quote ? ' + orçamento' : ''),
       promo: [...new Set(chosen().map(deal).filter(Boolean).map(d => (d.promo.title?.pt || '') + ' (' + P.label(d.promo, mt) + ')'))].join('; '),
       brand: brandLabel() || 'Outra', model: state.model, year: state.year, km: state.km, fuel: state.fuel, plate: state.plate, chassis: state.chassis,
-      date: isoDate(state.date), time: state.slot, dropoff: state.drop, notes: state.notes, lang: I.lang,
+      date: isoDate(state.date), time: state.slot, dropoff: state.drop, notes: notesText(), lang: I.lang,
       website: $('#bk-website').value,
     };
     try {
@@ -314,6 +409,22 @@
       if (state.step !== 5) nextBtn.textContent = t('bk.send');
     }
   };
+  // observações estruturadas, sempre em português para o painel
+  function notesText() {
+    const pt = (k, v) => k ? I.pt(k) : v;
+    const pick = (sel, v) => { const o = v && $(`${sel} [value="${v}"], ${sel} [data-v="${v}"]`, root); return o ? pt(o.dataset.i18n, o.textContent) : ''; };
+    const lines = [
+      state.goal && 'Objetivo: ' + pick('#bk-goal', state.goal),
+      state.symptoms.size && 'Sinais: ' + [...state.symptoms].map(v => pick('#bk-symptoms', v)).join(', '),
+      state.since && 'Desde: ' + pick('#bk-since', state.since),
+      state.drive && 'Viatura anda: ' + pick('#bk-drive', state.drive),
+      state.urgency === 'urgente' && 'Urgência: URGENTE',
+      'Peças: ' + pick('#bk-parts', state.parts),
+      ...chosen().filter(s => state.svcNotes[s.id]).map(s => `${s.name?.pt || L(s.name)}: ${state.svcNotes[s.id]}`),
+      state.notes && 'Outros detalhes: ' + state.notes,
+    ].filter(Boolean);
+    return lines.join('\n').slice(0, 2000);
+  }
   const renderSent = () => {
     $('#bk-sent-text').innerHTML = t('bk.sent', { car: esc(carLabel()), when: whenLabel(), pref: t('bk.pref.' + state.pref) });
     $('#bk-sent-when').textContent = `${whenLabel()} — ${state.drop === 'recolha' ? t('bk.atHome') : t('bk.atShop')}.`;
@@ -340,7 +451,7 @@
     const f = d => d.getFullYear() + [d.getMonth() + 1, d.getDate()].map(n => String(n).padStart(2, '0')).join('') + 'T' + [d.getHours(), d.getMinutes()].map(n => String(n).padStart(2, '0')).join('') + '00';
     const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Blackline Performance//PT', 'BEGIN:VEVENT',
       `UID:${Date.now()}@blackline-performance`, `DTSTART:${f(s)}`, `DTEND:${f(e)}`,
-      `SUMMARY:Blackline Performance — ${chosen().map(x => L(x.name)).join(', ')}`,
+      `SUMMARY:Blackline Performance — ${chosen().map(svcLine).join('; ')}`,
       `DESCRIPTION:${carLabel()} ${state.plate} · Ref. ${state.ref}`,
       'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     const a = document.createElement('a');
@@ -363,8 +474,11 @@
   const reset = () => {
     Object.assign(state, { step: 0, reached: 0, brand: '', model: '', year: '', km: '', fuel: '', plate: '', chassis: '', date: null, slot: '', drop: 'oficina', first: '', last: '', phone: '', email: '', pref: 'whatsapp', notes: '', consent: false, ref: '' });
     state.services.clear();
+    Object.assign(state, { opts: {}, svcNotes: {}, goal: '', since: '', drive: '', urgency: 'normal', parts: 'oficina' }); state.symptoms.clear();
+    $$('#bk-goal button, #bk-symptoms button').forEach(b => b.setAttribute('aria-pressed', 'false'));
     $$('input:not([type=radio]), textarea', root).forEach(i => i.type === 'checkbox' ? (i.checked = false) : (i.value = ''));
     $$('select', root).forEach(s => (s.value = ''));
+    $('#bk-urgency').value = 'normal'; $('#bk-parts').value = 'oficina';
     $('input[name="bk-drop"][value="oficina"]').checked = true;
     $$('#bk-fuel button').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-checked', 'false'); });
     $$('#bk-pref button').forEach(b => { const on = b.dataset.v === 'whatsapp'; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });

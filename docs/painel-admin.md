@@ -14,7 +14,8 @@ Após 8 tentativas erradas em 15 minutos, o login fica bloqueado durante 15 minu
 
 ### Marcações
 Cada pedido feito no site aparece aqui com: nome, telemóvel, email, contacto preferido, serviços, total estimado,
-marca/modelo/ano, quilometragem, combustível, matrícula, **número de chassis**, data e hora, entrega e descrição do problema.
+marca/modelo/ano, quilometragem, combustível, matrícula, **número de chassis**, data e hora, entrega e o **pedido do cliente**:
+objetivo, sinais que notou, desde quando, se a viatura anda, urgência, peças, detalhe de cada serviço e outros detalhes.
 
 - Pesquisa por nome, telemóvel, matrícula, chassis ou referência; filtros por estado e por data.
 - Clicar numa marcação abre o detalhe com botões **WhatsApp** (mensagem de confirmação já escrita),
@@ -30,6 +31,11 @@ Formulário próprio **Adicionar novo serviço** (nome, descrição, categoria �
 Na lista: editar tudo (PT e EN), mudar de categoria, reordenar, ativar/desativar sem apagar, apagar, procurar. Preço vazio = "Sob orçamento". Também a taxa de recolha e
 o último horário de sábado. **Grava automaticamente** e o site passa a mostrar os novos valores.
 
+**Subopções e subpreços** (em cada serviço → "Subopções e subpreços"): partes do serviço com nome, descrição e preço próprios
+(ex.: Smash & Grab — Frente 2 500, Trás 2 500, cada lateral 1 500). O cliente escolhe as que quer; o preço do serviço passa a ser
+a soma das escolhidas. "Várias opções" (frente + trás + laterais) ou "Só uma opção" (ex.: tamanho do motor). Preço vazio = a orçamentar.
+As subopções escolhidas aparecem na marcação e entram na cotação como linhas separadas.
+
 ### Promoções
 Criar promoções com título e descrição (PT/EN), tipo de desconto (**percentagem**, **valor fixo em MT** ou **preço promocional**),
 serviços abrangidos (nenhum = todos os serviços com preço), data de início e fim, ativa/desativada e "mostrar no site".
@@ -38,8 +44,11 @@ As promoções ativas aparecem na secção **Promoções** do site e o desconto 
 
 ### Cotação em PDF
 No detalhe de uma marcação → **Preparar cotação PDF**. A cotação vem preenchida com os serviços pedidos (já com promoções);
-pode ajustar preços e quantidades, acrescentar **peças/material**, **mão de obra** ou outros serviços, desconto, IVA
-(incluído, acrescentado ou isento), validade e observações, em português ou inglês.
+pode ajustar preços e quantidades, acrescentar **peças/material**, **mão de obra** ou outros serviços, desconto, validade e observações, em português ou inglês.
+
+**IVA por cotação:** *Incluído no total — automático* (o total fica igual, ex.: 12 000 MT, e o IVA é calculado dentro dele com a taxa
+que escrever nesta cotação), *Incluído no total — valor manual* (escreve o valor do IVA; o total não muda), *Acrescentar ao total* ou *Isento*.
+Pode esconder a linha do IVA no PDF — o cliente vê só o total.
 
 - **Enviar PDF por WhatsApp**: o PDF é guardado e abre-se a conversa do cliente com a mensagem e o link para o PDF
   (no telemóvel aparece também a partilha com o PDF anexado).

@@ -244,7 +244,7 @@ input[type=checkbox] { width: auto; height: auto; }
 .dr-quote b { display: block; font-size: 14px; color: var(--ink); }
 .qmodal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; }
 .qmodal__bg { position: absolute; inset: 0; background: rgba(8,8,10,.55); }
-.qmodal__panel { position: relative; display: flex; flex-direction: column; width: min(1000px, 100%); max-height: 100%; border-radius: 4px; background: #fff; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
+.qmodal__panel { position: relative; display: flex; flex-direction: column; width: min(1000px, 100%); max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); border-radius: 4px; background: #fff; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
 .qmodal__head { display: flex; justify-content: space-between; gap: 16px; padding: 20px 24px 16px; border-bottom: 1px solid var(--line); }
 .qmodal__head small { font-size: 12px; color: var(--muted); }
 .qmodal__head h2 { margin: 4px 0 0; font-size: 22px; font-weight: 800; color: var(--ink); }
@@ -277,17 +277,81 @@ input[type=checkbox] { width: auto; height: auto; }
 @media (max-width: 860px) {
   .grid4 { grid-template-columns: 1fr 1fr; }
   .svc-row > [data-l="Categoria"], .svc-row > .order { grid-column: span 1; }
-  .qmodal { padding: 0; }
-  .qmodal__panel { height: 100%; border-radius: 0; }
-  .qgrid { grid-template-columns: 1fr 1fr; }
-  .qbottom { grid-template-columns: 1fr; }
+  .qmodal { padding: 0; place-items: stretch; }
+  .qmodal__panel { width: 100%; height: 100vh; height: 100dvh; max-height: none; border-radius: 0; }
+  .qmodal__head { padding: 14px 16px 12px; }
+  .qmodal__head h2 { font-size: 19px; }
+  .qmodal__body { padding: 16px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .qgrid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .qgrid > :first-child { grid-column: 1 / -1; }
+  .qbottom { grid-template-columns: 1fr; gap: 16px; }
+  .qitems, .qitems tbody { display: block; }
   .qitems thead { display: none; }
-  .qitems tr { display: grid; grid-template-columns: 1fr 70px 110px 36px; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .qitems td { padding: 0; border: 0; width: auto !important; }
+  .qitems tr { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 36px; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .qitems td { display: block; padding: 0; border: 0; width: auto !important; min-width: 0; }
   .qitems td:first-child { grid-column: 1 / -1; }
-  .qitems .line-total { align-self: center; font-size: 12px; }
-  .qmodal__foot { flex-wrap: wrap; }
-  .qmodal__foot .muted { flex-basis: 100%; }
-  .qmodal__foot .btn { flex: 1; }
+  .qitems .line-total { align-self: center; font-size: 12.5px; }
+  .qitems td:last-child .icon-btn { width: 36px; padding: 0; }
+  .qadd .btn { flex: 1 1 auto; }
+  .qadd select { min-width: 0; width: 100%; }
+  .f--inline { grid-template-columns: 1fr; gap: 6px; }
+  .qmodal__foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .qmodal__foot .muted { grid-column: 1 / -1; font-size: 11.5px; }
+  .qmodal__foot .btn { width: 100%; min-width: 0; padding: 0 10px; }
+  .qmodal__foot #q-send { grid-column: 1 / -1; }
   .dr-quote { flex-direction: column; align-items: stretch; }
+}
+
+/* ---------- subopções no painel ---------- */
+.svc-opts { margin: -4px 0 10px 44px; border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 3px; background: #FCFCFD; }
+.svc-opts summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 14px; cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--ink); list-style: none; }
+.svc-opts summary::-webkit-details-marker { display: none; }
+.svc-opts summary::before { content: "▸"; color: var(--red); }
+.svc-opts[open] summary::before { content: "▾"; }
+.svc-opts summary b { font-weight: 600; color: var(--muted); }
+.svc-opts summary em { font-style: normal; font-weight: 600; color: var(--muted); margin-left: auto; }
+.svc-opts__body { display: grid; gap: 10px; padding: 0 14px 14px; }
+.svc-opts__body > p { margin: 0; font-size: 12px; line-height: 1.5; }
+.svc-opts__body .f--inline { grid-template-columns: 170px minmax(0, 360px); }
+.svc-opts__body > .btn { justify-self: start; }
+.opt-row { display: grid; grid-template-columns: 44px 1.2fr 1.6fr 120px 80px 36px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.opt-row--head { border-top: 0; padding: 0; font-size: 11px; font-weight: 700; color: var(--muted); }
+.opt-row input { height: 36px; font-size: 13px; }
+.opt-row.is-off { opacity: .5; }
+.opt-hint { display: block; margin-top: 3px; font-size: 11px; font-weight: 700; color: var(--muted); }
+.svc-row input:disabled { background: var(--soft); color: var(--muted); }
+.dr-notes { padding: 12px 14px; border-left: 3px solid var(--red); background: var(--soft); font-size: 13.5px; line-height: 1.6; white-space: pre-line; color: var(--ink); }
+.pre { white-space: pre-line; }
+.q-showvat { height: auto; font-size: 12.5px; }
+.q-vathelp { margin: 0; font-size: 12px; line-height: 1.5; }
+@media (max-width: 860px) {
+  .svc-opts { margin: 0 0 12px; }
+  .svc-opts__body .f--inline { grid-template-columns: 1fr; }
+  .opt-row--head { display: none; }
+  .opt-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 0; }
+  .opt-row > * { grid-column: span 2; }
+  .opt-row > [data-l]::before { content: attr(data-l); display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; color: var(--muted); }
+  .opt-row > .chk { grid-column: span 1; justify-items: start; }
+  .opt-row > [data-l="Preço (MT)"] { grid-column: span 1; }
+  .opt-row > .order { grid-column: span 1; }
+  .opt-row > [data-odel] { grid-column: span 1; justify-self: end; }
+}
+/* telemóvel: repõe a lista de serviços em cartão (as regras de ecrã largo acima sobrepunham-se) */
+@media (max-width: 860px) {
+  .svc-list .svc-row { grid-template-columns: 1fr 1fr; gap: 10px 12px; padding: 16px 0; }
+  .svc-list .svc-row > * { grid-column: span 2; min-width: 0; }
+  .svc-list .svc-row > .chk,
+  .svc-list .svc-row > [data-l="Duração"],
+  .svc-list .svc-row > [data-l="Preço (MT)"],
+  .svc-list .svc-row > [data-l="Categoria"],
+  .svc-list .svc-row > .order { grid-column: span 1; }
+  .svc-list .svc-row > .chk { display: flex; align-items: center; gap: 10px; justify-content: flex-start; }
+  .svc-list .svc-row > .chk::before { margin: 0; order: 2; }
+  .svc-list .svc-row > [data-sdel] { grid-column: span 2; justify-self: end; width: auto; padding: 0 14px; }
+  .svc-list .svc-row > [data-sdel]::after { content: " Apagar serviço"; font-size: 12px; font-weight: 700; }
+  .svc-list .svc-row select, .svc-list .svc-row input { width: 100%; }
+  .main, .view, .card { min-width: 0; }
+}
+@media (max-width: 560px) {
+  .qmodal__foot .muted { display: none; }
 }

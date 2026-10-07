@@ -331,7 +331,15 @@
           </div>
           <div class="qtotals">
             <label class="f f--inline"><span>Desconto (MT)</span><input id="q-discount" type="number" min="0" step="50" value="0"></label>
-            <label class="f f--inline"><span>IVA</span><select id="q-vatmode"><option value="incl">Incluído nos preços</option><option value="add">Acrescentar</option><option value="none">Isento / não aplicar</option></select></label>
+            <label class="f f--inline"><span>IVA</span><select id="q-vatmode">
+              <option value="incl">Incluído no total — automático</option>
+              <option value="manual">Incluído no total — valor manual</option>
+              <option value="add">Acrescentar ao total</option>
+              <option value="none">Isento / não aplicar</option></select></label>
+            <label class="f f--inline" id="q-vatrate-f"><span>Taxa de IVA (%)</span><input id="q-vatrate" type="number" min="0" max="100" step="0.5"></label>
+            <label class="f f--inline" id="q-vatamount-f" hidden><span>Valor do IVA (MT)</span><input id="q-vatamount" type="number" min="0" step="1"></label>
+            <label class="f--check q-showvat"><input type="checkbox" id="q-showvat" checked><span>Mostrar a linha do IVA no PDF</span></label>
+            <p class="q-vathelp muted" id="q-vathelp"></p>
             <dl id="q-sum"></dl>
           </div>
         </div>
