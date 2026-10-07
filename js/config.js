@@ -37,12 +37,7 @@ window.BL_DEFAULTS = {
     bankDetails: '',
   },
   // Promoções (geridas no painel). type: 'percent' | 'fixed' | 'price'. services: [] = todos.
-  promos: [
-    { id: 'promo-exemplo', active: true, showOnSite: true, type: 'percent', value: 15, services: ['lavagem', 'detailing'],
-      start: '2026-10-01', end: '2026-10-31',
-      title: { pt: 'Outubro: estética com 15% de desconto', en: 'October: 15% off detailing' },
-      desc: { pt: 'Lavagem completa e detailing com desconto durante todo o mês. Exemplo — edite ou apague no painel.', en: 'Full wash and detailing discounted all month. Example — edit or delete in the admin panel.' } },
-  ],
+  promos: [],
   // Preços indicativos (MZN). price: null = sob orçamento. from: true = "desde".
   groups: [
     { id: 'manutencao', name: { pt: 'Manutenção', en: 'Maintenance' }, items: [
