@@ -205,17 +205,26 @@
 
   // ocupação de exemplo, estável por data (até haver agenda real)
   const hash = (d, k = 0) => ((d.getFullYear() * 400 + d.getMonth() * 37 + d.getDate() * 11 + k * 7) * 2654435761 >>> 0) % 100;
+  // feriados nacionais de Moçambique (datas fixas)
+  const HOLIDAYS = ['01-01', '02-03', '04-07', '05-01', '06-25', '09-07', '09-25', '10-04', '12-25'];
+  const isHoliday = d => HOLIDAYS.includes(String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'));
+  // sábados, domingos e feriados: por marcação (sujeito a confirmação)
+  const special = d => d.getDay() === 0 || d.getDay() === 6 || isHoliday(d);
+  const weekendOpen = () => (settings.booking?.weekend || 'request') !== 'closed';
   const slotsFor = d => {
-    const sat = d.getDay() === 6;
-    const close = settings.booking?.satClose || '12:00';
-    const list = sat ? MORNING.filter(x => x < close) : [...MORNING, ...AFTERNOON];
+    const close = settings.booking?.weekdayClose || '17:30';
+    const [ch, cm] = close.split(':').map(Number);
+    const lastStart = ch * 60 + cm - 30;
+    const afternoon = [];
+    for (let m = 13 * 60 + 30; m <= lastStart; m += 30) afternoon.push(String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'));
+    const list = [...MORNING.filter(x => { const [h, m] = x.split(':').map(Number); return h * 60 + m <= lastStart; }), ...afternoon];
     return list.map((tm, k) => {
       const [h, m] = tm.split(':').map(Number);
       const at = new Date(d); at.setHours(h, m);
-      return { t: tm, free: hash(d, k) > 34 && at.getTime() > Date.now() + 2 * 3600e3 };
+      return { t: tm, free: (special(d) || hash(d, k) > 34) && at.getTime() > Date.now() + 2 * 3600e3 };
     });
   };
-  const dayOpen = d => d >= first && d <= last && d.getDay() !== 0 && slotsFor(d).some(s => s.free);
+  const dayOpen = d => d >= first && d <= last && (!special(d) || weekendOpen()) && slotsFor(d).some(s => s.free);
   const sameDay = (a, b) => a && b && a.toDateString() === b.toDateString();
 
   const renderCal = () => {
@@ -241,6 +250,7 @@
     const group = (label, list) => list.length ? `<div class="bk-times__group"><span>${label}</span><div>${list.map(s =>
       `<button type="button" data-t="${s.t}" ${s.free ? '' : 'disabled'} class="${s.t === state.slot ? 'on' : ''}">${s.t}</button>`).join('')}</div></div>` : '';
     box.innerHTML = `<p class="bk-times__day">${dateLong(state.date)}</p>` +
+      (special(state.date) ? `<p class="bk-times__note">${t('bk.weekendNote')}</p>` : '') +
       group(t('bk.morning'), slots.filter(s => s.t < '12:00')) + group(t('bk.afternoon'), slots.filter(s => s.t > '12:00'));
   };
   $$('.bk-cal__nav').forEach(b => b.addEventListener('click', () => {
@@ -419,6 +429,7 @@
       state.since && 'Desde: ' + pick('#bk-since', state.since),
       state.drive && 'Viatura anda: ' + pick('#bk-drive', state.drive),
       state.urgency === 'urgente' && 'Urgência: URGENTE',
+      state.date && special(state.date) && 'Dia por marcação (fim de semana / feriado) — confirmar com o cliente',
       'Peças: ' + pick('#bk-parts', state.parts),
       ...chosen().filter(s => state.svcNotes[s.id]).map(s => `${s.name?.pt || L(s.name)}: ${state.svcNotes[s.id]}`),
       state.notes && 'Outros detalhes: ' + state.notes,

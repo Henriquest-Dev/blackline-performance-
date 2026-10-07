@@ -28,8 +28,8 @@ O cliente **já não é enviado para o WhatsApp**: o pedido fica gravado e a Bla
 
 ### Serviços e preços
 Formulário próprio **Adicionar novo serviço** (nome, descrição, categoria — ou nova categoria —, duração, preço, "desde", ativo).
-Na lista: editar tudo (PT e EN), mudar de categoria, reordenar, ativar/desativar sem apagar, apagar, procurar. Preço vazio = "Sob orçamento". Também a taxa de recolha e
-o último horário de sábado. **Grava automaticamente** e o site passa a mostrar os novos valores.
+Na lista: editar tudo (PT e EN), mudar de categoria, reordenar, ativar/desativar sem apagar, apagar, procurar. Preço vazio = "Sob orçamento". Também a taxa de recolha, a hora de fecho de segunda a sexta e se
+sábados, domingos e feriados ficam "por marcação" ou fechados. **Grava automaticamente** e o site passa a mostrar os novos valores.
 
 **Subopções e subpreços** (em cada serviço → "Subopções e subpreços"): partes do serviço com nome, descrição e preço próprios
 (ex.: Smash & Grab — Frente 2 500, Trás 2 500, cada lateral 1 500). O cliente escolhe as que quer; o preço do serviço passa a ser

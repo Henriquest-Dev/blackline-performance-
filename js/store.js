@@ -52,14 +52,7 @@
     if (!saved || typeof saved !== 'object') return s;
     if (saved.contacts) s.contacts = Object.assign(s.contacts, saved.contacts);
     if (saved.booking) s.booking = Object.assign(s.booking, saved.booking);
-    if (Array.isArray(saved.groups) && saved.groups.length) {
-      // serviços gravados antes das subopções recebem as subopções por defeito (até o painel as gravar)
-      const defs = {}; s.groups.forEach(g => g.items.forEach(i => (defs[i.id] = i)));
-      saved.groups.forEach(g => (g.items || []).forEach(i => {
-        if (i.options === undefined && defs[i.id]?.options) { i.options = clone(defs[i.id].options); i.optMode = defs[i.id].optMode; }
-      }));
-      s.groups = saved.groups;
-    }
+    if (Array.isArray(saved.groups) && saved.groups.length) s.groups = saved.groups;
     if (saved.company) s.company = Object.assign(s.company, saved.company);
     if (Array.isArray(saved.promos)) s.promos = saved.promos;
     return s;

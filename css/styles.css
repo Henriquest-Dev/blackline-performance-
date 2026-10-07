@@ -841,3 +841,4 @@ a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !im
 .bk-sum__v li { flex-wrap: wrap; }
 .bk-sum__v li span:first-child { flex: 1 1 150px; min-width: 0; }
 .bk-sum__v li span:last-child { margin-left: auto; text-align: right; }
+.bk-times__note { margin: -4px 0 14px; padding: 10px 12px; border-left: 3px solid var(--red); background: var(--soft); font-size: 12.5px; line-height: 1.5; color: var(--text); }

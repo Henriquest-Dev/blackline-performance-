@@ -136,7 +136,8 @@
           <h2>Opções da marcação</h2>
           <div class="grid3">
             <label class="f"><span>Taxa de recolha e entrega (MT)</span><input type="number" min="0" step="50" data-bind="booking.pickupFee"></label>
-            <label class="f"><span>Sábado — último horário antes de</span><input type="time" data-bind="booking.satClose"></label>
+            <label class="f"><span>Segunda a sexta — fecha às</span><input type="time" data-bind="booking.weekdayClose"></label>
+            <label class="f"><span>Sábados, domingos e feriados</span><select data-bind="booking.weekend"><option value="request">Por marcação (sujeito a confirmação)</option><option value="closed">Fechado</option></select></label>
           </div>
         </div>
         <div class="svc-filter">
