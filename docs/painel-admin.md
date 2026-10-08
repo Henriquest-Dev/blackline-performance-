@@ -50,8 +50,10 @@ pode ajustar preços e quantidades, acrescentar **peças/material**, **mão de o
 que escrever nesta cotação), *Incluído no total — valor manual* (escreve o valor do IVA; o total não muda), *Acrescentar ao total* ou *Isento*.
 Pode esconder a linha do IVA no PDF — o cliente vê só o total.
 
-- **Enviar PDF por WhatsApp**: o PDF é guardado e abre-se a conversa do cliente com a mensagem e o link para o PDF
-  (no telemóvel aparece também a partilha com o PDF anexado).
+- **Enviar PDF por WhatsApp**: o PDF é guardado e abre-se a conversa **diretamente com o número do cliente** (não é preciso tê-lo
+  nos contactos do WhatsApp), com a mensagem e o link para ver/descarregar o PDF.
+- **Enviar por email** (se o cliente deu email): abre o email já escrito, com o link do PDF.
+- **Partilhar PDF anexado** (só telemóvel): envia o ficheiro, mas a lista de partilha só mostra contactos guardados.
 - A cotação fica guardada na marcação e o estado passa a **Contactado**.
 - Os dados da empresa no PDF (NUIT, morada, IVA, validade, condições, dados bancários) editam-se em **Contactos e horário**.
 
