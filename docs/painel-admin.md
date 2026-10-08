@@ -54,8 +54,10 @@ Pode esconder a linha do IVA no PDF — o cliente vê só o total.
   contactos; envie a mensagem. *2.* volte ao painel e carregue em **Anexar o PDF**: escolha o WhatsApp e a conversa em "Recentes"
   (a conversa só aparece na lista depois de enviar a mensagem do passo 1).
 - **Enviar por WhatsApp (computador):** abre a conversa (WhatsApp Web) e descarrega o PDF — arraste o ficheiro para a conversa.
-- **Enviar por email (com PDF):** no telemóvel abre o Gmail/Email com o PDF anexado e copia o email do cliente (cole em "Para");
+- **Enviar por email:** com o envio automático ativado ([guia](email-automatico.md)) o email segue sozinho, com o PDF anexado e um botão
+  "Baixar cotação". Sem isso, no telemóvel abre o Gmail/Email com o PDF anexado e copia o email do cliente (cole em "Para");
   no computador descarrega o PDF e abre o email já escrito para anexar.
+- Os botões **Enviar por WhatsApp / Enviar por email** estão logo na ficha da marcação, sem abrir o editor da cotação.
 - A mensagem leva sempre também o link do PDF, como segurança.
 - A cotação fica guardada na marcação e o estado passa a **Contactado**.
 - Os dados da empresa no PDF (NUIT, morada, IVA, validade, condições, dados bancários) editam-se em **Contactos e horário**.

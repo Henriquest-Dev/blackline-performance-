@@ -185,7 +185,10 @@
     $('#dr-note').value = b.internalNote || '';
     const q = parseQuote(b);
     $('#dr-quote-state').innerHTML = q ? `Nº ${esc(q.number)} · ${mt(q.total || 0)}${b.quoteAt ? ' · enviada ' + esc(fmtDT(b.quoteAt)) : ' · guardada'}${b.quoteUrl ? ` · <a href="${esc(b.quoteUrl)}" target="_blank" rel="noopener">ver PDF</a>` : ''}` : 'Ainda não preparada';
-    $('#dr-quote').textContent = q ? 'Abrir cotação' : 'Preparar cotação PDF';
+    $('#dr-quote').textContent = q ? 'Editar cotação' : 'Preparar cotação PDF';
+    $('#dr-quote').className = 'btn ' + (q ? 'btn--ghost' : 'btn--dark');
+    // com a cotação já preparada, envia-se direto daqui (sem abrir o editor)
+    $('#dr-q-wa').hidden = !q; $('#dr-q-mail').hidden = !q || !b.email; $('#dr-q-share').hidden = true;
     $('#drawer').hidden = false;
     document.body.classList.add('no-scroll');
     setTimeout(() => $('.drawer__panel').classList.add('is-in'), 10);
@@ -562,7 +565,7 @@
     e.target.value = '';
   });
 
-  window.BLAdmin = {
+  window.BLAdmin = { current: () => current,
     settings: () => settings,
     async saveQuote(b, data, opts = {}) {
       saveState('saving');

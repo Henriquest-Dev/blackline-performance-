@@ -240,7 +240,7 @@ input[type=checkbox] { width: auto; height: auto; }
 .tbl td.actions .icon-btn { height: 32px; margin-left: 4px; font-size: 12px; }
 
 /* ---------- cotação ---------- */
-.dr-quote { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-left: 4px solid var(--ink); border-radius: 3px; background: var(--soft); }
+.dr-quote { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-left: 4px solid var(--ink); border-radius: 3px; background: var(--soft); }
 .dr-quote b { display: block; font-size: 14px; color: var(--ink); }
 .qmodal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; }
 .qmodal__bg { position: absolute; inset: 0; background: rgba(8,8,10,.55); }
@@ -355,3 +355,6 @@ input[type=checkbox] { width: auto; height: auto; }
 @media (max-width: 560px) {
   .qmodal__foot .muted { display: none; }
 }
+
+.dr-quote__btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.dr-quote__btns .btn { flex: 1 1 auto; }

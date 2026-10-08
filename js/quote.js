@@ -138,7 +138,7 @@
     q.vatRate = num($('#q-vatrate').value); q.vatAmount = num($('#q-vatamount').value); q.showVat = $('#q-showvat').checked;
   };
 
-  function open(b) {
+  function open(b, silent) {
     booking = b;
     q = A().parseQuote(b) || fromBooking(b);
     q.vatRate = q.vatRate ?? (Number(A().settings().company?.vatRate) || 0);
@@ -150,16 +150,17 @@
     $('#q-vatrate').value = q.vatRate; $('#q-vatamount').value = q.vatAmount || ''; $('#q-showvat').checked = q.showVat;
     $('#q-svc-pick').innerHTML = svcOptions(); $('#q-svc-pick').hidden = true;
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }));
-    $('#q-share').hidden = true; prep = null;   // o passo 2 só aparece depois de abrir a conversa
+    step2(false); prep = null;   // o passo 2 só aparece depois de abrir a conversa
     $('#q-email').hidden = !b.email;
     $('#q-hint').textContent = window.BLStore.canLinkPdf
       ? (canShare ? `Passo 1: abre a conversa com +258 ${b.phone} (sem precisar de o ter nos contactos). Passo 2: anexa o PDF — na lista de partilha escolha o WhatsApp e a conversa em "Recentes".`
                   : `A conversa abre com +258 ${b.phone} e o PDF é descarregado: arraste o ficheiro para a conversa. A mensagem leva também o link do PDF.`)
       : 'Neste computador o PDF é descarregado e a conversa do cliente abre no WhatsApp — arraste o ficheiro para a conversa.';
     renderItems();
+    loadLogo();
+    if (silent) return;                       // envio direto a partir da ficha: não mostra o editor
     $('#qmodal').hidden = false;
     document.body.classList.add('no-scroll');
-    loadLogo();
   }
   const close = () => { $('#qmodal').hidden = true; if ($('#drawer').hidden) document.body.classList.remove('no-scroll'); };
   $$('[data-close-quote]').forEach(x => x.addEventListener('click', close));
@@ -361,7 +362,7 @@
     let msg = tr(q.lang, 'msg', { n: booking.firstName || '', q: q.number, car, t: mt(t.total), v: validStr });
     const saved = await A().saveQuote(booking, data, { sent: true, blob });
     if (saved.url) msg += '\n\n' + tr(q.lang, 'link', { u: saved.url });
-    return (prep = { blob, msg, url: saved.url, file: new File([blob], fileName(), { type: 'application/pdf' }) });
+    return (prep = { blob, msg, url: saved.url, car, total: mt(t.total), valid: validStr, file: new File([blob], fileName(), { type: 'application/pdf' }) });
   };
   const busy = (btn, on, label) => { btn.disabled = on; if (on) { btn.dataset.l = btn.innerHTML; btn.textContent = label; } else if (btn.dataset.l) btn.innerHTML = btn.dataset.l; };
   const fail = (e, fb) => A().toast(A().errMsg ? A().errMsg(e) : (e.message || fb), 'err');
@@ -369,11 +370,14 @@
     try { await navigator.share({ files: [r.file], title: fileName(), ...extra }); return true; }
     catch (e) { if (e.name !== 'AbortError') throw e; return false; }
   };
-  const step2 = on => { const b = $('#q-share'); b.hidden = !canShareFile(); b.classList.toggle('btn--red', on); b.classList.toggle('btn--ghost', !on); if (on) b.scrollIntoView({ block: 'nearest' }); };
+  // botões do passo 2 (no editor e na ficha da marcação)
+  const step2 = on => $$('.js-q-share').forEach(b => { b.hidden = !on || !canShareFile(); b.classList.toggle('btn--red', on); b.classList.toggle('btn--ghost', !on); });
+  // se o botão vem da ficha (editor fechado), carrega a cotação guardada sem abrir o editor
+  const ensure = b => { if (b && (booking !== b || !q)) open(b, true); };
 
   // WhatsApp — passo 1: abrir a conversa com o número do cliente
-  $('#q-send').addEventListener('click', async () => {
-    const btn = $('#q-send'); busy(btn, true, 'A preparar…');
+  const doWhatsApp = async btn => {
+    busy(btn, true, 'A preparar…');
     const win = window.open('about:blank', '_blank');   // abre já (os navegadores bloqueiam janelas abertas depois de esperar pela rede)
     try {
       const r = await prepare();
@@ -385,21 +389,30 @@
       else A().toast('Conversa aberta e PDF descarregado — arraste o ficheiro PDF para a conversa e envie.');
     } catch (e) { win && win.close(); fail(e, 'Não foi possível gerar o PDF.'); }
     finally { busy(btn, false); }
-  });
-
+  };
   // WhatsApp — passo 2 (telemóvel): partilhar o PDF anexado e escolher a conversa em "Recentes"
-  $('#q-share').addEventListener('click', async () => {
-    const btn = $('#q-share'); busy(btn, true, 'A preparar…');
+  const doShare = async btn => {
+    busy(btn, true, 'A preparar…');
     try { const r = await prepare(); await shareFile(r); step2(false); }
     catch (e) { fail(e, 'Não foi possível partilhar o PDF.'); }
     finally { busy(btn, false); }
-  });
-
-  // Email com o PDF anexado
-  $('#q-email').addEventListener('click', async () => {
-    const btn = $('#q-email'); busy(btn, true, 'A preparar…');
+  };
+  // Email: envio automático com o PDF anexado (função do Supabase); se não estiver ativada, abre o email manualmente
+  const doEmail = async btn => {
+    busy(btn, true, 'A preparar…');
     try {
       const r = await prepare();
+      const S = window.BLStore, key = (r.url.match(/[?&]q=([0-9a-f-]{36})/i) || [])[1];
+      if (S.canSendEmail && key) {
+        let why = '';
+        try {
+          const out = await S.sendQuoteEmail({ key, to: booking.email, lang: q.lang, name: booking.firstName || '', number: q.number, car: r.car, total: r.total, valid: r.valid, link: r.url });
+          if (out.ok) { A().toast(`Email enviado para ${booking.email} com o PDF anexado.`); return; }
+          why = { not_configured: 'envio automático ainda não ativado', invalid_email: 'email inválido', provider: 'o serviço de email recusou o envio' + (out.detail ? ` (${out.detail})` : '') }[out.error] || out.error;
+        } catch (e) { why = e.message || 'sem ligação'; }
+        A().toast(`${why[0].toUpperCase() + why.slice(1)} — a abrir o email manualmente.`, 'err');
+        await new Promise(res => setTimeout(res, 1800));
+      }
       const subject = `${q.lang === 'en' ? 'Quotation' : 'Cotação'} ${q.number} — Blackline Performance`;
       if (canShareFile()) {
         // telemóvel: o email abre com o PDF anexado; o destinatário não vem preenchido, por isso o email do cliente é copiado
@@ -413,7 +426,11 @@
       }
     } catch (e) { fail(e, 'Não foi possível gerar o PDF.'); }
     finally { busy(btn, false); }
-  });
+  };
+  // editor e ficha da marcação usam as mesmas ações
+  $$('.js-q-wa').forEach(b => b.addEventListener('click', () => { ensure(b.closest('#drawer') ? window.BLQuote.current() : booking); doWhatsApp(b); }));
+  $$('.js-q-share').forEach(b => b.addEventListener('click', () => doShare(b)));
+  $$('.js-q-mail').forEach(b => b.addEventListener('click', () => { ensure(b.closest('#drawer') ? window.BLQuote.current() : booking); doEmail(b); }));
 
-  window.BLQuote = { open, buildPdf: async b => { if (b) open(b); return buildPdf(); } };
+  window.BLQuote = { open, current: () => A().current && A().current(), buildPdf: async b => { if (b) open(b); return buildPdf(); } };
 })();

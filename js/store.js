@@ -221,6 +221,13 @@
       return { url: key && pdf ? new URL('cotacao.html?q=' + key, location.href).href : null, key };
     },
     canLinkPdf: SB,
+    canSendEmail: SB,
+    // envia o email com o PDF anexado (função do Supabase; devolve {ok:false,error} se não estiver ativada)
+    async sendQuoteEmail(payload) {
+      const { data, error } = await db.functions.invoke('send-quote-email', { body: Object.assign({ token: tok.get() }, payload) });
+      if (error) throw sbErr(error);
+      return data || { ok: false, error: 'server' };
+    },
 
     /* ---------- verificação periódica de novas marcações (painel) ---------- */
     onNewBooking(cb, ms = 30000) {

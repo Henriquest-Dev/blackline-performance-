@@ -292,7 +292,12 @@
             <b>Cotação</b>
             <span class="muted" id="dr-quote-state">Ainda não preparada</span>
           </div>
-          <button type="button" class="btn btn--dark" id="dr-quote">Preparar cotação PDF</button>
+          <div class="dr-quote__btns">
+            <button type="button" class="btn btn--red js-q-wa" id="dr-q-wa" hidden><svg class="ico"><use href="#i-wa"/></svg> Enviar por WhatsApp</button>
+            <button type="button" class="btn btn--ghost js-q-share" id="dr-q-share" hidden>2. Anexar o PDF</button>
+            <button type="button" class="btn btn--ghost js-q-mail" id="dr-q-mail" hidden>Enviar por email</button>
+            <button type="button" class="btn btn--dark" id="dr-quote">Preparar cotação PDF</button>
+          </div>
         </div>
         <div id="dr-details"></div>
         <label class="f"><span>Nota interna (só visível no painel)</span><textarea id="dr-note" rows="4" placeholder="Ex.: confirmado por telefone, cliente traz peças próprias…"></textarea></label>
@@ -349,9 +354,9 @@
         <span class="muted" id="q-hint"></span>
         <button type="button" class="btn btn--ghost" id="q-save">Guardar</button>
         <button type="button" class="btn btn--ghost" id="q-download">Descarregar PDF</button>
-        <button type="button" class="btn btn--ghost" id="q-email" hidden>Enviar por email (com PDF)</button>
-        <button type="button" class="btn btn--ghost" id="q-share" hidden>2. Anexar o PDF</button>
-        <button type="button" class="btn btn--red" id="q-send"><svg class="ico"><use href="#i-wa"/></svg> Enviar por WhatsApp</button>
+        <button type="button" class="btn btn--ghost js-q-mail" id="q-email" hidden>Enviar por email (com PDF)</button>
+        <button type="button" class="btn btn--ghost js-q-share" id="q-share" hidden>2. Anexar o PDF</button>
+        <button type="button" class="btn btn--red js-q-wa" id="q-send"><svg class="ico"><use href="#i-wa"/></svg> Enviar por WhatsApp</button>
       </footer>
     </div>
   </div>
