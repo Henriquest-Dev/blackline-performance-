@@ -150,10 +150,11 @@
     $('#q-vatrate').value = q.vatRate; $('#q-vatamount').value = q.vatAmount || ''; $('#q-showvat').checked = q.showVat;
     $('#q-svc-pick').innerHTML = svcOptions(); $('#q-svc-pick').hidden = true;
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }));
-    $('#q-share').hidden = !canShare;
+    $('#q-share').hidden = true; prep = null;   // o passo 2 só aparece depois de abrir a conversa
     $('#q-email').hidden = !b.email;
     $('#q-hint').textContent = window.BLStore.canLinkPdf
-      ? `O PDF fica guardado e a conversa abre diretamente com o número +258 ${b.phone} — não é preciso ter o cliente nos contactos. A mensagem leva o link para ver e descarregar o PDF.`
+      ? (canShare ? `Passo 1: abre a conversa com +258 ${b.phone} (sem precisar de o ter nos contactos). Passo 2: anexa o PDF — na lista de partilha escolha o WhatsApp e a conversa em "Recentes".`
+                  : `A conversa abre com +258 ${b.phone} e o PDF é descarregado: arraste o ficheiro para a conversa. A mensagem leva também o link do PDF.`)
       : 'Neste computador o PDF é descarregado e a conversa do cliente abre no WhatsApp — arraste o ficheiro para a conversa.';
     renderItems();
     $('#qmodal').hidden = false;
@@ -341,9 +342,17 @@
       await A().saveQuote(booking, quoteData(), { sent: false, blob });
     } catch (e) { A().toast(A().errMsg(e), 'err'); }
   });
-  // Envia pelo número do cliente (wa.me): abre a conversa mesmo que o contacto não esteja guardado no WhatsApp.
-  // A mensagem leva o link do PDF guardado na base de dados.
+  /* ---------- envio: WhatsApp e email ----------
+   * Um link wa.me/mailto nunca anexa ficheiros; só a partilha do telemóvel (Web Share) anexa o PDF, mas a lista de
+   * partilha só mostra contactos guardados. Por isso o envio é em dois toques:
+   *  1) abre a conversa com o número do cliente (funciona sem o contacto guardado) → a conversa passa a existir;
+   *  2) partilha o PDF anexado e escolhe essa conversa em "Recentes".
+   * No computador o PDF é descarregado e arrasta-se para a conversa (WhatsApp Web) ou para o email. */
+  const canShareFile = () => !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }));
+  let prep = null;                                   // PDF já gerado e guardado, reutilizado nos dois toques
+  $('#qmodal').addEventListener('input', () => { prep = null; });
   const prepare = async () => {
+    if (prep) return prep;
     const doc = await buildPdf();
     const blob = doc.output('blob');
     const data = quoteData(), t = totals(q);
@@ -352,45 +361,57 @@
     let msg = tr(q.lang, 'msg', { n: booking.firstName || '', q: q.number, car, t: mt(t.total), v: validStr });
     const saved = await A().saveQuote(booking, data, { sent: true, blob });
     if (saved.url) msg += '\n\n' + tr(q.lang, 'link', { u: saved.url });
-    return { blob, msg, url: saved.url, file: new File([blob], fileName(), { type: 'application/pdf' }) };
+    return (prep = { blob, msg, url: saved.url, file: new File([blob], fileName(), { type: 'application/pdf' }) });
   };
   const busy = (btn, on, label) => { btn.disabled = on; if (on) { btn.dataset.l = btn.innerHTML; btn.textContent = label; } else if (btn.dataset.l) btn.innerHTML = btn.dataset.l; };
+  const fail = (e, fb) => A().toast(A().errMsg ? A().errMsg(e) : (e.message || fb), 'err');
+  const shareFile = async (r, extra = {}) => {
+    try { await navigator.share({ files: [r.file], title: fileName(), ...extra }); return true; }
+    catch (e) { if (e.name !== 'AbortError') throw e; return false; }
+  };
+  const step2 = on => { const b = $('#q-share'); b.hidden = !canShareFile(); b.classList.toggle('btn--red', on); b.classList.toggle('btn--ghost', !on); if (on) b.scrollIntoView({ block: 'nearest' }); };
 
+  // WhatsApp — passo 1: abrir a conversa com o número do cliente
   $('#q-send').addEventListener('click', async () => {
     const btn = $('#q-send'); busy(btn, true, 'A preparar…');
     const win = window.open('about:blank', '_blank');   // abre já (os navegadores bloqueiam janelas abertas depois de esperar pela rede)
     try {
       const r = await prepare();
+      const mobile = canShareFile();
+      if (!mobile) download(r.blob);                     // computador: o PDF fica descarregado para arrastar para a conversa
       const wa = `https://wa.me/258${booking.phone}?text=${encodeURIComponent(r.msg)}`;
-      if (!r.url) download(r.blob);
       win ? (win.location.href = wa) : window.open(wa, '_blank', 'noopener');
-      A().toast(r.url ? 'Conversa aberta com o número do cliente — carregue em enviar.' : 'PDF descarregado — anexe-o na conversa do WhatsApp que abriu.');
-    } catch (e) {
-      win && win.close();
-      A().toast(A().errMsg ? A().errMsg(e) : (e.message || 'Não foi possível gerar o PDF.'), 'err');
-    } finally { busy(btn, false); }
-  });
-
-  // Alternativa: partilhar o ficheiro PDF anexado (só telemóveis; a lista de partilha mostra apenas contactos guardados)
-  $('#q-share').addEventListener('click', async () => {
-    const btn = $('#q-share'); busy(btn, true, 'A preparar…');
-    try {
-      const r = await prepare();
-      try { await navigator.share({ files: [r.file], title: fileName(), text: r.msg }); }
-      catch (e) { if (e.name !== 'AbortError') throw e; }
-    } catch (e) { A().toast(A().errMsg ? A().errMsg(e) : (e.message || 'Não foi possível partilhar.'), 'err'); }
+      if (mobile) { step2(true); A().toast('Conversa aberta. Envie a mensagem e volte aqui para anexar o PDF (passo 2).'); }
+      else A().toast('Conversa aberta e PDF descarregado — arraste o ficheiro PDF para a conversa e envie.');
+    } catch (e) { win && win.close(); fail(e, 'Não foi possível gerar o PDF.'); }
     finally { busy(btn, false); }
   });
 
-  // Email: abre o programa de email com o endereço do cliente e o link do PDF
+  // WhatsApp — passo 2 (telemóvel): partilhar o PDF anexado e escolher a conversa em "Recentes"
+  $('#q-share').addEventListener('click', async () => {
+    const btn = $('#q-share'); busy(btn, true, 'A preparar…');
+    try { const r = await prepare(); await shareFile(r); step2(false); }
+    catch (e) { fail(e, 'Não foi possível partilhar o PDF.'); }
+    finally { busy(btn, false); }
+  });
+
+  // Email com o PDF anexado
   $('#q-email').addEventListener('click', async () => {
     const btn = $('#q-email'); busy(btn, true, 'A preparar…');
     try {
       const r = await prepare();
-      if (!r.url) download(r.blob);
       const subject = `${q.lang === 'en' ? 'Quotation' : 'Cotação'} ${q.number} — Blackline Performance`;
-      location.href = `mailto:${encodeURIComponent(booking.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(r.msg)}`;
-    } catch (e) { A().toast(A().errMsg ? A().errMsg(e) : (e.message || 'Não foi possível gerar o PDF.'), 'err'); }
+      if (canShareFile()) {
+        // telemóvel: o email abre com o PDF anexado; o destinatário não vem preenchido, por isso o email do cliente é copiado
+        try { await navigator.clipboard.writeText(booking.email); } catch (e) { /* sem acesso à área de transferência */ }
+        A().toast(`Email do cliente copiado (${booking.email}) — escolha o Gmail/Email e cole em "Para".`);
+        await shareFile(r, { text: r.msg });
+      } else {
+        download(r.blob);
+        location.href = `mailto:${encodeURIComponent(booking.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(r.msg)}`;
+        A().toast('PDF descarregado — anexe o ficheiro ao email que abriu.');
+      }
+    } catch (e) { fail(e, 'Não foi possível gerar o PDF.'); }
     finally { busy(btn, false); }
   });
 
