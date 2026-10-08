@@ -17,11 +17,11 @@
     pt: { title: 'COTAÇÃO', no: 'Nº', date: 'Data', valid: 'Válida até', booking: 'Ref. marcação', appt: 'Marcação', client: 'CLIENTE', vehicle: 'VIATURA', details: 'DETALHES',
       desc: 'Descrição', qty: 'Qtd', unit: 'Preço unit.', total: 'Total', subtotal: 'Subtotal', discount: 'Desconto', vatIncl: 'IVA incluído ({r}%)', vatInclM: 'IVA incluído', vatAdd: 'IVA ({r}%)', net: 'Valor sem IVA',
       grand: 'TOTAL', notes: 'Observações', terms: 'Condições', bank: 'Pagamento', plate: 'Matrícula', chassis: 'Chassis', km: 'Km', page: 'Página {p} de {n}', quoteLine: '(a orçamentar)',
-      pickup: 'Recolha e entrega', msg: 'Olá {n}, segue a cotação {q} da Blackline Performance para {car}: total {t}, válida até {v}. Qualquer dúvida estamos ao dispor.', link: 'Ver / descarregar a cotação (PDF): {u}' },
+      pickup: 'Recolha e entrega', msg: 'Olá {n}, segue a cotação {q} da *Blackline Performance* para {car}.\n\nTotal: *{t}* · válida até {v}', link: '*BAIXAR COTAÇÃO* (PDF)\n{u}\n\nQualquer dúvida estamos ao dispor.' },
     en: { title: 'QUOTATION', no: 'No.', date: 'Date', valid: 'Valid until', booking: 'Booking ref.', appt: 'Appointment', client: 'CUSTOMER', vehicle: 'VEHICLE', details: 'DETAILS',
       desc: 'Description', qty: 'Qty', unit: 'Unit price', total: 'Total', subtotal: 'Subtotal', discount: 'Discount', vatIncl: 'VAT included ({r}%)', vatInclM: 'VAT included', vatAdd: 'VAT ({r}%)', net: 'Amount excl. VAT',
       grand: 'TOTAL', notes: 'Notes', terms: 'Terms', bank: 'Payment', plate: 'Plate', chassis: 'Chassis', km: 'Mileage', page: 'Page {p} of {n}', quoteLine: '(to be quoted)',
-      pickup: 'Collection and delivery', msg: 'Hello {n}, please find quotation {q} from Blackline Performance for {car}: total {t}, valid until {v}. Let us know if you have any questions.', link: 'View / download the quotation (PDF): {u}' },
+      pickup: 'Collection and delivery', msg: 'Hello {n}, please find quotation {q} from *Blackline Performance* for {car}.\n\nTotal: *{t}* · valid until {v}', link: '*DOWNLOAD QUOTATION* (PDF)\n{u}\n\nLet us know if you have any questions.' },
   };
   const tr = (lang, k, v) => (T[lang][k] || k).replace(/\{(\w+)\}/g, (_, x) => v?.[x] ?? '');
 

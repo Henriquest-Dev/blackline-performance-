@@ -4,7 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Cotação — Blackline Performance</title>
+  <title>Baixar cotação — Blackline Performance</title>
+  <meta name="description" content="A sua cotação da Blackline Performance, pronta a descarregar em PDF.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Blackline Performance">
+  <meta property="og:title" content="Baixar cotação — Blackline Performance">
+  <meta property="og:description" content="Toque para abrir e descarregar a sua cotação em PDF.">
+  <meta property="og:image" content="https://blacklineperformance.space/assets/og-image.jpg">
+  <meta name="theme-color" content="#E11D2A">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,19 +28,26 @@
     .brand b { display: block; font-size: 18px; line-height: 1; }
     .brand small { display: block; margin-top: 4px; font-size: 8.5px; font-weight: 700; letter-spacing: .4em; color: var(--red); }
     main { flex: 1; width: min(980px, 100% - 32px); margin: 28px auto 40px; }
-    .card { padding: 24px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
-    h1 { margin: 0 0 4px; font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
+    .card { position: relative; padding: 34px 32px 30px; border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 4px; background: #fff; }
+    .eyebrow { margin: 0 0 8px; font-size: 11.5px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--red); }
+    h1 { margin: 0 0 8px; font-size: 30px; font-weight: 900; letter-spacing: -.03em; word-break: break-word; }
     p { margin: 0; color: var(--muted); line-height: 1.6; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 0; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 26px; border: 0; background: var(--red); color: #fff; font: inherit; font-size: 14px; font-weight: 800; text-decoration: none; cursor: pointer; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
-    .btn--ghost { background: #EFEFF2; color: var(--ink); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 12px; height: 58px; padding: 0 38px; border: 0; background: var(--red); color: #fff; font: inherit; font-size: 16px; font-weight: 800; text-decoration: none; cursor: pointer; clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); transition: background .15s; }
+    .btn:hover { background: #B5121E; }
+    .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .btn--ghost { height: 58px; background: #EFEFF2; color: var(--ink); }
+    .btn--ghost:hover { background: #E4E4E8; }
+    .btn--wa { background: var(--ink); }
+    .btn--wa:hover { background: #26262B; }
+    .meta { margin: 22px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; }
     .viewer { margin-top: 20px; height: 78vh; border: 1px solid var(--line); border-radius: 4px; background: #fff; overflow: hidden; }
     .viewer iframe { width: 100%; height: 100%; border: 0; }
     .state { padding: 50px 24px; text-align: center; }
     .state b { display: block; margin-bottom: 8px; font-size: 18px; }
     footer { padding: 18px 24px; font-size: 12px; color: var(--muted); text-align: center; }
     footer a { color: inherit; }
-    @media (max-width: 700px) { .viewer { display: none; } .btn { flex: 1; } }
+    @media (max-width: 700px) { .viewer { display: none; } .card { padding: 26px 20px 22px; } h1 { font-size: 24px; } .btn { flex: 1 1 100%; padding: 0 20px; } }
   </style>
 </head>
 <body>
@@ -54,8 +68,8 @@
     (async () => {
       const $ = s => document.querySelector(s);
       const T = {
-        pt: { title: 'Cotação', lead: 'Blackline Performance — pode abrir, guardar ou partilhar o PDF.', open: 'Abrir PDF', dl: 'Descarregar PDF', bad: 'Link inválido ou expirado', badText: 'Peça uma nova cotação à Blackline Performance pelo WhatsApp.', err: 'Não foi possível carregar', errText: 'Verifique a ligação à internet e tente novamente.' },
-        en: { title: 'Quotation', lead: 'Blackline Performance — you can open, save or share the PDF.', open: 'Open PDF', dl: 'Download PDF', bad: 'Invalid or expired link', badText: 'Please ask Blackline Performance for a new quotation on WhatsApp.', err: 'Could not load', errText: 'Check your internet connection and try again.' },
+        pt: { title: 'Cotação', eyebrow: 'A sua cotação está pronta', lead: 'Documento emitido pela Blackline Performance. Descarregue o PDF para o guardar ou partilhar.', open: 'Ver online', dl: 'Baixar cotação', wa: 'Falar com a Blackline', meta: 'Em caso de dúvida, responda à nossa mensagem ou fale connosco pelo WhatsApp.', bad: 'Link inválido ou expirado', badText: 'Peça uma nova cotação à Blackline Performance pelo WhatsApp.', err: 'Não foi possível carregar', errText: 'Verifique a ligação à internet e tente novamente.' },
+        en: { title: 'Quotation', eyebrow: 'Your quotation is ready', lead: 'Document issued by Blackline Performance. Download the PDF to save or share it.', open: 'View online', dl: 'Download quotation', wa: 'Talk to Blackline', meta: 'If you have any questions, reply to our message or contact us on WhatsApp.', bad: 'Invalid or expired link', badText: 'Please ask Blackline Performance for a new quotation on WhatsApp.', err: 'Could not load', errText: 'Check your internet connection and try again.' },
       };
       const show = (t, x) => { $('#st-title').textContent = t; $('#st-text').textContent = x; };
       const key = new URLSearchParams(location.search).get('q');
@@ -72,8 +86,16 @@
         const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
         const name = `Cotacao-${String(data.number).replace(/[^\w-]+/g, '_')}.pdf`;
         document.title = `${L.title} ${data.number} — Blackline Performance`;
-        $('#box').innerHTML = `<h1>${L.title} ${data.number.replace(/[<>&]/g, '')}</h1><p>${L.lead}</p>
-          <div class="actions"><a class="btn" href="${url}" target="_blank" rel="noopener">${L.open}</a><a class="btn btn--ghost" href="${url}" download="${name}">${L.dl}</a></div>`;
+        const num = String(data.number).replace(/[<>&"]/g, '');
+        // contacto da oficina (definições públicas) para o botão de WhatsApp
+        let wa = '';
+        try { const r = await db.from('settings').select('data').eq('id', 1).maybeSingle(); wa = String(r.data?.data?.contacts?.whatsapp || '').replace(/\D/g, ''); } catch (e) { /* sem contacto */ }
+        $('#box').innerHTML = `<p class="eyebrow">${L.eyebrow}</p><h1>${L.title} ${num}</h1><p>${L.lead}</p>
+          <div class="actions">
+            <a class="btn" href="${url}" download="${name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 20h14"/></svg>${L.dl}</a>
+            <a class="btn btn--ghost" href="${url}" target="_blank" rel="noopener">${L.open}</a>
+            ${wa ? `<a class="btn btn--wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">${L.wa}</a>` : ''}
+          </div><p class="meta">${L.meta}</p>`;
         $('#frame').src = url; $('#viewer').hidden = false;
       } catch (e) { show(T.pt.err, T.pt.errText); }
     })();
