@@ -412,6 +412,7 @@
       $('#bk-code').textContent = saved.ref;
       renderSent();
       go(5);
+      showPop(saved.ref);
     } catch (err) {
       setErr('send', err.message === 'too_many_requests' ? t('err.rate') : t('err.send'));
     } finally {
@@ -436,6 +437,17 @@
     ].filter(Boolean);
     return lines.join('\n').slice(0, 2000);
   }
+  // pop-up de confirmação depois do envio
+  const pop = $('#bk-pop');
+  const showPop = ref => {
+    $('#bk-pop-ref').textContent = ref;
+    pop.hidden = false;
+    setTimeout(() => $('#bk-pop-ok').focus({ preventScroll: true }), 50);
+    gsap && gsap.fromTo('.bk-pop__box', { y: 18, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: .45, ease: 'power3.out' });
+  };
+  const hidePop = () => { pop.hidden = true; $('#bk-next').focus({ preventScroll: true }); };
+  $('#bk-pop-ok').addEventListener('click', hidePop);
+  pop.addEventListener('click', e => { if (e.target === pop) hidePop(); });
   const renderSent = () => {
     $('#bk-sent-text').innerHTML = t('bk.sent', { car: esc(carLabel()), when: whenLabel(), pref: t('bk.pref.' + state.pref) });
     $('#bk-sent-when').textContent = `${whenLabel()} — ${state.drop === 'recolha' ? t('bk.atHome') : t('bk.atShop')}.`;
@@ -525,6 +537,7 @@
       document.documentElement.classList.remove('is-locked');
       document.dispatchEvent(new CustomEvent('booking:close'));
       if (state.step === 5) reset();
+      pop.hidden = true;
       gsap && gsap.set('.bk', { clearProps: 'all' });
       lastFocus?.focus?.({ preventScroll: true });
       if (location.hash === '#agendar') history.replaceState(null, '', location.pathname + location.search);
@@ -534,10 +547,11 @@
 
   $$('[data-close]', root).forEach(b => b.addEventListener('click', close));
   root.addEventListener('keydown', e => {
-    if (e.key === 'Escape') close();
+    if (e.key === 'Escape') { pop.hidden ? close() : hidePop(); return; }
     if (e.key === 'Enter' && e.target.matches('input:not([type=checkbox]):not([type=radio]), select')) { e.preventDefault(); nextBtn.click(); }
     if (e.key === 'Tab') {
-      const f = $$('button:not([disabled]), input:not([tabindex="-1"]), select, textarea, a[href]', root).filter(x => x.offsetParent && !x.closest('[hidden]'));
+      const scope = pop.hidden ? root : pop;
+      const f = $$('button:not([disabled]), input:not([tabindex="-1"]), select, textarea, a[href]', scope).filter(x => x.offsetParent && !x.closest('[hidden]'));
       if (!f.length) return;
       if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
       else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
